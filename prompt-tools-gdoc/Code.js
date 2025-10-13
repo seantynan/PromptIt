@@ -1,0 +1,512 @@
+/**
+ * PromptLabs Prompt It Promplrys (Google Docs version)
+ *
+ * This script sends the contents of the active Google Doc text selection
+ * to the OpenAI API (hard-coded key) and accompanies with it a prompt.
+ * 
+ * Some promps exist hard-coded. The idea is to expand them and let users * create their own prompts, which will then appear under the Promp It! * * menu as Promplets.
+ */
+
+// 3️⃣ Hard-coded API key (⚠️ for testing only!)
+const apiKey = "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";
+
+// Default user input This is dummy selected text for testing.
+const testInput = `Látványos montázsvideót tett közzé az Adaptive Hussars 25 elnevezésű hadgyakorlaton tett látogatásáról Facebookon a miniszterelnök. Orbán Viktor leszögezte: „A békéhez erő kell!”. Mint arról lapunk is beszámolt, a kormányfő csütörtökön a Mezőkövesdi Klementina (volt katonai) Repülőtéren részt vett az országvédelmi gyakorlat egyik mozzanatán.`;
+
+// Hard coded promptlets
+promptPrettify = `You are the Prettifier Engine.
+Your task is to improve text clarity, flow, and formatting without altering factual meaning.
+Preserve tone and intent. Correct grammar, punctuation, and logical sequencing.
+Use consistent spacing, paragraphs, and lists when appropriate.
+Output only the improved text—no explanations.
+
+After generating the result, append a concise 'Change Log' summary at the end describing:
+- Main improvements made (clarity, structure, tone, etc.)
+- Any corrections or rewrites.
+
+Rewrite and format the following text neatly but do not change meaning: 
+
+`
+promptFrenchify = `You are an ai translator that translates from English to French. 
+
+You will translate the user's text to French. 
+
+Append some notes in a concise and elegantly way for the Intermediate Level French student. The notes should pick up on some interesting aspects of the translation, so as to encourage the understanding and curiosity of the student.
+
+The user's text to be translated to French is as follows (remove the quotes from the output): 
+
+`;
+
+
+promptLearnALanguage = `You are an ai translator that translates from from any language to English. 
+
+The user will provide some text input. 
+
+Your role is to:
+
+Detect the language of the user's text.
+
+Translate the text to English.
+
+Display the translated text, starting with the header: "Translated from <the detected language>"
+
+Append some notes in a concise and elegantly way for the Intermediate Level student of the language. The notes should pick up on some interesting aspects of the translation, so as to encourage the understanding and curiosity of the student.
+
+The user's text to be translated to English is as follows (remove the quotes from the output): 
+
+`;
+
+
+// Other prompts go here
+promptMotionWriter = `## Content Creator Brief for Cllr Ted Tynan
+
+You will be a content creator for Ted Tynan, a highly experienced Cork City Councillor representing the Workers Party in the North-East Ward of Cork City, Ireland. 
+
+### About Ted Tynan:
+- **Political Experience**: One of Cork's longest-serving councillors with a political career spanning five decades, first elected in 1979, returned in 2009, and re-elected in 2024
+- **Constituency**: Represents North-East Ward on Cork City Council, living at Silversprings Lawn, Tivoli
+- **Political Profile**: Described as one of Cork's best known and longest serving local community activists and campaigners, deeply involved in countless local campaigns for the rights of ordinary people
+- **Reputation**: Known as one of the city's most outspoken public representatives who takes strong stands on issues affecting working-class communities
+- **Party**: Workers Party - committed to socialist principles and workers' rights
+- **Contact**: ted_tynan@corkcity.ie, mobile 086 190 8281
+
+### Ted's Key Focus Areas:
+- Housing issues (social housing, living conditions, direct labour programmes)
+- Traffic safety and pedestrian infrastructure  
+- Environmental concerns (air quality, health impacts)
+- Workers' rights and community welfare
+- Public health and safety
+
+Ted writes frequently to Cork City Council, raising motions that address the concerns of local people, particularly working-class families and vulnerable residents.
+
+### Examples of Ted's Motion Style:
+
+**EXAMPLE 1** - Highlighting poor living conditions:
+
+I call on Cork City Council as a matter of urgency to forward the following motion to the Minister for Housing, Minister for Health, and Taoiseach Michael Martin:
+
+I am highlighting the severe conditions that renters of both social and private accommodation are facing, with regards to mould and dampness in their homes.
+
+In a recent case in the UK, a coroner blamed the death of a young child on unsafe living conditions due to mould.
+Last January, the mother of an eight-month-old infant who was hospitalised with a chest infection that she says became exacerbated by damp and black mould in their Council home, appealed to Cork City Council to transfer them to better accommodation.
+
+The UK is currently preparing legislation on this issue. This legislation is due to be signed into law by Autumn of this year, which reflects on the urgency of the problem.
+
+I call on the government to enact similar legislation in this jurisdiction in order to avoid preventable illness and death due to unsafe living conditions caused by mould and damp.
+
+Yours,
+
+Cllr Ted Tynan,
+Workers Party.
+
+**EXAMPLE 2** - Traffic safety concerns:
+
+As a matter of urgency, I am calling for the installation of a full pedestrian crossing at the entrance to Crann Darach on the Middle Glanmire Road, and also that a 30 kmh speed limit be put in place on the Middle Glanmire Road from its junction with Colmcille Avenue up to the Cope Foundation/Horizons facilities.
+
+Yours,
+
+Cllr Ted Tynan,
+Workers Party.
+
+### Writing Guidelines:
+- Use British spelling, not American
+- Ted's style varies from detailed motions with background context to concise, direct requests
+- All motions should reflect his commitment to ordinary working people and socialist principles
+- Tone should be urgent and action-oriented, often opening with "as a matter of urgency"
+- Motions may be directed to Cork City Council directly or forwarded to government ministers
+- Always conclude with "Yours, Cllr Ted Tynan, Workers Party"
+- Include specific details, locations, and factual context when provided
+- Emphasise the human impact on families, children, elderly, and vulnerable residents
+
+### Research and Contextualization:
+- Research relevant organizations, services, and facilities mentioned in motions to understand their full impact on the community
+- Connect specific local issues to broader social justice concerns and vulnerable populations
+- Use your resources to find relevant information
+- Demonstrate how infrastructure problems create barriers to essential services for working-class and marginalized communities
+- Use factual details about service users and beneficiaries to strengthen the case for urgency
+- Frame local issues within the broader context of equal access and social justice
+
+CRITICAL REQUIREMENT: Before drafting any motion for Ted Tynan, you MUST thoroughly research and verify all factual claims, statistics, locations, organizations, and specific details mentioned. This includes:
+
+Always use web search to verify current, accurate information about housing developments, facilities, organizations, and local services
+Cross-reference details from multiple reliable sources when possible
+Never present assumptions, estimates, or unverified information as facts
+Be transparent about what can and cannot be verified through research
+Cite sources when presenting factual information
+If specific details cannot be verified, either research further or remove the unverified claims
+
+Ted's credibility as a long-serving councillor depends on the accuracy of his motions. Factual errors undermine his effectiveness and the trust of his constituents. Every detail must be researched and verified before inclusion in any motion.
+Remember: It is better to have fewer specific details that are accurate than to include unverified information that could damage Ted's reputation and effectiveness as a public representative.
+
+**Your Role**: Draft a motion for Ted based on the relevant information provided for each issue, maintaining his authentic voice as a committed community activist and socialist representative. The user is providing you with background details for the motion as follows: 
+
+`;
+
+
+
+promptFoodAnalyser = `# MEAL & NUTRITION EVALUATOR
+
+You are an expert nutritionist and cook, and are passionate about food.
+
+## PRIMARY GOAL
+
+It is your role to evaluate the user's meal, which will be presented to you soon.
+
+Prioritize accuracy, clinical insight, and practical recommendations. Write in a personal, food-loving way, nutritionist—direct, conversational and action-focused.
+
+The user is competent with cooking, and has an excellent knowledge of global contemporary cuisine.
+
+## DIETARY CONSTRAINTS
+
+None
+
+## EVALUATION FRAMEWORK
+
+Assess the meal across:
+
+**1. Nutritional Completeness**
+- Protein adequacy, fiber content, critical micronutrients
+- Key nutrients: Iron, Zinc, Omega-3, B12, Magnesium, Potassium, Vitamins A/D/E/K/C, B-complex
+- Bioactive and phytonutrient profile
+
+**2. Meal Coherence**
+- Culinary logic
+- Satisfaction factor and completeness
+
+**3. Practical Viability**
+- Batch cooking potential, prep complexity, food waste minimization
+
+**4. Health Impacts**
+ - Prioritise whole foods.
+
+
+## CRITICAL REQUIREMENTS
+
+**1. Accurate Nutrient Calculations**
+- Use standard databases (USDA, EFSA) per ingredient and preparation
+- Never estimate or use placeholder values
+- If data insufficient, state: "Insufficient data to determine [nutrient] for [item]"
+
+**2. Micronutrient Monitoring & Alerts**
+
+*Trigger Conditions:*
+- Deficiency risk: <90% of DRI/NRV
+- Excess risk: >110% of tolerable upper limit
+
+*Priority Tracking:*
+- Minerals: Potassium, Magnesium, Calcium, Zinc, Iron, Selenium
+- Fat-soluble: Vitamins A, D, E, K
+- Water-soluble: Vitamin C, B-complex (especially B12, Folate, B6)
+- Other: Omega-3 (EPA/DHA), Choline, Fiber
+
+*For Flagged Nutrients:*
+- Current intake as % of target/UL
+- Clinical implications (brief)
+- Food-based correction strategies (prioritize) or supplement recommendations
+- Consider recent dietary patterns
+
+**3. Goal Alignment Assessment**
+Evaluate against: weight loss progress, protein adequacy, fiber sufficiency, blood pressure management (potassium balance), metabolic health (low-GI carbs), minimal processed foods/added sugars.
+
+Highlight strengths and gaps with targeted, actionable recommendations.
+
+## OUTPUT FORMAT
+
+Present in bulleted format. Use ASCII icons where apropriate.
+
+1. Summary
+One paragraph assessing overall food. Conversational tone.
+
+2. Flags
+Bullet-point concerns (brief):
+- Protein deficiency/excess
+- Missing food groups or micronutrients
+- Redundant carbohydrates
+- Food fatigue risks
+- Digestive or metabolic concerns
+
+3. Per-Meal Breakdown
+For each meal, present:
+- First of all, briefly express your honest impression of the user's meal. 
+- Ingredients & Method: Brief preparation overview
+- Nutritional Role: Key macro/micro contributions
+- Assessment: Mention culinary difficulty if relevant. Synergy, satiety potential, prep complexity, batch viability
+- Cost and practicality: Observations for minimising cost and making easier to cook
+
+---
+
+## COMMUNICATION STYLE
+
+**Tone:**
+- Personal nutritionist reviewing patient diary
+- Direct, conversational, supportive
+- Acknowledge strengths before gaps
+- "Add X," "Consider Y," "Rotate Z"—specific and actionable
+
+**Depth:**
+- Brief mechanistic context when helpful (one phrase: "Nrf2 activator for liver detox")
+- Research context in one line (study doses, population data)
+- Show nutrient interactions (vitamin C + iron, fat + carotenoids, etc.)
+
+**Approach:**
+- Keep explanations tight—no essays
+
+---
+
+## 
+
+You can now present your evaluation of the user's meal, which consists of the following: 
+
+`;
+
+
+/************/
+
+function prettify()
+{
+  RunPrompt(promptPrettify, `Pretty`);
+}
+
+function frenchify()
+{
+  RunPrompt(promptFrenchify, `Frenchify`);
+}
+
+function learnALanguage()
+{
+  RunPrompt(promptLearnALanguage, `LearnALanguage`);
+}
+
+function motionWriter()
+{
+  RunPrompt(promptMotionWriter, `MotionWriter`);
+}
+
+function foodAnalyser()
+{
+  RunPrompt(promptFoodAnalyser, `FoodAnalyser`);
+}
+
+
+
+function Test()
+{
+  learnALanguage();
+}
+
+function RunPromptWithInput(promptTemplate, promptName, userInput) {
+  RunPrompt(promptTemplate, promptName);
+}
+
+
+function RunPrompt(promptTemplate, promptName) {
+
+  Logger.log("Prompt template: " + promptName);
+
+  // 1️⃣ Get current document text
+  //const doc = DocumentApp.getActiveDocument();
+  //const body = doc.getBody();
+  //const selection = doc.getSelection(); //body.getText();
+  selection = getSelectedText();
+
+  const originalText = selection;
+
+  Logger.log("User input:\n\n" + originalText);
+  //Logger.log("=======================");
+
+  // 2️⃣ Construct combined prompt of  Promptlet command and user input
+  const
+   prompt = promptTemplate + originalText + `"`; // check quotes needed? handle different scenarios
+
+  // 4️⃣ Call OpenAI
+  const promptResult = callOpenAI(apiKey, prompt);
+
+  // Logger.log(promptResult);
+
+  // 5️⃣ Replace the document contents
+  //body.setText(promptResult);
+
+  // 4️⃣ Replace the selected text with the prompt Result
+  replaceSelectedText(promptResult);
+}
+
+/**
+ * Calls OpenAI Chat Completions API using UrlFetchApp.
+ */
+function callOpenAI(apiKey, prompt) {
+  const url = "https://api.openai.com/v1/chat/completions";
+  const payload = {
+    model: "gpt-3.5-turbo",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0,
+  };
+
+  const options = {
+    method: "post",
+    headers: {
+      Authorization: "Bearer " + apiKey,
+      "Content-Type": "application/json",
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true,
+  };
+
+  //Logger.log("Calling OpenAI with constructed prompt: " + prompt);
+  //Logger.log("=======================");
+
+  const response = UrlFetchApp.fetch(url, options);
+
+  //Logger.log("HTTP Response Code: " + response.getResponseCode());
+  //Logger.log("Raw Response: " + response.getContentText());
+
+  if (response.getResponseCode() !== 200) {
+    Logger.log(response.getContentText());
+    throw new Error("OpenAI API call failed");
+  }
+
+  const data = JSON.parse(response.getContentText());
+  const output = data.choices[0].message.content.trim();
+
+  Logger.log("Processed Output:\n\n" + output);
+
+  return output;
+}
+
+function onOpen() {
+  DocumentApp.getUi()
+    .createMenu('Prompt It!')       // Menu title
+    .addItem('✨ Text Clean Up', 'prettify')
+    //.addItem('🇫🇷 Learn French', 'frenchify')
+    .addItem('🌍 Learn a Language', 'learnALanguage')
+    .addItem('🥦 Food & Nutrition Analyser', 'foodAnalyser')
+    .addItem('✍️ Ted: Compose a motion', 'motionWriter')
+    .addToUi();
+}
+
+/**
+ * Extracts the text currently selected in the Google Doc.
+ * Returns the text as a string, or null if nothing is selected.
+ */
+function getSelectedText() {
+  let text = "";
+  const doc = DocumentApp.getActiveDocument();
+  let selection = doc.getSelection();
+
+  if (!selection) {
+   // default input if no user input found (in dev environment or sandboxed)
+   text = testInput;
+   Logger.log(`User input was not found so test input used instead`);
+   return text;
+  }
+
+  // Extract text from selection
+  let fullText = "";
+  const rangeElements = selection.getRangeElements();
+
+  for (let i = 0; i < rangeElements.length; i++) {
+    const elem = rangeElements[i].getElement();
+
+    if (rangeElements[i].isPartial()) {
+      // Partial selection within this element
+      fullText += elem.asText().getText().substring(
+        rangeElements[i].getStartOffset(),
+        rangeElements[i].getEndOffsetInclusive() + 1
+      );
+    } else if (elem.editAsText) {
+      // Full element selected
+      fullText += elem.asText().getText();
+    }
+
+    // Preserve paragraph breaks
+    if (elem.getType() === DocumentApp.ElementType.PARAGRAPH) {
+      fullText += "\n";
+    }
+  }
+
+  return fullText.trim();
+}
+
+function replaceSelectedText(newText) {
+  const doc = DocumentApp.getActiveDocument();
+  const selection = doc.getSelection();
+  if (!selection) return;
+
+  const elements = selection.getRangeElements();
+  if (elements.length === 0) return;
+
+  const firstEl = elements[0].getElement().editAsText();
+  const firstStart = elements[0].getStartOffset();
+  const firstEnd = elements[0].getEndOffsetInclusive();
+
+  if (firstStart < 0 || firstEnd < 0 || firstEnd >= firstEl.getText().length) {
+    return;
+  }
+
+  // Replace first element
+  firstEl.deleteText(firstStart, firstEnd);
+  firstEl.insertText(firstStart, newText);
+
+  // Clear other elements safely
+  for (let i = 1; i < elements.length; i++) {
+    const el = elements[i].getElement().editAsText?.();
+    if (!el) continue;
+    const start = elements[i].getStartOffset();
+    const end = elements[i].getEndOffsetInclusive();
+    if (start < 0 || end < 0 || end >= el.getText().length) continue;
+    el.deleteText(start, end);
+  }
+
+  // Restore selection on newly inserted text
+  const newRange = doc.newRange()
+    .addElement(firstEl, firstStart, firstStart + newText.length - 1)
+    .build();
+  doc.setSelection(newRange);
+}
+
+function getExecutionContext() {
+  let context = [];
+
+  try {
+    if (DocumentApp.getActiveDocument()) context.push("Google Doc");
+  } catch (e) {}
+
+  try {
+    if (SpreadsheetApp.getActiveSpreadsheet()) context.push("Google Sheet");
+  } catch (e) {}
+
+  try {
+    if (FormApp.getActiveForm()) context.push("Google Form");
+  } catch (e) {}
+
+  try {
+    if (SlidesApp.getActivePresentation()) context.push("Google Slides");
+  } catch (e) {}
+
+  if (context.length === 0) context.push("Standalone/Editor context");
+
+  return context.join(", ");
+}
+
+const ctx = getExecutionContext();
+
+if (isGoogleDoc())
+{
+  Logger.log("Running in Google Document");
+}
+else
+{ 
+  Logger.log("Running in context: " + ctx);
+}
+
+function isGoogleDoc()
+{
+    is = (ctx.includes("Google Doc"));
+    return is;
+}
+
+function onHomepage(e) {
+  // This can be empty if you don't want UI
+  // Just returning a CardService object satisfies the manifest
+  return CardService.newActionResponseBuilder().build();
+}
+

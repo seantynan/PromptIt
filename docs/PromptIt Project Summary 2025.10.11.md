@@ -1,0 +1,151 @@
+PromptIt Project Summary 2025.10.11
+
+
+Me: Generate a project summary for PromptIt as it now stands at 11 october 17:18h IST.
+
+Project Summary: Describe the current state of play: the core functionality of the PromptIt app is working in gdoc as an Add In. Paragraph issue remains, as do some other concerns.
+
+Plans to move to browser extension. Introduce side panel.
+
+Philosophy:
+
+Potential:
+Reflect on your blue sky thoughts about PromptIt, and its future potentials.  
+
+Value:
+Assess its value at this time of October 2025. Compare to similar existing products. 
+
+Caveats:
+We have already established some caveats, and have realised that some of them are goldmines for exploitations.
+
+Also:
+This is our hobby project, exploring simple and elegant solutions that harness the power of AI, not an enterprise system. 
+
+Proceeded to express your thoughts on this topic. Take your time, and provide as much detailed thoughts as you want.
+
+Here’s a detailed project summary for **PromptIt** as of **11 October 2025, 17:18 IST**. I’ve kept it focused, structured, and reflective of the current state, philosophy, potential, and caveats. No questions—I understand exactly what you want here.
+
+---
+
+# PromptIt – Project Summary (11 October 2025, 17:18 IST)
+
+## Heads Up: Current State of Play
+
+* **Core Functionality (Google Docs Add-On):**
+  PromptIt is functional in Google Docs as an Add-On. Users can select text and run predefined **Promptlets** (prompts packaged as discrete functions), including:
+
+  * Prettifier: improves clarity, structure, and tone of text.
+  * Frenchifier: translates selected text to French with pedagogical notes.
+  * Food Analyser: evaluates meals nutritionally.
+  * MotionWriter: helps draft city council motions (personal example with Ted’s prompts).
+
+* **Known Issues / Limitations:**
+
+  * **Paragraph handling:** Current extraction and reinsertion of text in Google Docs is imperfect, particularly with multi-paragraph selections.
+  * **Side effects on text selection:** Selected text can be partially lost if extraction/replacement fails.
+  * **No true visual chaining yet:** Users cannot see intermediate outputs sequentially; outputs currently overwrite or append in the same panel (to be addressed via side panel).
+
+* **Immediate Next Iteration:**
+
+  * Introduce a **side panel** for displaying prompt output, instead of overwriting selected text.
+  * Preserve multiple output channels (main output, notes, logs, secondary fields).
+  * Provide a foundation for **workflow chaining** while keeping the interface non-destructive.
+
+---
+
+## Plans / Roadmap
+
+* **Browser Extension & Cross-Platform Hosts:**
+
+  * Extract text from webpages, email clients, CMS interfaces, or other editable documents.
+  * Maintain the same core engine: all input/output is text, making PromptIt host-agnostic.
+  * Side panel will be the canonical output location for all platforms, allowing consistent handling of prompts and notes.
+
+* **Chaining & Workflow Designer:**
+
+  * Users can define custom Promptlet sequences.
+  * Visual workflow builder to allow chaining: e.g., `Lunch Input → Food Analyser → Prettifier → Notes`.
+  * “Next/Previous” for intermediate outputs to maintain transparency of processing.
+
+* **User-Created Promptlets:**
+
+  * Users can author niche promptlets (e.g., Ted’s motions, personalized study tools).
+  * Promplets can have multiple output channels, like main text, notes, or metadata.
+  * Promplets can be combined into higher-order workflows.
+
+---
+
+## Philosophy
+
+* **Text-centric, host-agnostic:** All inputs and outputs are text. This simplifies core functionality while enabling broad platform support.
+* **Composable, not destructive:** Moving from overwriting selections to side-panel output prioritizes safety and usability while enabling advanced workflows.
+* **Extensible by users:** Empower users to create and chain promptlets; domain-specific expertise can be codified without coding.
+* **Hobbyist-first:** The project emphasizes elegant, minimal, and practical solutions rather than enterprise features.
+
+---
+
+## Potential (Blue Sky Thoughts)
+
+* **Cross-Platform AI Orchestrator:** PromptIt could become the universal text transformer, capable of running in Docs, browsers, email, Slack, Word, Salesforce, mobile editors.
+* **Semantic hooks:** Outputs can be structured into channels (Notes, Change Logs, Warnings, Insights) and rendered in UI components.
+* **Workflow & Automation Layer:** Users could design multi-step pipelines of promptlets, essentially a **personal AI macro system** for text.
+* **Shareable Expertise:** Niche domain experts could package promptlets (e.g., legal, medical, educational, political) for others to reuse.
+* **AI Pedagogy & Guidance:** PromptIt could encourage learning and exploration via output hooks (notes, explanations, highlights).
+* **Marketplace Potential:** Future optional community layer for sharing promptlets safely.
+
+---
+
+## Value (October 2025)
+
+* **Unique Strengths:**
+
+  * Combination of composability, host-agnostic text handling, user-created workflows, and output channels is not currently offered by any single competing product.
+  * Competes partially with text expansion, summarization, or translation tools but adds **flexible chaining and structured output channels**.
+
+* **Current Usefulness:**
+
+  * For power users and hobbyists: already valuable in Google Docs for content refinement, learning, and personal productivity.
+  * For niche domain experts (e.g., Ted’s motions, nutrition logging): the extensibility is compelling.
+
+* **Comparison to existing tools:**
+
+  * Unlike standard AI plugins in Docs or browsers, PromptIt emphasizes **workflow composability**, not just single-output execution.
+  * Unlike macros or scripting in Office/Docs, PromptIt leverages LLMs with structured prompts and output hooks, making it more adaptive and intelligent.
+
+---
+
+## Caveats
+
+* **Paragraph/Text Handling:** Still imperfect; must be addressed to prevent user frustration.
+* **LLM Output Unpredictability:** Hooks are needed to separate main output from notes, logs, or metadata.
+* **UX Complexity vs. Power:** Visual workflow and chaining must balance simplicity with advanced functionality.
+* **Platform Edge Cases:** Web text extraction or mobile editing may require specific adapters.
+* **API Costs & Latency:** Chained promptlets could accumulate cost/time if run sequentially without batching or previewing.
+
+> Note: Some caveats are actually **opportunity goldmines**, e.g., splitting outputs into multiple channels enables structured feedback and side-panel UI; unpredictability can be tamed with hooks to produce high-value structured outputs.
+
+---
+
+## Also
+
+* This is a **hobby project**, emphasizing elegance, simplicity, and AI-driven creativity.
+* It’s not intended to be enterprise-grade, but rather a **laboratory for modular, user-extensible prompt workflows**.
+* Insights from early use (e.g., Ted’s motions, food evaluation, learning aids) directly inform design of future workflow, UI, and cross-platform expansion.
+
+---
+
+### Summary Thought
+
+PromptIt is **more than a Google Docs add-on**: it’s a **platform for modular AI-driven text transformations**, extensible by users, host-agnostic, and designed for structured, composable workflows. The move to side-panel output, while losing immediate destructive chaining, opens the door for **workflow orchestration, multi-channel outputs, and cross-platform expansion**. The project’s biggest latent power is **user-driven extensibility and semantic control of AI output**—this is where the “blue sky” potential lies.
+
+---
+
+If you want, I can also **draft a one-page visual roadmap** from this summary, showing:
+
+* current stage,
+* short-term fixes,
+* side-panel plan,
+* promptlet chaining,
+* cross-platform vision.
+
+Do you want me to do that next?

@@ -1,0 +1,266 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "manifest.json",
+			"settings":
+			{
+				"buffer_size": 520,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			},
+			"undo_stack":
+			[
+				[
+					5,
+					1,
+					"paste",
+					{
+						"event":
+						{
+							"modifier_keys":
+							{
+							},
+							"text_point": 0,
+							"x": 693.5,
+							"y": 374.5
+						}
+					},
+					"AQAAAAAAAAAAAAAACAIAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/seant/OneDrive/Documents/prompts/Error-Minimising AI Prompt.md",
+		"/C/Users/seant/OneDrive/Documents/AI conversations/Meds routine with variabilit v3y.md",
+		"/C/Users/seant/OneDrive/Documents/AI conversations/Meds routine.md",
+		"/C/Users/seant/OneDrive/Documents/GitHub/prompts/Text Document prettifier v2.md",
+		"/C/Users/seant/OneDrive/Documents/GitHub/prompts/Text Document prettifier.md",
+		"/C/Users/seant/OneDrive/Documents/AI conversations/Meds routine with variability.md",
+		"/C/Users/seant/Documents/Sweet Bean Sauce Pancake",
+		"/C/Users/seant/OneDrive/Documents/directness.txt",
+		"/C/Users/seant/OneDrive/Documents/Skin health",
+		"/C/Users/seant/OneDrive/Documents/Skin health 2",
+		"/C/Users/seant/OneDrive/Documents/Skin health 3",
+		"/C/Users/seant/OneDrive/Documents/prompts/DOMESTIC AID MODE v2.txt",
+		"/C/Users/seant/OneDrive/Documents/GitHub/Projects/Domestic Food Inventory Assistant/Prompt.txt",
+		"/C/Users/seant/OneDrive/Documents/AI conversations/Prompt to dehydrate session.txt",
+		"/C/Users/seant/OneDrive/Documents/prompts/Ted motion writer.txt",
+		"/C/Users/seant/OneDrive/Documents/GitHub/prompts2/Forum Summarisation Agent.txt",
+		"/C/Users/seant/OneDrive/Documents/GitHub/prompts2/Dietary Profile & Nutritional Framework.txt",
+		"/C/Users/seant/Downloads/Google_Sans_Code/README.txt",
+		"/C/Users/seant/Downloads/Google_Sans_Code/OFL.txt",
+		"/C/Users/seant/OneDrive/Documents/AI conversations/Aug 14 KI App Spec.tzt",
+		"/C/Users/seant/OneDrive/Documents/prompts/Prpmt engineer.txt",
+		"/C/Users/seant/OneDrive/Documents/prompts/Food Diary Analysis.txt",
+		"/C/Users/seant/OneDrive/Documents/prompts/# Prompt template to stop “summarizer mode”.txt",
+		"/C/Users/seant/OneDrive/Documents/prompts/Data Analysis Limitation Warning.txt",
+		"/C/Users/seant/OneDrive/Documents/prompts/Data Analysis and Task Complexity Assessment Framewor.txt",
+		"/C/Users/seant/OneDrive/Documents/AI conversations/Triadic Ontology Session — Structured Data Dump.txt",
+		"/C/Users/seant/OneDrive/Documents/Prompts/MEAL & NUTRITION EVALUATOR MODE.txt",
+		"/C/Users/seant/Downloads/Food Log.txt",
+		"/C/Users/seant/OneDrive/Documents/GitHub/prompts/README.md",
+		"/C/Users/seant/OneDrive/Documents/AI conversations/Triadic Ontology model.txt",
+		"/C/Users/seant/OneDrive/Documents/Recipes/Weekly Meal Plan.txt",
+		"/C/Users/seant/OneDrive/Documents/Recipes/Egg_Wholemeal_Protein_Pancake_Wrap_Recipe.txt",
+		"/C/Users/seant/OneDrive/Documents/Recipes/Food ideas.txt",
+		"/C/Users/seant/OneDrive/Documents/Recipes/Sichuan Braised Chicken with Bell Peppers & Shiitake Mushrooms.txt",
+		"/C/Users/seant/Documents/Beef.html"
+	],
+	"find":
+	{
+		"height": 0.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "manifest.json",
+					"selected": true,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 520,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								520,
+								520
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JSON/JSON.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"pinned_build_system": "",
+	"project": "files.sublime-project",
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 362.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
