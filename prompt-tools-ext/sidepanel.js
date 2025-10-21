@@ -1,16 +1,16 @@
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "runPromptlet") {
-    // Show processing
-    document.getElementById('status').innerText = "Processing...";
-    document.getElementById('output').innerText = "";
+document.addEventListener("DOMContentLoaded", () => {
+  const statusDiv = document.getElementById("status");
+  const outputDiv = document.getElementById("output");
 
-    const promptlet = message.promptlet;
-    const text = message.text;
+  // Initial message
+  statusDiv.textContent = "Waiting for input…";
+  outputDiv.textContent = "";
 
-    // Simulate processing delay for now
-    setTimeout(() => {
-      document.getElementById('status').innerText = "Done!";
-      document.getElementById('output').innerText = `Selected Text: ${text}\nPromptlet: ${promptlet}`;
-    }, 1000); // 1 second delay
-  }
+  // Listen for messages from background.js
+  chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (msg.action === "runPromptlet") {
+      statusDiv.textContent = "Received!";
+      outputDiv.textContent = `Selected Text: ${msg.text}\nPromptlet: ${msg.promptlet}`;
+    }
+  });
 });
