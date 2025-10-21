@@ -26,14 +26,14 @@ chrome.runtime.onInstalled.addListener(() => {
 // Handle clicks on menu items
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId !== "promptit_root") {
-    // 1️⃣ Open the side panel for this tab
-    chrome.sidePanel.open({ tabId: tab.id }).then(() => {
-      // 2️⃣ Send a message directly to the side panel
-      chrome.runtime.sendMessage({
-        action: "runPromptlet",
-        promptlet: info.menuItemId,
-        text: info.selectionText
-      });
+    // Open the sidebar
+    chrome.sidePanel.open({ tabId: tab.id });
+
+    // Send message directly to the sidebar
+    chrome.runtime.sendMessage({
+      action: "runPromptlet",
+      promptlet: info.menuItemId,
+      text: info.selectionText
     });
   }
 });
