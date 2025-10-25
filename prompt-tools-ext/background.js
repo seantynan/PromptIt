@@ -1,18 +1,23 @@
+// background.js
+
+// Set up context menu on extension installation
 chrome.runtime.onInstalled.addListener(() => {
-  // Create main context menu
+  // Root menu
   chrome.contextMenus.create({
     id: "promptit_root",
     title: "PromptIt",
     contexts: ["selection"]
   });
 
-  // Example submenus (Promptlets)
+  // Promptlets (example)
   const promptlets = [
-    { id: "summarize", title: "Summarize" },
-    { id: "translate", title: "Translate" },
-    { id: "rewrite", title: "Rewrite in a better style" }
+    { id: "Prettify", title: "✨ Text Clean Up" },
+    { id: "Translate", title: "🇫🇷 Learn French" },
+    { id: "FoodAnalyser", title: "🥦 Food & Nutrition Analyse" },
+    { id: "MotionWriter", title: "✍️ Compose Motion" }
   ];
 
+  // Add submenus
   for (const p of promptlets) {
     chrome.contextMenus.create({
       id: p.id,
@@ -23,17 +28,17 @@ chrome.runtime.onInstalled.addListener(() => {
   }
 });
 
-// Handle clicks on menu items
+// Handle menu clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId !== "promptit_root") {
-    // Open the sidebar
-    chrome.sidePanel.open({ tabId: tab.id });
+  if (info.menuItemId === "promptit_root") return; // skip root click
 
-    // Send message directly to the sidebar
-    chrome.runtime.sendMessage({
-      action: "runPromptlet",
-      promptlet: info.menuItemId,
-      text: info.selectionText
-    });
-  }
+  // Open side panel for the tab
+  chrome.sidePanel.open({ tabId: tab.id });
+
+  // Send message to sidepanel.js to process the selection
+  chrome.tabs.sendMessage(tab.id, {
+    action: "runPromptlet",
+    promptlet: info.menuItemId,
+    text: info.selectionText
+  });
 });
