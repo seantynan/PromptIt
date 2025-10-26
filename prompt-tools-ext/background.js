@@ -42,3 +42,31 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     text: info.selectionText
   });
 });
+// ✅ Store your API key here (DO NOT COMMIT THIS FILE TO GIT)
+const OPENAI_API_KEY = "sk-proj-...your_real_key_here...";
+
+// Listen for messages from content scripts or sidepanel
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.action === "getApiKey") {
+    // Return the API key to the sidepanel
+    sendResponse({ apiKey: OPENAI_API_KEY });
+    return true; // Keep message channel open
+  }
+
+  if (msg.action === "testMessage") {
+    // Forward message to sidepanel
+    chrome.runtime.sendMessage({
+      action: "testMessage",
+      text: msg.text,
+      promptlet: msg.promptlet
+    });
+  }
+
+  if (msg.action === "promptletResult") {
+    // Forward AI result to sidepanel
+    chrome.runtime.sendMessage({
+      action: "promptletResult",
+      result: msg.result
+    });
+  }
+});
