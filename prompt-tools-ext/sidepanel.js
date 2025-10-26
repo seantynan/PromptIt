@@ -2,8 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const outputDiv = document.getElementById("output");
   const statusDiv = document.getElementById("status");
 
-  // Initial message
   statusDiv.textContent = "Waiting for input…";
+
+  // Signal background that side panel is ready
+  chrome.runtime.sendMessage({ action: "sidepanelReady" });
 
   // Listen for incoming messages
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -20,9 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ---- Helper functions ----
+// --- Helper functions ---
 
-// Fetch API key from background
 async function getApiKey() {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage({ action: "getApiKey" }, (response) => {
@@ -31,7 +32,6 @@ async function getApiKey() {
   });
 }
 
-// Call OpenAI
 async function callOpenAI(prompt, apiKey) {
   const url = "https://api.openai.com/v1/chat/completions";
   const payload = {
@@ -57,7 +57,6 @@ async function callOpenAI(prompt, apiKey) {
   return data.choices[0].message.content.trim();
 }
 
-// Main handler
 async function handlePromptlet(selectedText, promptlet) {
   const statusDiv = document.getElementById("status");
   const outputDiv = document.getElementById("output");

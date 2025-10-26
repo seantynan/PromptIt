@@ -1,6 +1,9 @@
 // background.js
 
-// Set up context menu on extension installation
+// Store last pending message
+let pendingMessage = null;
+
+// --- Context menu setup ---
 chrome.runtime.onInstalled.addListener(() => {
   // Root menu
   chrome.contextMenus.create({
@@ -9,7 +12,7 @@ chrome.runtime.onInstalled.addListener(() => {
     contexts: ["selection"]
   });
 
-  // Promptlets (example)
+  // Promptlets (examples)
   const promptlets = [
     { id: "Prettify", title: "✨ Text Clean Up" },
     { id: "Translate", title: "🇫🇷 Learn French" },
@@ -28,42 +31,39 @@ chrome.runtime.onInstalled.addListener(() => {
   }
 });
 
-// Handle menu clicks
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "promptit_root") return; // skip root click
+// --- Handle menu clicks ---
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  if (info.menuItemId === "promptit_root") return; // skip root
 
-  // Open side panel for the tab
-  chrome.sidePanel.open({ tabId: tab.id });
-
-  // Send message to sidepanel.js to process the selection
-  chrome.tabs.sendMessage(tab.id, {
-    action: "runPromptlet",
+  // Store message until sidepanel is ready
+  pendingMessage = {
+    action: "testMessage",
     promptlet: info.menuItemId,
     text: info.selectionText
-  });
+  };
+
+  // Open side panel
+  await chrome.sidePanel.open({ tabId: tab.id });
 });
-// ✅ Store your API key here (DO NOT COMMIT THIS FILE TO GIT)
+
+// --- API key (private) ---
 const OPENAI_API_KEY = "sk-proj-...your_real_key_here...";
 
-// Listen for messages from content scripts or sidepanel
+// --- Listen for messages ---
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === "getApiKey") {
-    // Return the API key to the sidepanel
     sendResponse({ apiKey: OPENAI_API_KEY });
-    return true; // Keep message channel open
+    return true;
   }
 
-  if (msg.action === "testMessage") {
-    // Forward message to sidepanel
-    chrome.runtime.sendMessage({
-      action: "testMessage",
-      text: msg.text,
-      promptlet: msg.promptlet
-    });
+  // Sidepanel signals it's ready
+  if (msg.action === "sidepanelReady" && pendingMessage) {
+    chrome.runtime.sendMessage(pendingMessage);
+    pendingMessage = null;
   }
 
+  // Forward results if needed
   if (msg.action === "promptletResult") {
-    // Forward AI result to sidepanel
     chrome.runtime.sendMessage({
       action: "promptletResult",
       result: msg.result
