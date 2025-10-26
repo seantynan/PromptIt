@@ -1,6 +1,11 @@
 // sidepanel.js
 // Side panel logic: wait for runPromptlet messages, call OpenAI (dev key), and show results.
 
+// OpenAI API key import (dev only - replace with your own key in api_key.js)
+importScripts('api_key.js');
+
+const apiKey = OPENAI_API_KEY;
+
 document.addEventListener("DOMContentLoaded", () => {
   const statusDiv = document.getElementById("status");
   const outputDiv = document.getElementById("output");
