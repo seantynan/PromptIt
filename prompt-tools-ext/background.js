@@ -46,9 +46,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   await chrome.sidePanel.open({ tabId: tab.id });
 });
 
-// --- API key (private) ---
-const OPENAI_API_KEY = "sk-proj-...your_real_key_here...";
-
 // --- Listen for messages ---
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === "getApiKey") {
