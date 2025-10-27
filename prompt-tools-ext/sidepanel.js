@@ -75,3 +75,12 @@ async function handlePromptlet(selectedText, promptlet) {
     outputDiv.textContent = error.message;
   }
 }
+
+document.getElementById("openOptionsBtn").addEventListener("click", () => {
+  if (chrome.runtime.openOptionsPage) {
+    chrome.runtime.openOptionsPage(); // opens options.html
+  } else {
+    // fallback: open manually
+    window.open(chrome.runtime.getURL("options.html"));
+  }
+});
