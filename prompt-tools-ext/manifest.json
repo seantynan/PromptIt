@@ -13,5 +13,6 @@
   },
   "action": {
     "default_title": "PromptIt"
-  }
+  },
+  "options_page": "options.html"
 }
