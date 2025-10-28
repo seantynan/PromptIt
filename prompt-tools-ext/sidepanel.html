@@ -1,34 +1,26 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8" />
-  <title>PromptIt</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 1em;
-      color: #222;
-    }
-    textarea {
-      width: 100%;
-      height: 120px;
-      margin-bottom: 1em;
-    }
-    #output {
-      border-top: 1px solid #ccc;
-      margin-top: 1em;
-      padding-top: 1em;
-      white-space: pre-wrap;
-    }
-  </style>
-</head>
-<body>
-  <h2 id="promptletName">Prompt It!</h2>
-  <p id="status">Waiting for input…</p>
-  <textarea id="input"></textarea>
-  <button id="runBtn">Run</button>
-  <div id="output"></div>
-
-  <script src="sidepanel.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 10px;
+      }
+      #status {
+        color: gray;
+        margin-bottom: 8px;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>PromptIt</h2>
+    <div id="status">Waiting for input…</div>
+    <pre id="output"></pre>
+    <script src="sidepanel.js"></script>
+  </body>
 </html>
