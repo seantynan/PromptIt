@@ -1,86 +1,42 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const outputDiv = document.getElementById("output");
-  const statusDiv = document.getElementById("status");
+const apiKey = "YOUR_OPENAI_API_KEY";
+let currentPromptlet = null;
+let currentText = "";
 
-  statusDiv.textContent = "Waiting for input…";
-
-  // Signal background that side panel is ready
-  chrome.runtime.sendMessage({ action: "sidepanelReady" });
-
-  // Listen for incoming messages
-  chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if (msg.action === "testMessage") {
-      statusDiv.textContent = "Received!";
-      outputDiv.textContent = `Selected Text: ${msg.text}\nPromptlet: ${msg.promptlet}`;
-
-      // Call OpenAI API
-      handlePromptlet(msg.text, msg.promptlet);
-    } else if (msg.action === "promptletResult") {
-      statusDiv.textContent = "Done!";
-      outputDiv.textContent = msg.result;
-    }
-  });
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === "PromptItChannel") {
+    port.onMessage.addListener((msg) => {
+      currentPromptlet = msg.promptlet;
+      currentText = msg.selectedText || "";
+      document.getElementById("promptletName").textContent = msg.promptlet.title;
+      document.getElementById("input").value = currentText;
+      document.getElementById("status").textContent = "Ready";
+    });
+  }
 });
 
-// --- Helper functions ---
+document.getElementById("runBtn").addEventListener("click", async () => {
+  const inputText = document.getElementById("input").value.trim();
+  if (!inputText) return;
 
-async function getApiKey() {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage({ action: "getApiKey" }, (response) => {
-      resolve(response.apiKey);
-    });
-  });
-}
+  document.getElementById("status").textContent = "Processing…";
 
-async function callOpenAI(prompt, apiKey) {
-  const url = "https://api.openai.com/v1/chat/completions";
-  const payload = {
-    model: "gpt-3.5-turbo",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0
-  };
-
-  const response = await fetch(url, {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: currentPromptlet.prompt },
+        { role: "user", content: inputText }
+      ]
+    })
   });
 
-  if (!response.ok) {
-    throw new Error(`OpenAI API error: ${response.status}`);
-  }
-
   const data = await response.json();
-  return data.choices[0].message.content.trim();
-}
-
-async function handlePromptlet(selectedText, promptlet) {
-  const statusDiv = document.getElementById("status");
-  const outputDiv = document.getElementById("output");
-
-  statusDiv.textContent = "Processing…";
-
-  try {
-    const apiKey = await getApiKey();
-    const combinedPrompt = `${promptlet}\n\n${selectedText}`;
-    const result = await callOpenAI(combinedPrompt, apiKey);
-
-    statusDiv.textContent = "Done!";
-    outputDiv.textContent = result;
-  } catch (error) {
-    statusDiv.textContent = "Error";
-    outputDiv.textContent = error.message;
-  }
-}
-
-document.getElementById("openOptionsBtn").addEventListener("click", () => {
-  if (chrome.runtime.openOptionsPage) {
-    chrome.runtime.openOptionsPage(); // opens options.html
-  } else {
-    // fallback: open manually
-    window.open(chrome.runtime.getURL("options.html"));
-  }
+  const output = data.choices?.[0]?.message?.content || "No response.";
+  document.getElementById("output").textContent = output;
+  document.getElementById("status").textContent = "Done!";
 });

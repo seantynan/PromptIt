@@ -1,69 +1,50 @@
-// background.js
+// Register promptlets
+const promptlets = [
+  { id: "clean", title: "✨ Text Clean Up", prompt: "Clean up and format the selected text clearly." },
+  { id: "learn", title: "🌍 Learn a Language", prompt: "Translate this text and explain it simply." },
+  { id: "nutrition", title: "🌿 Food & Nutrition Analyser", prompt: "Analyze the nutritional aspects of this text." },
+  { id: "compose", title: "💪 Compose a Motion", prompt: "Turn this text into a formal written motion or argument." }
+];
 
-// Store last pending message
-let pendingMessage = null;
-
-// --- Context menu setup ---
 chrome.runtime.onInstalled.addListener(() => {
-  // Root menu
-  chrome.contextMenus.create({
-    id: "promptit_root",
-    title: "PromptIt",
-    contexts: ["selection"]
+  // Remove old menus to avoid duplicates
+  chrome.contextMenus.removeAll(() => {
+    // Create the parent menu (the main icon)
+    chrome.contextMenus.create({
+      id: "promptItRoot",
+      title: "PromptIt!",
+      contexts: ["action"]
+    });
+
+    // Add child menus (the promptlets)
+    for (const p of promptlets) {
+      chrome.contextMenus.create({
+        id: p.id,
+        parentId: "promptItRoot",
+        title: p.title,
+        contexts: ["action"]
+      });
+    }
+  });
+});
+
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  const promptlet = promptlets.find(p => p.id === info.menuItemId);
+  if (!promptlet) return;
+
+  // Get selected text (if any)
+  const [result] = await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: () => window.getSelection().toString()
   });
 
-  // Promptlets (examples)
-  const promptlets = [
-    { id: "Prettify", title: "✨ Text Clean Up" },
-    { id: "Translate", title: "🇫🇷 Learn French" },
-    { id: "FoodAnalyser", title: "🥦 Food & Nutrition Analyse" },
-    { id: "MotionWriter", title: "✍️ Compose Motion" }
-  ];
+  const selectedText = result?.result || "";
 
-  // Add submenus
-  for (const p of promptlets) {
-    chrome.contextMenus.create({
-      id: p.id,
-      parentId: "promptit_root",
-      title: p.title,
-      contexts: ["selection"]
-    });
-  }
-});
-
-// --- Handle menu clicks ---
-chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId === "promptit_root") return; // skip root
-
-  // Store message until sidepanel is ready
-  pendingMessage = {
-    action: "testMessage",
-    promptlet: info.menuItemId,
-    text: info.selectionText
-  };
-
-  // Open side panel
+  // Send data to side panel
   await chrome.sidePanel.open({ tabId: tab.id });
-});
-
-// --- Listen for messages ---
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.action === "getApiKey") {
-    sendResponse({ apiKey: OPENAI_API_KEY });
-    return true;
-  }
-
-  // Sidepanel signals it's ready
-  if (msg.action === "sidepanelReady" && pendingMessage) {
-    chrome.runtime.sendMessage(pendingMessage);
-    pendingMessage = null;
-  }
-
-  // Forward results if needed
-  if (msg.action === "promptletResult") {
-    chrome.runtime.sendMessage({
-      action: "promptletResult",
-      result: msg.result
-    });
-  }
+  chrome.tabs.sendMessage(tab.id, {
+    action: "runPromptlet",
+    promptlet,
+    selectedText
+  });
 });

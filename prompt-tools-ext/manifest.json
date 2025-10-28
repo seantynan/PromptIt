@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "PromptIt",
+  "name": "Prompt It!",
   "version": "1.0",
   "description": "Run AI promptlets on selected text.",
-  "permissions": ["sidePanel", "contextMenus", "activeTab", "scripting"],
+  "permissions": ["activeTab", "contextMenus", "scripting", "sidePanel"],
   "host_permissions": ["https://api.openai.com/*"],
   "background": {
     "service_worker": "background.js"
@@ -12,7 +12,11 @@
     "default_path": "sidepanel.html"
   },
   "action": {
-    "default_title": "PromptIt"
+    "default_title": "PromptIt!"
   },
-  "options_page": "options.html"
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
 }
