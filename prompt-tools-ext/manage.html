@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Manage Promptlets</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+        max-width: 400px;
+      }
+      input, textarea {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      .promptlet {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 8px;
+        margin-bottom: 10px;
+      }
+      button {
+        margin-right: 6px;
+      }
+      small {
+        display: block;
+        margin-top: 10px;
+        color: gray;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Promptlets</h2>
+    <div id="promptlets"></div>
+    <button id="add">Add Promptlet</button>
+    <hr />
+    <h3>API Key</h3>
+    <input type="password" id="apiKey" placeholder="Enter your OpenAI API key" />
+    <button id="saveKey">Save Key</button>
+    <small>Stored locally only — never sent anywhere except to OpenAI’s API.</small>
+
+    <script src="manage.js"></script>
+  </body>
+</html>
