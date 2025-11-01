@@ -1,50 +1,80 @@
-// Register promptlets
-const promptlets = [
-  { id: "clean", title: "✨ Text Clean Up", prompt: "Clean up and format the selected text clearly." },
-  { id: "learn", title: "🌍 Learn a Language", prompt: "Translate this text and explain it simply." },
-  { id: "nutrition", title: "🌿 Food & Nutrition Analyser", prompt: "Analyze the nutritional aspects of this text." },
-  { id: "compose", title: "💪 Compose a Motion", prompt: "Turn this text into a formal written motion or argument." }
-];
+// background.js
 
-chrome.runtime.onInstalled.addListener(() => {
-  // Remove old menus to avoid duplicates
+// Load promptlets and build context menu
+async function buildContextMenus() {
   chrome.contextMenus.removeAll(() => {
-    // Create the parent menu (the main icon)
-    chrome.contextMenus.create({
-      id: "promptItRoot",
-      title: "PromptIt!",
-      contexts: ["action"]
-    });
+    chrome.storage.local.get({ promptlets: [] }, (data) => {
+      const promptlets = data.promptlets;
+      if (promptlets.length === 0) return;
 
-    // Add child menus (the promptlets)
-    for (const p of promptlets) {
       chrome.contextMenus.create({
-        id: p.id,
-        parentId: "promptItRoot",
-        title: p.title,
-        contexts: ["action"]
+        id: "promptit_root",
+        title: "PromptIt",
+        contexts: ["selection"]
       });
+
+      for (const p of promptlets) {
+        chrome.contextMenus.create({
+          id: p.name,
+          parentId: "promptit_root",
+          title: `${p.emoji || ""} ${p.name}`,
+          contexts: ["selection"]
+        });
+      }
+    });
+  });
+}
+
+// Add default promptlets on first install
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.local.get({ promptlets: [] }, (data) => {
+    if (data.promptlets.length === 0) {
+      const defaultPromptlets = [
+        {
+          name: "Summarize",
+          emoji: "💡",
+          prompt: "Summarize this text clearly and concisely."
+        },
+        {
+          name: "Rephrase",
+          emoji: "✍️",
+          prompt: "Rephrase this text to improve clarity and flow."
+        }
+      ];
+      chrome.storage.local.set({ promptlets: defaultPromptlets }, buildContextMenus);
+    } else {
+      buildContextMenus();
     }
   });
 });
 
-chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  const promptlet = promptlets.find(p => p.id === info.menuItemId);
-  if (!promptlet) return;
+chrome.runtime.onStartup.addListener(buildContextMenus);
+chrome.storage.onChanged.addListener(buildContextMenus);
 
-  // Get selected text (if any)
-  const [result] = await chrome.scripting.executeScript({
-    target: { tabId: tab.id },
-    func: () => window.getSelection().toString()
-  });
+// Handle context menu click
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (!info.selectionText) return; // silent if nothing selected
+  const promptletName = info.menuItemId;
 
-  const selectedText = result?.result || "";
+  chrome.storage.local.get({ promptlets: [] }, (data) => {
+    const promptlet = data.promptlets.find((p) => p.name === promptletName);
+    if (!promptlet) return;
 
-  // Send data to side panel
-  await chrome.sidePanel.open({ tabId: tab.id });
-  chrome.tabs.sendMessage(tab.id, {
-    action: "runPromptlet",
-    promptlet,
-    selectedText
+    chrome.sidePanel.open({ tabId: tab.id });
+    chrome.tabs.sendMessage(tab.id, {
+      action: "runPromptlet",
+      text: info.selectionText,
+      prompt: promptlet.prompt
+    });
   });
 });
+
+chrome.action.onClicked.addListener((tab) => {
+  if (chrome.sidePanel && chrome.sidePanel.open) {
+    chrome.sidePanel.open({ tabId: tab.id });
+  } else {
+    // Fallback: open your popup or an options page
+    chrome.runtime.openOptionsPage();
+  }
+});
+
