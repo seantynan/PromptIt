@@ -59,21 +59,20 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (!info.selectionText) return;
 
   const promptletName = info.menuItemId;
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
-    const promptlet = data.promptlets.find((p) => p.name === promptletName);
-    if (!promptlet) return;
-
-    chrome.sidePanel.open({ tabId: tab.id });
-    chrome.tabs.sendMessage(tab.id, {
-      action: "runPromptlet",
-      text: info.selectionText,
-      prompt: promptlet.prompt
-    });
-  });
+  runPromptlet(tab.id, promptletName, info.selectionText);
 });
 
 // -------------------------
-// Handle toolbar icon click (popup or direct)
+// Handle messages from popup
+// -------------------------
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.action === 'runPromptlet') {
+    runPromptlet(msg.tabId, msg.name, msg.text || "");
+  }
+});
+
+// -------------------------
+// Handle toolbar icon direct click (optional fallback)
 // -------------------------
 chrome.action.onClicked.addListener((tab) => {
   if (chrome.sidePanel && chrome.sidePanel.open) {
@@ -84,20 +83,21 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 // -------------------------
-// Handle messages from popup
+// Unified function to run a promptlet
 // -------------------------
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.action === 'runPromptlet') {
-    chrome.storage.local.get({ promptlets: [] }, (data) => {
-      const promptlet = data.promptlets.find((p) => p.name === msg.name);
-      if (!promptlet) return;
+function runPromptlet(tabId, promptletName, selectionText) {
+  chrome.storage.local.get({ promptlets: [] }, (data) => {
+    const promptlet = data.promptlets.find(p => p.name === promptletName);
+    if (!promptlet) return;
 
-      chrome.sidePanel.open({ tabId: msg.tabId });
-      chrome.tabs.sendMessage(msg.tabId, {
-        action: "runPromptlet",
-        text: msg.text || "", // optionally pass selected text
-        prompt: promptlet.prompt
-      });
+    // Open side panel
+    chrome.sidePanel.open({ tabId });
+
+    // Send the promptlet to content script
+    chrome.tabs.sendMessage(tabId, {
+      action: "runPromptlet",
+      text: selectionText,
+      prompt: promptlet.prompt
     });
-  }
-});
+  });
+}

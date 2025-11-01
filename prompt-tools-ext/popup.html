@@ -1,19 +1,55 @@
-<ul id="promptlet-list"></ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PromptIt</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <ul id="promptlet-list"></ul>
 
-<script>
-const list = document.getElementById('promptlet-list');
-chrome.storage.local.get({ promptlets: [] }, (data) => {
-  data.promptlets.forEach(p => {
-    const li = document.createElement('li');
-    li.textContent = `${p.emoji || ''} ${p.name}`;
-    li.dataset.promptlet = p.name;
-    li.addEventListener('click', () => {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.runtime.sendMessage({ action: 'runPromptlet', name: p.name, tabId: tabs[0].id, text: window.getSelection().toString() });
-        window.close();
+  <script>
+    const list = document.getElementById('promptlet-list');
+
+    // Load promptlets from storage
+    chrome.storage.local.get({ promptlets: [] }, (data) => {
+      if (!data.promptlets || data.promptlets.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = 'No promptlets found';
+        li.style.padding = '8px';
+        list.appendChild(li);
+        return;
+      }
+
+      data.promptlets.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = `${p.emoji || ''} ${p.name}`;
+        li.dataset.promptlet = p.name;
+        li.addEventListener('click', () => {
+          // Get selected text on the page
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const tab = tabs[0];
+            chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              func: () => window.getSelection().toString()
+            }, (results) => {
+              const selectionText = results && results[0] ? results[0].result : '';
+
+              // Send message to background to run promptlet
+              chrome.runtime.sendMessage({
+                action: 'runPromptlet',
+                name: p.name,
+                tabId: tab.id,
+                text: selectionText
+              });
+
+              window.close(); // close popup
+            });
+          });
+        });
+        list.appendChild(li);
       });
     });
-    list.appendChild(li);
-  });
-});
-</script>
+  </script>
+</body>
+</html>
