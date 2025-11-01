@@ -1,69 +1,78 @@
-// background.js
+// -------------------------
+// Default promptlets (fallback)
+// -------------------------
+const DEFAULT_PROMPTLETS = [
+  { name: "Summarize", emoji: "💡", prompt: "Summarize this text clearly and concisely." },
+  { name: "Rephrase", emoji: "✍️", prompt: "Rephrase this text to improve clarity and flow." }
+];
 
 // -------------------------
-// Build context menus
+// Build context menus for right-click
 // -------------------------
-async function buildContextMenus() {
+function buildContextMenus() {
   chrome.contextMenus.removeAll(() => {
     chrome.storage.local.get({ promptlets: [] }, (data) => {
-      const promptlets = data.promptlets;
-      if (!promptlets || promptlets.length === 0) return;
+      // Use stored promptlets if available, otherwise defaults
+      const promptlets = (data.promptlets && data.promptlets.length > 0)
+        ? data.promptlets
+        : DEFAULT_PROMPTLETS;
 
-      // Root menu
+      // Create root menu
       chrome.contextMenus.create({
         id: "promptit_root",
         title: "PromptIt",
         contexts: ["selection"]
       });
 
-      // Individual promptlets
-      for (const p of promptlets) {
+      // Create submenus
+      promptlets.forEach(p => {
         chrome.contextMenus.create({
           id: p.name,
           parentId: "promptit_root",
           title: `${p.emoji || ""} ${p.name}`,
           contexts: ["selection"]
         });
-      }
+      });
     });
   });
 }
 
 // -------------------------
-// Add default promptlets on install
+// Unified function to run a promptlet
 // -------------------------
-chrome.runtime.onInstalled.addListener(() => {
+function runPromptlet(tabId, promptletName, selectionText) {
   chrome.storage.local.get({ promptlets: [] }, (data) => {
-    if (!data.promptlets || data.promptlets.length === 0) {
-      const defaultPromptlets = [
-        { name: "Summarize", emoji: "💡", prompt: "Summarize this text clearly and concisely." },
-        { name: "Rephrase", emoji: "✍️", prompt: "Rephrase this text to improve clarity and flow." }
-      ];
-      chrome.storage.local.set({ promptlets: defaultPromptlets }, buildContextMenus);
-    } else {
-      buildContextMenus();
+    const promptlets = (data.promptlets && data.promptlets.length > 0)
+      ? data.promptlets
+      : DEFAULT_PROMPTLETS;
+
+    const promptlet = promptlets.find(p => p.name === promptletName);
+    if (!promptlet) return;
+
+    // Open side panel
+    if (chrome.sidePanel && chrome.sidePanel.open) {
+      chrome.sidePanel.open({ tabId });
     }
+
+    // Send message to content script
+    chrome.tabs.sendMessage(tabId, {
+      action: "runPromptlet",
+      text: selectionText || "",
+      prompt: promptlet.prompt
+    });
   });
-});
+}
 
 // -------------------------
-// Rebuild menus on startup or storage change
-// -------------------------
-chrome.runtime.onStartup.addListener(buildContextMenus);
-chrome.storage.onChanged.addListener(buildContextMenus);
-
-// -------------------------
-// Handle right-click context menu
+// Right-click context menu click
 // -------------------------
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (!info.selectionText) return;
-
-  const promptletName = info.menuItemId;
-  runPromptlet(tab.id, promptletName, info.selectionText);
+  runPromptlet(tab.id, info.menuItemId, info.selectionText);
 });
 
 // -------------------------
-// Handle messages from popup
+// Popup / message listener
 // -------------------------
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === 'runPromptlet') {
@@ -72,32 +81,19 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 
 // -------------------------
-// Handle toolbar icon direct click (optional fallback)
+// Toolbar icon click
 // -------------------------
 chrome.action.onClicked.addListener((tab) => {
   if (chrome.sidePanel && chrome.sidePanel.open) {
     chrome.sidePanel.open({ tabId: tab.id });
   } else {
-    chrome.runtime.openOptionsPage(); // fallback
+    chrome.runtime.openOptionsPage();
   }
 });
 
 // -------------------------
-// Unified function to run a promptlet
+// Initialize context menus
 // -------------------------
-function runPromptlet(tabId, promptletName, selectionText) {
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
-    const promptlet = data.promptlets.find(p => p.name === promptletName);
-    if (!promptlet) return;
-
-    // Open side panel
-    chrome.sidePanel.open({ tabId });
-
-    // Send the promptlet to content script
-    chrome.tabs.sendMessage(tabId, {
-      action: "runPromptlet",
-      text: selectionText,
-      prompt: promptlet.prompt
-    });
-  });
-}
+buildContextMenus();
+chrome.runtime.onStartup.addListener(buildContextMenus);
+chrome.storage.onChanged.addListener(buildContextMenus);

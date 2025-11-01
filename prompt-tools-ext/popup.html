@@ -1,55 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>PromptIt</title>
-  <link rel="stylesheet" href="popup.css">
-</head>
-<body>
-  <ul id="promptlet-list"></ul>
+<script>
+const list = document.getElementById('promptlet-list');
 
-  <script>
-    const list = document.getElementById('promptlet-list');
+// Helper: ensure defaults exist
+function ensureDefaults(callback) {
+  chrome.storage.local.get({ promptlets: [] }, (data) => {
+    if (!data.promptlets || data.promptlets.length === 0) {
+      const defaultPromptlets = [
+        { name: "Summarize", emoji: "💡", prompt: "Summarize this text clearly and concisely." },
+        { name: "Rephrase", emoji: "✍️", prompt: "Rephrase this text to improve clarity and flow." }
+      ];
+      chrome.storage.local.set({ promptlets: defaultPromptlets }, () => {
+        callback(defaultPromptlets);
+      });
+    } else {
+      callback(data.promptlets);
+    }
+  });
+}
 
-    // Load promptlets from storage
-    chrome.storage.local.get({ promptlets: [] }, (data) => {
-      if (!data.promptlets || data.promptlets.length === 0) {
-        const li = document.createElement('li');
-        li.textContent = 'No promptlets found';
-        li.style.padding = '8px';
-        list.appendChild(li);
-        return;
-      }
-
-      data.promptlets.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = `${p.emoji || ''} ${p.name}`;
-        li.dataset.promptlet = p.name;
-        li.addEventListener('click', () => {
-          // Get selected text on the page
-          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            const tab = tabs[0];
-            chrome.scripting.executeScript({
-              target: { tabId: tab.id },
-              func: () => window.getSelection().toString()
-            }, (results) => {
-              const selectionText = results && results[0] ? results[0].result : '';
-
-              // Send message to background to run promptlet
-              chrome.runtime.sendMessage({
-                action: 'runPromptlet',
-                name: p.name,
-                tabId: tab.id,
-                text: selectionText
-              });
-
-              window.close(); // close popup
-            });
+// Render promptlets in the popup
+function renderPromptlets(promptlets) {
+  list.innerHTML = "";
+  promptlets.forEach(p => {
+    const li = document.createElement('li');
+    li.textContent = `${p.emoji || ''} ${p.name}`;
+    li.dataset.promptlet = p.name;
+    li.addEventListener('click', () => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        const tab = tabs[0];
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => window.getSelection().toString()
+        }, (results) => {
+          const selectionText = results && results[0] ? results[0].result : '';
+          chrome.runtime.sendMessage({
+            action: 'runPromptlet',
+            name: p.name,
+            tabId: tab.id,
+            text: selectionText
           });
+          window.close();
         });
-        list.appendChild(li);
       });
     });
-  </script>
-</body>
-</html>
+    list.appendChild(li);
+  });
+}
+
+// Initialize
+ensureDefaults(renderPromptlets);
+</script>
