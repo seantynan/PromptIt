@@ -1,38 +1,19 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <style>
-      body {
-        font-family: sans-serif;
-        margin: 10px;
-        width: 230px;
-      }
-      button {
-        width: 100%;
-        margin-top: 8px;
-        padding: 6px;
-        font-size: 14px;
-      }
-      .promptlet {
-        display: flex;
-        align-items: center;
-        margin: 4px 0;
-        cursor: pointer;
-      }
-      .emoji {
-        margin-right: 8px;
-      }
-      hr {
-        margin: 10px 0;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="promptlets"></div>
-    <hr />
-    <button id="manage">⚙️ Edit Promptlets / API Key</button>
+<ul id="promptlet-list"></ul>
 
-    <script src="popup.js"></script>
-  </body>
-</html>
+<script>
+const list = document.getElementById('promptlet-list');
+chrome.storage.local.get({ promptlets: [] }, (data) => {
+  data.promptlets.forEach(p => {
+    const li = document.createElement('li');
+    li.textContent = `${p.emoji || ''} ${p.name}`;
+    li.dataset.promptlet = p.name;
+    li.addEventListener('click', () => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.runtime.sendMessage({ action: 'runPromptlet', name: p.name, tabId: tabs[0].id, text: window.getSelection().toString() });
+        window.close();
+      });
+    });
+    list.appendChild(li);
+  });
+});
+</script>
