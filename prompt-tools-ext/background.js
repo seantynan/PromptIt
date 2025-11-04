@@ -30,6 +30,9 @@ const DEFAULT_PROMPTLETS = [
 const CONTEXT_MENU_ROOT_ID = "promptit_root";
 const MANAGE_PROMPTLETS_ID = "manage_promptlets";
 
+// Store pending promptlet data
+let pendingPromptletData = null;
+
 // -------------------------
 // Initialization
 // -------------------------
@@ -169,23 +172,35 @@ function runPromptletByName(tabId, promptletName, selectionText) {
 // -------------------------
 // Core function to execute a promptlet
 // -------------------------
-function runPromptlet(tabId, promptlet, selectionText) {
+async function runPromptlet(tabId, promptlet, selectionText) {
   console.log(`Running promptlet: ${promptlet.name}`);
 
-  // Open side panel
-  if (chrome.sidePanel && chrome.sidePanel.open) {
-    chrome.sidePanel.open({ tabId });
-  }
-
-  // Send message to side panel
-  chrome.runtime.sendMessage({
-    action: "runPromptlet",
+  // Store data for side panel to retrieve
+  pendingPromptletData = {
     promptlet: promptlet,
     text: selectionText || "",
     timestamp: Date.now()
-  }).catch(err => {
-    console.error("Failed to send message to side panel:", err);
-  });
+  };
+
+  // Store in chrome.storage for side panel access
+  await chrome.storage.local.set({ pendingPromptlet: pendingPromptletData });
+
+  // Open side panel and wait a bit for it to load
+  if (chrome.sidePanel && chrome.sidePanel.open) {
+    await chrome.sidePanel.open({ tabId });
+    
+    // Wait for side panel to be ready, then try sending message
+    setTimeout(() => {
+      chrome.runtime.sendMessage({
+        action: "runPromptlet",
+        promptlet: promptlet,
+        text: selectionText || "",
+        timestamp: Date.now()
+      }).catch(err => {
+        console.log("Message send failed (expected if side panel reads from storage):", err.message);
+      });
+    }, 100);
+  }
 }
 
 // -------------------------
@@ -201,6 +216,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         runPromptletByName(msg.tabId, msg.name, msg.text || "");
       }
       sendResponse({ success: true });
+      break;
+
+    case "getPendingPromptlet":
+      // Side panel requesting pending data
+      sendResponse({ data: pendingPromptletData });
+      pendingPromptletData = null; // Clear after retrieval
       break;
 
     case "runPromptletChain":
