@@ -7,10 +7,41 @@ const statusDiv = document.getElementById("status");
 const outputDiv = document.getElementById("output");
 
 // -------------------------
-// Initialize
+// Initialize - Check for pending promptlet data
 // -------------------------
 console.log("PromptIt side panel loaded");
 updateStatus("Ready. Select text and run a promptlet.");
+
+// Check if there's a pending promptlet when side panel opens
+checkForPendingPromptlet();
+
+async function checkForPendingPromptlet() {
+  try {
+    // First try storage
+    const { pendingPromptlet } = await chrome.storage.local.get("pendingPromptlet");
+    
+    if (pendingPromptlet && pendingPromptlet.timestamp) {
+      // Check if it's recent (within last 5 seconds)
+      const age = Date.now() - pendingPromptlet.timestamp;
+      if (age < 5000) {
+        console.log("Found pending promptlet in storage");
+        await chrome.storage.local.remove("pendingPromptlet");
+        runPromptlet(pendingPromptlet.text, pendingPromptlet.promptlet);
+        return;
+      }
+    }
+
+    // Also try asking background script
+    chrome.runtime.sendMessage({ action: "getPendingPromptlet" }, (response) => {
+      if (response && response.data) {
+        console.log("Received pending promptlet from background");
+        runPromptlet(response.data.text, response.data.promptlet);
+      }
+    });
+  } catch (err) {
+    console.error("Error checking for pending promptlet:", err);
+  }
+}
 
 // -------------------------
 // Listen for messages from background script
