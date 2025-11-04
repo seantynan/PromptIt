@@ -1,31 +1,202 @@
-chrome.runtime.onMessage.addListener((msg) => {
+// =========================================================================
+// PromptIt Side Panel
+// Receives promptlet requests and displays AI output
+// =========================================================================
+
+const statusDiv = document.getElementById("status");
+const outputDiv = document.getElementById("output");
+
+// -------------------------
+// Initialize
+// -------------------------
+console.log("PromptIt side panel loaded");
+updateStatus("Ready. Select text and run a promptlet.");
+
+// -------------------------
+// Listen for messages from background script
+// -------------------------
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  console.log("Side panel received message:", msg);
+
   if (msg.action === "runPromptlet") {
-    runPromptlet(msg.text, msg.prompt);
+    runPromptlet(msg.text, msg.promptlet);
+    sendResponse({ received: true });
   }
 });
 
-async function runPromptlet(selectedText, prompt) {
-  const statusDiv = document.getElementById("status");
-  const outputDiv = document.getElementById("output");
+// -------------------------
+// Update status message
+// -------------------------
+function updateStatus(message, isError = false) {
+  statusDiv.textContent = message;
+  statusDiv.style.color = isError ? "red" : "gray";
+}
 
-  statusDiv.textContent = "Processing…";
+// -------------------------
+// Main promptlet execution
+// -------------------------
+async function runPromptlet(selectedText, promptlet) {
+  console.log(`Running: ${promptlet.name}`);
+  
+  if (!selectedText || selectedText.trim() === "") {
+    updateStatus("No text selected", true);
+    outputDiv.textContent = "Please select some text and try again.";
+    return;
+  }
+
+  updateStatus(`Processing with ${promptlet.name}...`);
+  outputDiv.textContent = "";
 
   try {
+    // Get API key from storage
     const { apiKey } = await chrome.storage.local.get("apiKey");
-    if (!apiKey) throw new Error("Missing API key. Please add it in settings.");
+    
+    if (!apiKey || apiKey.trim() === "") {
+      throw new Error("API key not found. Please add it in Manage Promptlets.");
+    }
 
-    const combinedPrompt = `${prompt}\n\n${selectedText}`;
-    const result = await callOpenAI(combinedPrompt, apiKey);
+    // Build the combined prompt
+    const combinedPrompt = `${promptlet.prompt}\n\n${selectedText}`;
+    
+    // Call OpenAI API
+    const result = await callOpenAI(combinedPrompt, apiKey, promptlet.model || "gpt-3.5-turbo");
 
-    statusDiv.textContent = "Done!";
-    outputDiv.textContent = result;
+    // Display result
+    updateStatus("✓ Done!");
+    displayOutput(result, promptlet);
+
   } catch (err) {
-    statusDiv.textContent = "Error";
-    outputDiv.textContent = err.message;
+    console.error("Error running promptlet:", err);
+    updateStatus("Error", true);
+    outputDiv.innerHTML = `
+      <div style="color: red; padding: 10px; background: #fee; border-radius: 4px;">
+        <strong>Error:</strong> ${err.message}
+      </div>
+      <div style="margin-top: 10px; font-size: 12px; color: #666;">
+        ${err.message.includes("API key") ? 
+          'Go to <a href="#" id="openManage">Manage Promptlets</a> to set your API key.' : 
+          'Check the console for details.'}
+      </div>
+    `;
+
+    // Add click handler for manage link
+    const manageLink = document.getElementById("openManage");
+    if (manageLink) {
+      manageLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        chrome.runtime.openOptionsPage();
+      });
+    }
   }
 }
 
-async function callOpenAI(prompt, apiKey) {
+// -------------------------
+// Display output with structure parsing
+// -------------------------
+function displayOutput(text, promptlet) {
+  // Simple structured output parsing
+  // Future: implement more sophisticated parsing based on outputStructure
+  
+  const sections = parseStructuredOutput(text);
+  
+  if (sections.length > 1) {
+    // Multiple sections detected
+    outputDiv.innerHTML = "";
+    sections.forEach(section => {
+      const sectionDiv = document.createElement("div");
+      sectionDiv.style.marginBottom = "15px";
+      sectionDiv.style.padding = "10px";
+      sectionDiv.style.background = "#f9f9f9";
+      sectionDiv.style.borderRadius = "4px";
+      
+      if (section.title) {
+        const titleEl = document.createElement("strong");
+        titleEl.textContent = section.title;
+        titleEl.style.display = "block";
+        titleEl.style.marginBottom = "8px";
+        sectionDiv.appendChild(titleEl);
+      }
+      
+      const contentEl = document.createElement("pre");
+      contentEl.style.whiteSpace = "pre-wrap";
+      contentEl.style.wordWrap = "break-word";
+      contentEl.style.margin = "0";
+      contentEl.style.fontFamily = "inherit";
+      contentEl.textContent = section.content;
+      sectionDiv.appendChild(contentEl);
+      
+      outputDiv.appendChild(sectionDiv);
+    });
+  } else {
+    // Single output
+    outputDiv.textContent = text;
+  }
+
+  // Add copy button
+  addCopyButton(text);
+}
+
+// -------------------------
+// Parse structured output (basic implementation)
+// -------------------------
+function parseStructuredOutput(text) {
+  const sections = [];
+  
+  // Check for common section markers
+  const sectionRegex = /^(Main Output|Notes|Commentary|Change Log|Warnings?):\s*$/gim;
+  const matches = [...text.matchAll(sectionRegex)];
+  
+  if (matches.length === 0) {
+    // No sections found, return as single section
+    return [{ title: null, content: text }];
+  }
+  
+  // Split into sections
+  let lastIndex = 0;
+  matches.forEach((match, i) => {
+    const title = match[1];
+    const startIndex = match.index + match[0].length;
+    const endIndex = i < matches.length - 1 ? matches[i + 1].index : text.length;
+    const content = text.substring(startIndex, endIndex).trim();
+    
+    sections.push({ title, content });
+  });
+  
+  return sections;
+}
+
+// -------------------------
+// Add copy button
+// -------------------------
+function addCopyButton(text) {
+  const existingBtn = document.getElementById("copyBtn");
+  if (existingBtn) existingBtn.remove();
+
+  const btn = document.createElement("button");
+  btn.id = "copyBtn";
+  btn.textContent = "📋 Copy Output";
+  btn.style.marginTop = "10px";
+  btn.style.padding = "8px 12px";
+  btn.style.cursor = "pointer";
+  
+  btn.addEventListener("click", () => {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = "✓ Copied!";
+      setTimeout(() => {
+        btn.textContent = "📋 Copy Output";
+      }, 2000);
+    });
+  });
+  
+  outputDiv.parentElement.appendChild(btn);
+}
+
+// -------------------------
+// Call OpenAI API
+// -------------------------
+async function callOpenAI(prompt, apiKey, model = "gpt-3.5-turbo") {
+  console.log(`Calling OpenAI with model: ${model}`);
+  
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -33,13 +204,37 @@ async function callOpenAI(prompt, apiKey) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",
+      model: model,
       messages: [{ role: "user", content: prompt }],
-      temperature: 0
+      temperature: 0.7,
+      max_tokens: 2000
     })
   });
 
-  if (!response.ok) throw new Error(`OpenAI API error: ${response.status}`);
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.error?.message || `API error: ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
   const data = await response.json();
   return data.choices[0].message.content.trim();
 }
+
+// -------------------------
+// Handle connection from background script (alternative method)
+// -------------------------
+chrome.runtime.onConnect.addListener((port) => {
+  console.log("Port connected:", port.name);
+  
+  if (port.name === "PromptItChannel") {
+    port.onMessage.addListener((msg) => {
+      console.log("Message via port:", msg);
+      if (msg.action === "runPromptlet") {
+        runPromptlet(msg.text, msg.promptlet);
+      }
+    });
+  }
+});
+
+console.log("PromptIt side panel ready");
