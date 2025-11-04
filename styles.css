@@ -1,27 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=League+Gothic&display=swap');
 
+/* --- Root theme (Portishead Third-inspired) --- */
 :root {
-  --bg: #004f53;       /* deep teal-blue (approx) */
-  --fg: #e6e7e7;       /* off-white/light grey for text */
-  --border: #0b3a3d;   /* a darker complement for border */
+  --bg: #004f53;      /* deep teal-blue background */
+  --fg: #e6e7e7;      /* off-white/light grey text */
+  --border: #0b3a3d;  /* darker teal border */
+  --hover: #0b3a3d;   /* hover background */
 }
 
+/* --- Global reset --- */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+/* --- Body --- */
 body {
+  width: 220px;
   height: 100vh;
+  margin: 0 auto;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+
   background: var(--bg);
   color: var(--fg);
   font-family: 'League Gothic', 'Arial Narrow', sans-serif;
 }
 
+/* --- Paragraph block --- */
 .album-text {
   font-size: 4rem;
   font-weight: 400;
@@ -33,3 +42,17 @@ body {
   background: var(--bg);
   filter: contrast(1.05) brightness(0.97);
 }
+
+/* --- List styles --- */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+  width: 100%;
+  text-align: center;
+}
+
+li {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: 'League
