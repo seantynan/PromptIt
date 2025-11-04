@@ -1,52 +1,20 @@
-<script>
-const list = document.getElementById('promptlet-list');
-
-// Helper: ensure defaults exist
-function ensureDefaults(callback) {
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
-    if (!data.promptlets || data.promptlets.length === 0) {
-      const defaultPromptlets = [
-        { name: "Summarize", emoji: "💡", prompt: "Summarize this text clearly and concisely." },
-        { name: "Rephrase", emoji: "✍️", prompt: "Rephrase this text to improve clarity and flow." }
-      ];
-      chrome.storage.local.set({ promptlets: defaultPromptlets }, () => {
-        callback(defaultPromptlets);
-      });
-    } else {
-      callback(data.promptlets);
-    }
-  });
-}
-
-// Render promptlets in the popup
-function renderPromptlets(promptlets) {
-  list.innerHTML = "";
-  promptlets.forEach(p => {
-    const li = document.createElement('li');
-    li.textContent = `${p.emoji || ''} ${p.name}`;
-    li.dataset.promptlet = p.name;
-    li.addEventListener('click', () => {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const tab = tabs[0];
-        chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: () => window.getSelection().toString()
-        }, (results) => {
-          const selectionText = results && results[0] ? results[0].result : '';
-          chrome.runtime.sendMessage({
-            action: 'runPromptlet',
-            name: p.name,
-            tabId: tab.id,
-            text: selectionText
-          });
-          window.close();
-        });
-      });
-    });
-    list.appendChild(li);
-  });
-}
-
-// Initialize
-ensureDefaults(renderPromptlets);
-</script>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>PromptIt</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="container">
+    <h3 style="margin: 10px; font-size: 14px;">PromptIt</h3>
+    <ul id="promptlet-list"></ul>
+    <div style="padding: 10px; border-top: 1px solid #ddd;">
+      <button id="manage" style="width: 100%; padding: 8px; cursor: pointer;">
+        ⚙️ Manage Promptlets
+      </button>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
