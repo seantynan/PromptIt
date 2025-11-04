@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=League+Gothic&display=swap');
+
+:root {
+  --bg: #004f53;       /* deep teal-blue (approx) */
+  --fg: #e6e7e7;       /* off-white/light grey for text */
+  --border: #0b3a3d;   /* a darker complement for border */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'League Gothic', 'Arial Narrow', sans-serif;
+}
+
+.album-text {
+  font-size: 4rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-align: center;
+  border: 4px solid var(--border);
+  padding: 1.5rem 2.5rem;
+  background: var(--bg);
+  filter: contrast(1.05) brightness(0.97);
+}
