@@ -113,21 +113,37 @@ function buildContextMenus() {
 // Handle context menu clicks
 // -------------------------
 chrome.contextMenus.onClicked.addListener((info, tab) => {
+  console.log("=== CONTEXT MENU CLICKED ===");
+  console.log("Menu ID:", info.menuItemId);
+  console.log("Selection:", info.selectionText);
+  console.log("Tab:", tab);
+  
   if (info.menuItemId === MANAGE_PROMPTLETS_ID) {
+    console.log("Opening options page");
     chrome.runtime.openOptionsPage();
     return;
   }
 
   if (!info.selectionText) {
     console.warn("No text selected");
+    alert("No text selected!");
     return;
   }
 
   // Extract promptlet index from menu ID
   const match = info.menuItemId.match(/^promptlet_(\d+)_/);
-  if (!match) return;
+  console.log("Regex match:", match);
+  
+  if (!match) {
+    console.error("No match for menu ID pattern");
+    alert("Invalid menu ID: " + info.menuItemId);
+    return;
+  }
 
   const promptletIndex = parseInt(match[1], 10);
+  console.log("Promptlet index:", promptletIndex);
+  
+  alert(`About to run promptlet ${promptletIndex}`); // Visual confirmation
   runPromptletByIndex(tab.id, promptletIndex, info.selectionText);
 });
 
@@ -135,6 +151,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 // Run promptlet by index
 // -------------------------
 function runPromptletByIndex(tabId, index, selectionText) {
+  console.log("=== RUN PROMPTLET BY INDEX ===");
+  console.log("Index:", index, "TabId:", tabId);
+  
   chrome.storage.local.get({ promptlets: [] }, (data) => {
     const promptlets = (data.promptlets && data.promptlets.length > 0)
       ? data.promptlets
@@ -146,6 +165,7 @@ function runPromptletByIndex(tabId, index, selectionText) {
       return;
     }
 
+    console.log("Found promptlet:", promptlet.name);
     runPromptlet(tabId, promptlet, selectionText);
   });
 }
@@ -172,34 +192,45 @@ function runPromptletByName(tabId, promptletName, selectionText) {
 // -------------------------
 // Core function to execute a promptlet
 // -------------------------
-async function runPromptlet(tabId, promptlet, selectionText) {
+function runPromptlet(tabId, promptlet, selectionText) {
   console.log(`Running promptlet: ${promptlet.name}`);
+  console.log(`Tab ID: ${tabId}`);
+  console.log(`Selected text length: ${selectionText?.length || 0}`);
 
   // Store data for side panel to retrieve
-  pendingPromptletData = {
+  const promptletData = {
     promptlet: promptlet,
     text: selectionText || "",
     timestamp: Date.now()
   };
 
-  // Store in chrome.storage for side panel access
-  await chrome.storage.local.set({ pendingPromptlet: pendingPromptletData });
-
-  // Open side panel and wait a bit for it to load
-  if (chrome.sidePanel && chrome.sidePanel.open) {
-    await chrome.sidePanel.open({ tabId });
-    
-    // Wait for side panel to be ready, then try sending message
-    setTimeout(() => {
-      chrome.runtime.sendMessage({
-        action: "runPromptlet",
-        promptlet: promptlet,
-        text: selectionText || "",
-        timestamp: Date.now()
-      }).catch(err => {
-        console.log("Message send failed (expected if side panel reads from storage):", err.message);
+  // CRITICAL: Open side panel FIRST, before any async operations
+  // This must be synchronous to preserve user gesture context
+  try {
+    console.log("Opening side panel (synchronous)...");
+    chrome.sidePanel.open({ tabId: tabId }, () => {
+      console.log("Side panel opened!");
+      
+      // NOW do async storage operations
+      chrome.storage.local.set({ pendingPromptlet: promptletData }, () => {
+        console.log("Stored pending promptlet data");
+        
+        // Try sending message as backup
+        setTimeout(() => {
+          chrome.runtime.sendMessage({
+            action: "runPromptlet",
+            promptlet: promptlet,
+            text: selectionText || "",
+            timestamp: Date.now()
+          }).catch(err => {
+            console.log("Message send failed (side panel will read from storage):", err.message);
+          });
+        }, 200);
       });
-    }, 100);
+    });
+  } catch (err) {
+    console.error("Failed to open side panel:", err);
+    alert(`Failed to open side panel: ${err.message}`);
   }
 }
 
