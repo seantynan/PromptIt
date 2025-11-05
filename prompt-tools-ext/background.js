@@ -33,11 +33,18 @@ chrome.runtime.onStartup.addListener(() => {
 // Ensure default promptlets exist on first install
 // -------------------------
 function initializeDefaults() {
-  chrome.storage.local.get({ promptlets: [], apiKey: "" }, (data) => {
-    if (!data.promptlets || data.promptlets.length === 0) {
-      chrome.storage.local.set({ promptlets: DEFAULT_PROMPTLETS }, () => {
-        console.log("Default promptlets initialized");
+  chrome.storage.local.get({ promptlets: [], apiKey: "", hasInitialized: false }, (data) => {
+    // Only initialize if this is truly the first run
+    if (!data.hasInitialized) {
+      chrome.storage.local.set({ 
+        promptlets: DEFAULT_PROMPTLETS,
+        hasInitialized: true 
+      }, () => {
+        console.log(`Initialized with ${DEFAULT_PROMPTLETS.length} default promptlets`);
+        buildContextMenus();
       });
+    } else {
+      console.log(`Using ${data.promptlets.length} stored promptlets`);
     }
   });
 }
@@ -47,6 +54,11 @@ function initializeDefaults() {
 // -------------------------
 function buildContextMenus() {
   chrome.contextMenus.removeAll(() => {
+    if (chrome.runtime.lastError) {
+      console.error("Error removing menus:", chrome.runtime.lastError);
+      return;
+    }
+    
     chrome.storage.local.get({ promptlets: [] }, (data) => {
       const promptlets = (data.promptlets && data.promptlets.length > 0)
         ? data.promptlets
@@ -57,36 +69,41 @@ function buildContextMenus() {
         id: CONTEXT_MENU_ROOT_ID,
         title: "PromptIt",
         contexts: ["selection"]
-      });
+      }, () => {
+        if (chrome.runtime.lastError) {
+          console.error("Error creating root menu:", chrome.runtime.lastError);
+          return;
+        }
 
-      // Create promptlet submenus
-      promptlets.forEach((p, index) => {
-        const menuId = `promptlet_${index}_${p.name}`;
+        // Create promptlet submenus
+        promptlets.forEach((p, index) => {
+          const menuId = `promptlet_${index}_${p.name}`;
+          chrome.contextMenus.create({
+            id: menuId,
+            parentId: CONTEXT_MENU_ROOT_ID,
+            title: `${p.emoji || "📝"} ${p.name}`,
+            contexts: ["selection"]
+          });
+        });
+
+        // Separator
         chrome.contextMenus.create({
-          id: menuId,
+          id: "separator",
           parentId: CONTEXT_MENU_ROOT_ID,
-          title: `${p.emoji || "📝"} ${p.name}`,
+          type: "separator",
           contexts: ["selection"]
         });
-      });
 
-      // Separator
-      chrome.contextMenus.create({
-        id: "separator",
-        parentId: CONTEXT_MENU_ROOT_ID,
-        type: "separator",
-        contexts: ["selection"]
-      });
+        // Manage promptlets option
+        chrome.contextMenus.create({
+          id: MANAGE_PROMPTLETS_ID,
+          parentId: CONTEXT_MENU_ROOT_ID,
+          title: "⚙️ Manage Promptlets",
+          contexts: ["selection"]
+        });
 
-      // Manage promptlets option
-      chrome.contextMenus.create({
-        id: MANAGE_PROMPTLETS_ID,
-        parentId: CONTEXT_MENU_ROOT_ID,
-        title: "⚙️ Manage Promptlets",
-        contexts: ["selection"]
+        console.log(`Built ${promptlets.length} context menu items`);
       });
-
-      console.log(`Built ${promptlets.length} context menu items`);
     });
   });
 }
@@ -273,6 +290,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       chrome.storage.local.set({ promptlets: msg.promptlets }, () => {
         buildContextMenus();
         sendResponse({ success: true });
+      });
+      return true;
+
+    case "resetToDefaults":
+      // Reset to default promptlets
+      chrome.storage.local.set({ promptlets: DEFAULT_PROMPTLETS }, () => {
+        buildContextMenus();
+        sendResponse({ success: true, count: DEFAULT_PROMPTLETS.length });
       });
       return true;
 
