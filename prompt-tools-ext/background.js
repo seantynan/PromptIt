@@ -126,7 +126,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
   if (!info.selectionText) {
     console.warn("No text selected");
-    alert("No text selected!");
     return;
   }
 
@@ -136,14 +135,12 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   
   if (!match) {
     console.error("No match for menu ID pattern");
-    alert("Invalid menu ID: " + info.menuItemId);
     return;
   }
 
   const promptletIndex = parseInt(match[1], 10);
   console.log("Promptlet index:", promptletIndex);
   
-  alert(`About to run promptlet ${promptletIndex}`); // Visual confirmation
   runPromptletByIndex(tab.id, promptletIndex, info.selectionText);
 });
 
