@@ -60,7 +60,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 // -------------------------
 function updateStatus(message, isError = false) {
   statusDiv.textContent = message;
-  statusDiv.style.color = isError ? "red" : "gray";
+  statusDiv.className = isError ? "error" : "";
 }
 
 // -------------------------
