@@ -3,30 +3,12 @@
 // Handles context menus, message routing, and promptlet execution
 // =========================================================================
 
+// Import default promptlets
+importScripts('defaultPromptlets.js');
+
 // -------------------------
 // Constants
 // -------------------------
-const DEFAULT_PROMPTLETS = [
-  { 
-    name: "Summarize", 
-    emoji: "💡", 
-    prompt: "Summarize this text clearly and concisely.",
-    model: "gpt-3.5-turbo"
-  },
-  { 
-    name: "Rephrase", 
-    emoji: "✏️", 
-    prompt: "Rephrase this text to improve clarity and flow.",
-    model: "gpt-3.5-turbo"
-  },
-  { 
-    name: "Prettifier", 
-    emoji: "✨", 
-    prompt: "Rewrite the text clearly and elegantly, improving structure and readability.",
-    model: "gpt-3.5-turbo"
-  }
-];
-
 const CONTEXT_MENU_ROOT_ID = "promptit_root";
 const MANAGE_PROMPTLETS_ID = "manage_promptlets";
 
@@ -206,6 +188,11 @@ function runPromptlet(tabId, promptlet, selectionText) {
   try {
     console.log("Opening side panel (synchronous)...");
     chrome.sidePanel.open({ tabId: tabId }, () => {
+      if (chrome.runtime.lastError) {
+        console.error("Error opening side panel:", chrome.runtime.lastError);
+        return;
+      }
+      
       console.log("Side panel opened!");
       
       // NOW do async storage operations
@@ -227,7 +214,6 @@ function runPromptlet(tabId, promptlet, selectionText) {
     });
   } catch (err) {
     console.error("Failed to open side panel:", err);
-    alert(`Failed to open side panel: ${err.message}`);
   }
 }
 
