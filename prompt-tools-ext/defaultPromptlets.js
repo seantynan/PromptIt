@@ -28,7 +28,7 @@ const DEFAULT_PROMPTLETS = [
   {
     name: "FoodAnalyser",
     emoji: "🍎",
-    prompt: "Analyze this meal or food entry for nutritional content and health impact. Provide constructive feedback.",
+    prompt: "Analyze this meal or food entry. List key nutrients, health benefits, and any concerns (e.g. high fat, sodium). Keep it clear and constructive.",
     model: "gpt-3.5-turbo",
     outputStructure: ["main", "notes"]
   },
