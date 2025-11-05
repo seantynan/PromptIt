@@ -19,28 +19,14 @@ const DEFAULT_PROMPTLETS = [
     outputStructure: ["main"]
   },
   {
-    name: "Prettifier",
-    emoji: "✨",
-    prompt: "Rewrite the text clearly and elegantly, improving structure and readability.",
-    model: "gpt-3.5-turbo",
-    outputStructure: ["main"]
-  },
-  {
-    name: "FoodAnalyser",
+    name: "Food Analyser",
     emoji: "🍎",
     prompt: "Analyze this meal or food entry. List key nutrients, health benefits, and any concerns (e.g. high fat, sodium). Keep it clear and constructive.",
     model: "gpt-3.5-turbo",
     outputStructure: ["main", "notes"]
   },
   {
-    name: "Frenchifier",
-    emoji: "🇫🇷",
-    prompt: "Translate this text to French. Add linguistic notes about interesting translations or idioms used.",
-    model: "gpt-3.5-turbo",
-    outputStructure: ["main", "notes"]
-  },
-  {
-    name: "LearnALanguage",
+    name: "Learn a Language",
     emoji: "🌍",
     prompt: `You are an ai translator that translates from from any language to English. 
 
@@ -56,7 +42,7 @@ Display the translated text, starting with the header: "Translated from <the det
 
 Append some notes in a concise and elegantly way for the Intermediate Level student of the language. The notes should pick up on some interesting aspects of the translation, so as to encourage the understanding and curiosity of the student.
 
-The user's text to be translated to English is as follows (remove the quotes from the output): 
+The user's text to be translated to English is as follows: 
 
 `,
     model: "gpt-3.5-turbo",
