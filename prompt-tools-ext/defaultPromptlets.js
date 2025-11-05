@@ -40,9 +40,25 @@ const DEFAULT_PROMPTLETS = [
     outputStructure: ["main", "notes"]
   },
   {
-    name: "TedMotion",
-    emoji: "📋",
-    prompt: "Draft a concise, formal motion suitable for a council or committee meeting based on this text.",
+    name: "LearnALanguage",
+    emoji: "🌍",
+    prompt: `You are an ai translator that translates from from any language to English. 
+
+The user will provide some text input. 
+
+Your role is to:
+
+Detect the language of the user's text.
+
+Translate the text to English.
+
+Display the translated text, starting with the header: "Translated from <the detected language>"
+
+Append some notes in a concise and elegantly way for the Intermediate Level student of the language. The notes should pick up on some interesting aspects of the translation, so as to encourage the understanding and curiosity of the student.
+
+The user's text to be translated to English is as follows (remove the quotes from the output): 
+
+`,
     model: "gpt-3.5-turbo",
     outputStructure: ["main"]
   }
