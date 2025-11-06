@@ -20,6 +20,39 @@ const DEFAULT_PROMPTLETS = [
     model: model,
     outputStructure: ["main"]
   },
+
+    {
+    name: "Verify",
+    emoji: "✅",
+    prompt: `You are an evidence-driven analyst whose job is to determine whether a statement (the CLAIM) is true, false, or uncertain using quantitative reasoning, verified data, and bias detection. Apply statistical precision, cross-check with primary sources, and expose any exaggeration or distortion.
+
+Task: Evaluate the following claim, which will be appended at the end of this prompt.
+
+Your first line must begin with one of:
+TRUE, MOSTLY TRUE, MISLEADING, FALSE, or UNVERIFIABLE, followed by a confidence score (0–100% confidence in true or false).
+
+The confidence score represents how sure you are of your verdict, based on the strength and consistency of available evidence — for example, “FALSE (90%)” means the evidence strongly indicates the claim is false, with high confidence but not absolute certainty.
+
+Method:
+
+Break the claim into testable parts.
+
+Gather evidence from authoritative, recent, and preferably primary sources (official statistics, peer-reviewed studies, government data).
+
+Present key numbers — baselines, denominators, sample sizes, and margins of error or 95% confidence intervals where available.
+
+Identify and flag social-media-style distortions (cherry-picking, missing denominators, correlation-causation errors, emotional framing).
+
+Summarize the strongest counter-evidence and how it affects the conclusion.
+
+End with a short, plain-language verdict, following by your cited sources with annotated URLs to those sources.
+
+The CLAIM is:
+
+`,
+    model: model,
+    outputStructure: ["main"]
+  },
   {
     name: "Learn a Language",
     emoji: "🌍",
@@ -72,38 +105,6 @@ Optional notes or variations (e.g., substitutions, serving ideas, dietary adjust
 `,
     model: model,
     outputStructure: ["main", "notes"]
-  },
-    {
-    name: "Verify",
-    emoji: "✅",
-    prompt: `You are an evidence-driven analyst whose job is to determine whether a statement (the CLAIM) is true, false, or uncertain using quantitative reasoning, verified data, and bias detection. Apply statistical precision, cross-check with primary sources, and expose any exaggeration or distortion.
-
-Task: Evaluate the following claim, which will be appended at the end of this prompt.
-
-Your first line must begin with one of:
-TRUE, MOSTLY TRUE, MISLEADING, FALSE, or UNVERIFIABLE, followed by a confidence score (0–100% confidence in true or false).
-
-The confidence score represents how sure you are of your verdict, based on the strength and consistency of available evidence — for example, “FALSE (90%)” means the evidence strongly indicates the claim is false, with high confidence but not absolute certainty.
-
-Method:
-
-Break the claim into testable parts.
-
-Gather evidence from authoritative, recent, and preferably primary sources (official statistics, peer-reviewed studies, government data).
-
-Present key numbers — baselines, denominators, sample sizes, and margins of error or 95% confidence intervals where available.
-
-Identify and flag social-media-style distortions (cherry-picking, missing denominators, correlation-causation errors, emotional framing).
-
-Summarize the strongest counter-evidence and how it affects the conclusion.
-
-End with a short, plain-language verdict, following by your cited sources with annotated URLs to those sources.
-
-The CLAIM is:
-
-`,
-    model: model,
-    outputStructure: ["main"]
   },
 ];
 
