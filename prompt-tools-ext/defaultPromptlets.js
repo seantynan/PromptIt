@@ -19,13 +19,6 @@ const DEFAULT_PROMPTLETS = [
     outputStructure: ["main"]
   },
   {
-    name: "Food Analyser",
-    emoji: "🍎",
-    prompt: "Analyze this meal or food entry. List key nutrients, health benefits, and any concerns (e.g. high fat, sodium). Keep it clear and constructive.",
-    model: "gpt-3.5-turbo",
-    outputStructure: ["main", "notes"]
-  },
-  {
     name: "Learn a Language",
     emoji: "🌍",
     prompt: `You are an ai translator that translates from from any language to English. 
@@ -47,6 +40,34 @@ The user's text to be translated to English is as follows:
 `,
     model: "gpt-3.5-turbo",
     outputStructure: ["main"]
+  },
+    {
+    name: "Food Analyser",
+    emoji: "🍎",
+    prompt: "Analyze this meal or food entry. List key nutrients, health benefits, and any concerns (e.g. high fat, sodium). Keep it clear and constructive.",
+    model: "gpt-3.5-turbo",
+    outputStructure: ["main", "notes"]
+  },
+    {
+    name: "Recipe Creator",
+    emoji: "🍽️",
+    prompt: `You are a professional chef and recipe developer. Read the text below — it may describe a meal, ingredient combination, or restaurant-style dish — and turn it into a complete, well-structured recipe.
+
+Include:
+
+Recipe title
+
+Short description (style, flavor profile, or context)
+
+Ingredients list with clear quantities and units
+
+Step-by-step method with numbered instructions
+
+Optional notes or variations (e.g., substitutions, serving ideas, dietary adjustments):
+
+`,
+    model: "gpt-3.5-turbo",
+    outputStructure: ["main", "notes"]
   }
 ];
 
