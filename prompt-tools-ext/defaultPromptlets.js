@@ -55,13 +55,15 @@ The user's text to be translated to English is as follows:
 
 Include:
 
-Recipe title with serving size
+Recipe title.
 
-Short description (style, flavor profile, or context)
+Serving size.
 
-Ingredients list with clear quantities and units
+Short description (style, flavor profile, or context).
 
-Step-by-step method with numbered instructions
+Ingredients list with clear quantities and units.
+
+Step-by-step method with numbered instructions.
 
 Optional notes or variations (e.g., substitutions, serving ideas, dietary adjustments):
 
