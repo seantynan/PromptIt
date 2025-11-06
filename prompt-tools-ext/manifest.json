@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "PromptIt",
+  "name": "Prompt It!",
   "version": "1.0",
   "description": "Run custom AI promptlets on selected text.",
   "permissions": ["contextMenus", "sidePanel", "storage", "activeTab", "scripting"],
