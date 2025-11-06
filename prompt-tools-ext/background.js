@@ -15,6 +15,9 @@ const MANAGE_PROMPTLETS_ID = "manage_promptlets";
 // Store pending promptlet data
 let pendingPromptletData = null;
 
+// Flag to prevent duplicate menu builds
+let isRebuildingMenus = false;
+
 // -------------------------
 // Initialization
 // -------------------------
@@ -53,9 +56,18 @@ function initializeDefaults() {
 // Build context menus dynamically based on saved promptlets
 // -------------------------
 function buildContextMenus() {
+  if (isRebuildingMenus) {
+    console.log("Menu rebuild already in progress, skipping...");
+    return;
+  }
+  
+  isRebuildingMenus = true;
+  console.log("Building context menus...");
+  
   chrome.contextMenus.removeAll(() => {
     if (chrome.runtime.lastError) {
       console.error("Error removing menus:", chrome.runtime.lastError);
+      isRebuildingMenus = false;
       return;
     }
     
@@ -67,11 +79,12 @@ function buildContextMenus() {
       // Create root menu
       chrome.contextMenus.create({
         id: CONTEXT_MENU_ROOT_ID,
-        title: "Prompt It!",
+        title: "PromptIt",
         contexts: ["selection"]
       }, () => {
         if (chrome.runtime.lastError) {
-          console.error("Error creating root menu:", chrome.runtime.lastError);
+          console.error("Error creating root menu:", chrome.runtime.lastError.message);
+          isRebuildingMenus = false;
           return;
         }
 
@@ -103,6 +116,7 @@ function buildContextMenus() {
         });
 
         console.log(`Built ${promptlets.length} context menu items`);
+        isRebuildingMenus = false;
       });
     });
   });
