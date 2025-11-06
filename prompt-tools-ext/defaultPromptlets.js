@@ -3,19 +3,21 @@
 // These promptlets are installed on first use
 // =========================================================================
 
+const model = "gpt-4o-mini";  // Or model Or "gpt-4o" for top-tier
+
 const DEFAULT_PROMPTLETS = [
   {
     name: "Summarise",
     emoji: "💡",
     prompt: "Summarise this text clearly and concisely.",
-    model: "gpt-3.5-turbo",
+    model: model,
     outputStructure: ["main"]
   },
   {
     name: "Rephrase",
     emoji: "✏️",
     prompt: "Rephrase this text to improve clarity and flow.",
-    model: "gpt-3.5-turbo",
+    model: model,
     outputStructure: ["main"]
   },
   {
@@ -38,14 +40,14 @@ Append some notes in a concise and elegantly way for the Intermediate Level stud
 The user's text to be translated to English is as follows: 
 
 `,
-    model: "gpt-3.5-turbo",
+    model: model,
     outputStructure: ["main"]
   },
     {
     name: "Food Analyser",
     emoji: "🍎",
     prompt: "Analyze this meal or food entry. List key nutrients, health benefits, and any concerns (e.g. high fat, sodium). Keep it clear and constructive.",
-    model: "gpt-3.5-turbo",
+    model: model,
     outputStructure: ["main", "notes"]
   },
     {
@@ -68,7 +70,7 @@ Step-by-step method with numbered instructions.
 Optional notes or variations (e.g., substitutions, serving ideas, dietary adjustments):
 
 `,
-    model: "gpt-3.5-turbo",
+    model: model,
     outputStructure: ["main", "notes"]
   }
 ];
