@@ -5,9 +5,9 @@
 
 const DEFAULT_PROMPTLETS = [
   {
-    name: "Summarize",
+    name: "Summarise",
     emoji: "💡",
-    prompt: "Summarize this text clearly and concisely.",
+    prompt: "Summarise this text clearly and concisely.",
     model: "gpt-3.5-turbo",
     outputStructure: ["main"]
   },
