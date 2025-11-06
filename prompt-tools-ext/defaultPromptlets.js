@@ -55,7 +55,7 @@ The user's text to be translated to English is as follows:
 
 Include:
 
-Recipe title
+Recipe title with serving size
 
 Short description (style, flavor profile, or context)
 
