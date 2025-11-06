@@ -126,8 +126,6 @@ async function runPromptlet(selectedText, promptlet) {
 // -------------------------
 function displayOutput(text, promptlet) {
   // Simple structured output parsing
-  // Future: implement more sophisticated parsing based on outputStructure
-  
   const sections = parseStructuredOutput(text);
   
   if (sections.length > 1) {
@@ -135,32 +133,25 @@ function displayOutput(text, promptlet) {
     outputDiv.innerHTML = "";
     sections.forEach(section => {
       const sectionDiv = document.createElement("div");
-      sectionDiv.style.marginBottom = "15px";
-      sectionDiv.style.padding = "10px";
-      sectionDiv.style.background = "#f9f9f9";
-      sectionDiv.style.borderRadius = "4px";
+      sectionDiv.className = "section";
       
       if (section.title) {
         const titleEl = document.createElement("strong");
         titleEl.textContent = section.title;
-        titleEl.style.display = "block";
-        titleEl.style.marginBottom = "8px";
         sectionDiv.appendChild(titleEl);
       }
       
       const contentEl = document.createElement("pre");
-      contentEl.style.whiteSpace = "pre-wrap";
-      contentEl.style.wordWrap = "break-word";
-      contentEl.style.margin = "0";
-      contentEl.style.fontFamily = "inherit";
       contentEl.textContent = section.content;
       sectionDiv.appendChild(contentEl);
       
       outputDiv.appendChild(sectionDiv);
     });
   } else {
-    // Single output
-    outputDiv.textContent = text;
+    // Single output - display as plain text with proper wrapping
+    outputDiv.innerHTML = "";
+    const textNode = document.createTextNode(text);
+    outputDiv.appendChild(textNode);
   }
 
   // Add copy button
@@ -200,26 +191,38 @@ function parseStructuredOutput(text) {
 // Add copy button
 // -------------------------
 function addCopyButton(text) {
-  const existingBtn = document.getElementById("copyBtn");
-  if (existingBtn) existingBtn.remove();
-
-  const btn = document.createElement("button");
-  btn.id = "copyBtn";
-  btn.textContent = "📋 Copy Output";
-  btn.style.marginTop = "10px";
-  btn.style.padding = "8px 12px";
-  btn.style.cursor = "pointer";
+  const existingCopyBtn = document.getElementById("copyBtn");
+  if (existingCopyBtn) existingCopyBtn.remove();
   
-  btn.addEventListener("click", () => {
+  const existingCloseBtn = document.getElementById("closeBtn");
+  if (existingCloseBtn) existingCloseBtn.remove();
+
+  // Copy button
+  const copyBtn = document.createElement("button");
+  copyBtn.id = "copyBtn";
+  copyBtn.textContent = "📋 Copy Output";
+  
+  copyBtn.addEventListener("click", () => {
     navigator.clipboard.writeText(text).then(() => {
-      btn.textContent = "✓ Copied!";
+      copyBtn.textContent = "✓ Copied!";
       setTimeout(() => {
-        btn.textContent = "📋 Copy Output";
+        copyBtn.textContent = "📋 Copy Output";
       }, 2000);
     });
   });
   
-  outputDiv.parentElement.appendChild(btn);
+  document.body.appendChild(copyBtn);
+  
+  // Close button
+  const closeBtn = document.createElement("button");
+  closeBtn.id = "closeBtn";
+  closeBtn.textContent = "✕ Close";
+  
+  closeBtn.addEventListener("click", () => {
+    window.close();
+  });
+  
+  document.body.appendChild(closeBtn);
 }
 
 // -------------------------
