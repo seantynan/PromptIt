@@ -240,8 +240,8 @@ async function callOpenAI(prompt, apiKey, model = "gpt-3.5-turbo") {
     body: JSON.stringify({
       model: model,
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
-      max_tokens: 2000
+      temperature: 1,
+      max_completion_tokens: 4096
     })
   });
 

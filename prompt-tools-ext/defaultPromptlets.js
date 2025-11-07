@@ -50,7 +50,7 @@ End with a short, plain-language verdict, following by your cited sources with a
 The CLAIM is:
 
 `,
-    model: model,
+    model: "gpt-5-mini",
     outputStructure: ["main"]
   },
   {
@@ -90,13 +90,7 @@ The user's text to be translated to English is as follows:
 
 Include:
 
-<<<<<<< HEAD
-Recipe title 
-
-Serving size
-=======
 Recipe title.
->>>>>>> aa4a8e289a7b02c1363b4c53a01ccd9e328dabd2
 
 Serving size.
 
