@@ -3,7 +3,7 @@
 // These promptlets are installed on first use
 // =========================================================================
 
-const model = "gpt-5-mini"; //"gpt-4o-mini";  // Or model Or "gpt-4o" for top-tier
+const model = "gpt-5-mini"; //"gpt-4o-mini";  // Or "gpt-4o" for top-tier
 
 const DEFAULT_PROMPTLETS = [
   {
