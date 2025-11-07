@@ -3,7 +3,7 @@
 // These promptlets are installed on first use
 // =========================================================================
 
-const model = "gpt-4o-mini";  // Or model Or "gpt-4o" for top-tier
+const model = "gpt-5-mini"; //"gpt-4o-mini";  // Or model Or "gpt-4o" for top-tier
 
 const DEFAULT_PROMPTLETS = [
   {
@@ -50,7 +50,7 @@ End with a short, plain-language verdict, following by your cited sources with a
 The CLAIM is:
 
 `,
-    model: "gpt-5-mini",
+    model: model,
     outputStructure: ["main"]
   },
   {
