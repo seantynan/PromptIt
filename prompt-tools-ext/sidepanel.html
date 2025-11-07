@@ -19,11 +19,26 @@
       
       h2 {
         margin: 0 0 16px 0;
-        text-align: center; 
-        margin-bottom: 12px;
         font-size: 20px;
         font-weight: 600;
         color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .logo {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+        flex-shrink: 0;
       }
       
       #status {
@@ -35,7 +50,6 @@
         font-size: 14px;
         color: #666;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        transition: opacity 0.3s;
       }
       
       #status.error {
@@ -52,7 +66,6 @@
         white-space: pre-wrap;
         word-wrap: break-word;
         overflow-wrap: break-word;
-        overflow-y: auto; max-height: 400px;
         font-size: 14px;
         line-height: 1.6;
         color: #333;
@@ -89,7 +102,7 @@
       #closeBtn {
         margin-top: 8px;
         padding: 10px 16px;
-        background: #9E9E9E;
+        background: #757575;
         color: white;
         border: none;
         border-radius: 6px;
@@ -145,7 +158,10 @@
     </style>
   </head>
   <body>
-    <h2>Prompt It!</h2>
+    <h2>
+      <span class="logo">PI</span>
+      <span>Prompt It!</span>
+    </h2>
     <div id="status">Waiting for input…</div>
     <div id="output"></div>
     <script src="sidepanel.js"></script>
