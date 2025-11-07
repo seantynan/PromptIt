@@ -241,7 +241,7 @@ async function callOpenAI(prompt, apiKey, model = "gpt-3.5-turbo") {
       model: model,
       messages: [{ role: "user", content: prompt }],
       temperature: 1,
-      max_completion_tokens: 4096
+      max_completion_tokens: 2500
     })
   });
 
