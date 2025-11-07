@@ -3,19 +3,54 @@
 // These promptlets are installed on first use
 // =========================================================================
 
+const model = "gpt-4o-mini";  // Or model Or "gpt-4o" for top-tier
+
 const DEFAULT_PROMPTLETS = [
   {
     name: "Summarise",
     emoji: "💡",
     prompt: "Summarise this text clearly and concisely.",
-    model: "gpt-3.5-turbo",
+    model: model,
     outputStructure: ["main"]
   },
   {
     name: "Rephrase",
     emoji: "✏️",
     prompt: "Rephrase this text to improve clarity and flow.",
-    model: "gpt-3.5-turbo",
+    model: model,
+    outputStructure: ["main"]
+  },
+
+    {
+    name: "Verify",
+    emoji: "✅",
+    prompt: `You are an evidence-driven analyst whose job is to determine whether a statement (the CLAIM) is true, false, or uncertain using quantitative reasoning, verified data, and bias detection. Apply statistical precision, cross-check with primary sources, and expose any exaggeration or distortion.
+
+Task: Evaluate the following claim, which will be appended at the end of this prompt.
+
+Your first line must begin with one of:
+TRUE, MOSTLY TRUE, MISLEADING, FALSE, or UNVERIFIABLE, followed by a confidence score (0–100% confidence in true or false).
+
+The confidence score represents how sure you are of your verdict, based on the strength and consistency of available evidence — for example, “FALSE (90%)” means the evidence strongly indicates the claim is false, with high confidence but not absolute certainty.
+
+Method:
+
+Break the claim into testable parts.
+
+Gather evidence from authoritative, recent, and preferably primary sources (official statistics, peer-reviewed studies, government data).
+
+Present key numbers — baselines, denominators, sample sizes, and margins of error or 95% confidence intervals where available.
+
+Identify and flag social-media-style distortions (cherry-picking, missing denominators, correlation-causation errors, emotional framing).
+
+Summarize the strongest counter-evidence and how it affects the conclusion.
+
+End with a short, plain-language verdict, following by your cited sources with annotated URLs to those sources.
+
+The CLAIM is:
+
+`,
+    model: model,
     outputStructure: ["main"]
   },
   {
@@ -38,14 +73,14 @@ Append some notes in a concise and elegantly way for the Intermediate Level stud
 The user's text to be translated to English is as follows: 
 
 `,
-    model: "gpt-3.5-turbo",
+    model: model,
     outputStructure: ["main"]
   },
     {
     name: "Food Analyser",
     emoji: "🍎",
     prompt: "Analyze this meal or food entry. List key nutrients, health benefits, and any concerns (e.g. high fat, sodium). Keep it clear and constructive.",
-    model: "gpt-3.5-turbo",
+    model: model,
     outputStructure: ["main", "notes"]
   },
     {
@@ -55,22 +90,28 @@ The user's text to be translated to English is as follows:
 
 Include:
 
+<<<<<<< HEAD
 Recipe title 
 
 Serving size
+=======
+Recipe title.
+>>>>>>> aa4a8e289a7b02c1363b4c53a01ccd9e328dabd2
 
-Short description (style, flavor profile, or context)
+Serving size.
 
-Ingredients list with clear quantities and units
+Short description (style, flavor profile, or context).
 
-Step-by-step method with numbered instructions
+Ingredients list with clear quantities and units.
+
+Step-by-step method with numbered instructions.
 
 Optional notes or variations (e.g., substitutions, serving ideas, dietary adjustments):
 
 `,
-    model: "gpt-3.5-turbo",
+    model: model,
     outputStructure: ["main", "notes"]
-  }
+  },
 ];
 
 // Export for use in other modules
