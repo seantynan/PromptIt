@@ -58,7 +58,7 @@ Translate the text to English.
 
 Display the translated text, starting with the header: "Translated from <the detected language>"
 
-Append some notes in a concise and elegantly way for the Intermediate Level student of the language. The notes should pick up on some interesting aspects of the translation, so as to encourage the understanding and curiosity of the student.
+Append some notes in a concise and elegant way for the Intermediate Level student of the language. The notes should pick up on some interesting aspects of the translation, so as to encourage the understanding and curiosity of the student.
 
 The user's text to be translated to English is as follows: 
 
