@@ -69,7 +69,7 @@ The user's text to be translated to English is as follows:
     outputStructure: ["main"]
   },
     {
-    name: "Food Analyser",
+    name: "Nutrition Analyser",
     emoji: "🍎",
     prompt: `You are a **nutrition analyst**. The user will provide a food item, meal description or daily food log. 
     Your task is to **analyze, evaluate, and optimize** the diet in a structured way. 
