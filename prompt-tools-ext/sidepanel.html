@@ -48,7 +48,7 @@
         border-radius: 6px;
         border-left: 4px solid #4CAF50;
         margin-bottom: 16px;
-        font-size: 14px;
+        font-size: 16px;
         color: #666;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       }
@@ -67,11 +67,12 @@
         white-space: pre-wrap;
         word-wrap: break-word;
         overflow-wrap: break-word;
-        font-size: 15px;
+        font-size: 16px;
         line-height: 1.7;
         color: #333;
         min-height: 100px;
         max-width: 100%;
+        overflow-y: auto; max-height: 400px;
       }
       
       #output:empty {
@@ -173,6 +174,7 @@
           color: #b0b0b0;
           border-left-color: #66BB6A;
           box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+          transition: all 0.3s;
         }
         
         #status.error {
@@ -215,6 +217,8 @@
         a {
           color: #64B5F6;
         }
+
+        .logo { background: linear-gradient(135deg, #66BB6A 0%, #388E3C 100%); }
       }
     </style>
   </head>
