@@ -127,9 +127,11 @@ function buildContextMenus() {
 // -------------------------
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   console.log("=== CONTEXT MENU CLICKED ===");
+  console.log("Full info object:", info);
   console.log("Menu ID:", info.menuItemId);
   console.log("Selection:", info.selectionText);
   console.log("Tab:", tab);
+  console.log("Frame ID:", info.frameId);
   
   if (info.menuItemId === MANAGE_PROMPTLETS_ID) {
     console.log("Opening options page");
@@ -138,7 +140,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 
   if (!info.selectionText) {
-    console.warn("No text selected");
+    console.warn("No text selected - aborting");
+    return;
+  }
+  
+  if (!tab || !tab.id) {
+    console.error("No valid tab - might be side panel selection");
+    // Try to handle side panel selection differently
+    // For now, just log and return
     return;
   }
 
