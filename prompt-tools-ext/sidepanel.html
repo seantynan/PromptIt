@@ -74,20 +74,24 @@
         color: #333;
         min-height: 100px;
         max-width: 100%;
-        overflow-y: auto; max-height: 400px;
+        
+        /* KEY FIX */
+        max-height: 50vh;        /* Limits height */
+        overflow-y: auto;        /* Only output scrolls */
+        margin-bottom: 12px;     /* Space before buttons */
       }
-      
+            
       #output:empty {
         display: none;
       }
 
-      #buttons {  /* Wrap Copy + Close in a div */
+      #buttons {
         position: sticky;
         bottom: 0;
-        background: inherit;  /* Matches body */
+        background: inherit;
         padding: 8px 0;
-        border-top: 1px solid #ddd;  /* Subtle separator */
-        flex: 0 0 auto;
+        border-top: 1px solid #ddd;
+        z-index: 10;
       }
       
       #copyBtn {
@@ -194,6 +198,8 @@
           border-left-color: #ef5350;
         }
         
+        #buttons { border-top: 1px solid #444; }
+
         #output {
           background: #2d2d2d;
           color: #e0e0e0;
@@ -201,6 +207,10 @@
         }
         
         #copyBtn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
           background: #66BB6A;
         }
         
@@ -210,8 +220,17 @@
         
         #closeBtn {
           background: #616161;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
         }
         
+        #copyBtn:hover, #closeBtn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
         #closeBtn:hover {
           background: #757575;
         }
@@ -240,7 +259,10 @@
     </h2>
     <div id="status">Waiting for input…</div>
     <div id="output"></div>
-    <div id="buttons"></div>
+    <div id="buttons">
+      <button id="copyBtn">📋 Copy Output</button>
+      <button id="closeBtn">✕ Close</button>
+    </div>
     <script src="sidepanel.js"></script>
   </body>
 </html>

@@ -55,6 +55,37 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
+
+
+
+// Attach Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.addEventListener("click", () => {
+    const text = document.getElementById("output").textContent;  // Or your stored rawText var
+    navigator.clipboard.writeText(text).then(() => {
+      copyBtn.textContent = "✓ Copied!";
+      setTimeout(() => {
+        copyBtn.textContent = "📋 Copy Output";
+      }, 2000);
+    });
+  });
+
+  const closeBtn = document.getElementById("closeBtn");
+  closeBtn.addEventListener("click", () => {
+    window.close();
+  });
+});
+
+
+
+
+
+
+
+
+
+
 // -------------------------
 // Update status message
 // -------------------------
@@ -153,9 +184,6 @@ function displayOutput(text, promptlet) {
     const textNode = document.createTextNode(text);
     outputDiv.appendChild(textNode);
   }
-
-  // Add copy button
-  addCopyButton(text);
 }
 
 // -------------------------
@@ -185,44 +213,6 @@ function parseStructuredOutput(text) {
   });
   
   return sections;
-}
-
-// -------------------------
-// Add copy button
-// -------------------------
-function addCopyButton(text) {
-  const existingCopyBtn = document.getElementById("copyBtn");
-  if (existingCopyBtn) existingCopyBtn.remove();
-  
-  const existingCloseBtn = document.getElementById("closeBtn");
-  if (existingCloseBtn) existingCloseBtn.remove();
-
-  // Copy button
-  const copyBtn = document.createElement("button");
-  copyBtn.id = "copyBtn";
-  copyBtn.textContent = "📋 Copy Output";
-  
-  copyBtn.addEventListener("click", () => {
-    navigator.clipboard.writeText(text).then(() => {
-      copyBtn.textContent = "✓ Copied!";
-      setTimeout(() => {
-        copyBtn.textContent = "📋 Copy Output";
-      }, 2000);
-    });
-  });
-  
-  document.body.appendChild(copyBtn);
-  
-  // Close button
-  const closeBtn = document.createElement("button");
-  closeBtn.id = "closeBtn";
-  closeBtn.textContent = "✕ Close";
-  
-  closeBtn.addEventListener("click", () => {
-    window.close();
-  });
-  
-  document.body.appendChild(closeBtn);
 }
 
 // -------------------------
