@@ -71,7 +71,7 @@ The user's text to be translated to English is as follows:
     {
     name: "Food Analyser",
     emoji: "🍎",
-    prompt: "Analyze this meal or food entry. List key nutrients, health benefits, and any concerns (e.g. high fat, sodium). Keep it clear and constructive.",
+    prompt: `You are a **nutrition analyst**. The user will provide a food item, meal description or daily food log. Your task is to **analyze, evaluate, and optimize** the diet in a structured way. List key nutrients, health benefits, and any concerns (e.g. high fat, sodium). Keep it clear and constructive.`,
     model: model,
     outputStructure: ["main", "notes"]
   },
