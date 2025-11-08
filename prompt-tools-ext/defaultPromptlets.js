@@ -34,8 +34,10 @@ Method:
 5. Summarize strongest counter-evidence and its impact on your conclusion.
 
 Format:
-- First line: VERDICT (CONFIDENCE%)
-- Then concise reasoning and sources with URLs.
+- VERDICT (CONFIDENCE%)
+- Original statistic from source
+- Missing context or distortions
+- Key counter-evidence
 
 CLAIM:
 
