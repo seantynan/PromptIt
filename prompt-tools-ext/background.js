@@ -79,7 +79,7 @@ function buildContextMenus() {
       // Create root menu
       chrome.contextMenus.create({
         id: CONTEXT_MENU_ROOT_ID,
-        title: "PromptIt",
+        title: "Prompt It!",
         contexts: ["selection"]
       }, () => {
         if (chrome.runtime.lastError) {
