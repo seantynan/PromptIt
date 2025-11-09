@@ -79,7 +79,7 @@ function buildContextMenus() {
       // Create root menu
       chrome.contextMenus.create({
         id: CONTEXT_MENU_ROOT_ID,
-        title: "Prompt It!",
+        title: "PromptIt",
         contexts: ["selection"]
       }, () => {
         if (chrome.runtime.lastError) {
@@ -127,11 +127,11 @@ function buildContextMenus() {
 // -------------------------
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   console.log("=== CONTEXT MENU CLICKED ===");
-  console.log("Full info object:", info);
+  console.log("Full info object:", JSON.stringify(info, null, 2));
   console.log("Menu ID:", info.menuItemId);
   console.log("Selection:", info.selectionText);
-  console.log("Tab:", tab);
-  console.log("Frame ID:", info.frameId);
+  console.log("Tab object:", JSON.stringify(tab, null, 2));
+  console.log("Tab ID:", tab?.id);
   
   if (info.menuItemId === MANAGE_PROMPTLETS_ID) {
     console.log("Opening options page");
@@ -144,10 +144,50 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     return;
   }
   
-  if (!tab || !tab.id) {
-    console.error("No valid tab - might be side panel selection");
-    // Try to handle side panel selection differently
-    // For now, just log and return
+  // Check if tab is invalid (side panel = -1, or missing)
+  if (!tab || !tab.id || tab.id === -1) {
+    console.log("Side panel selection detected. Tab ID:", tab?.id);
+    console.log("Side panel is already open - just updating content");
+    
+    // Don't try to open the side panel - it's already open!
+    // Just store the data and let the side panel pick it up
+    chrome.storage.local.get({ promptlets: [] }, (data) => {
+      const promptlets = (data.promptlets && data.promptlets.length > 0)
+        ? data.promptlets
+        : DEFAULT_PROMPTLETS;
+      
+      const match = info.menuItemId.match(/^promptlet_(\d+)_/);
+      if (!match) return;
+      
+      const promptletIndex = parseInt(match[1], 10);
+      const promptlet = promptlets[promptletIndex];
+      
+      if (!promptlet) {
+        console.error(`Promptlet at index ${promptletIndex} not found`);
+        return;
+      }
+      
+      const promptletData = {
+        promptlet: promptlet,
+        text: info.selectionText,
+        timestamp: Date.now()
+      };
+      
+      // Store data for side panel to pick up
+      chrome.storage.local.set({ pendingPromptlet: promptletData }, () => {
+        console.log("Stored promptlet data for side panel");
+        
+        // Notify side panel directly
+        chrome.runtime.sendMessage({
+          action: "runPromptlet",
+          promptlet: promptlet,
+          text: info.selectionText,
+          timestamp: Date.now()
+        }).catch(err => {
+          console.log("Message send attempted:", err.message);
+        });
+      });
+    });
     return;
   }
 
