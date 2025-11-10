@@ -247,7 +247,8 @@ function addCopyButton(text) {
       const item = document.createElement("div");
       item.className = "chain-menu-item";
       item.textContent = `${promptlet.emoji || "📝"} ${promptlet.name}`;
-      item.addEventListener("click", () => {
+      item.addEventListener("click", (e) => {
+        e.stopPropagation(); // Prevent bubbling to document click handler
         chainMenu.classList.remove("show");
         runChainedPromptlet(promptlet, text);
       });
@@ -290,8 +291,10 @@ function addCopyButton(text) {
   });
   
   // Close menu when clicking outside
-  document.addEventListener("click", () => {
-    chainMenu.classList.remove("show");
+  document.addEventListener("click", (e) => {
+    if (!chainBtn.contains(e.target)) {
+      chainMenu.classList.remove("show");
+    }
   });
   
   buttonGroup.appendChild(copyBtn);
