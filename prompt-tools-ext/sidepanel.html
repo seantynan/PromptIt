@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt It!</title>
+    <title>PromptIt</title>
     <style>
       * {
         box-sizing: border-box;
@@ -16,8 +16,6 @@
         background: #f5f5f5;
         line-height: 1.6;
         color: #333;
-        display: flex; 
-        flex-direction: column;
       }
       
       h2 {
@@ -51,7 +49,7 @@
         border-radius: 6px;
         border-left: 4px solid #4CAF50;
         margin-bottom: 16px;
-        font-size: 16px;
+        font-size: 14px;
         color: #666;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       }
@@ -70,29 +68,15 @@
         white-space: pre-wrap;
         word-wrap: break-word;
         overflow-wrap: break-word;
-        font-size: 16px;
+        font-size: 15px;
         line-height: 1.7;
         color: #333;
         min-height: 100px;
         max-width: 100%;
-        
-        /* KEY FIX */
-        max-height: 50vh;        /* Limits height */
-        overflow-y: auto;        /* Only output scrolls */
-        margin-bottom: 12px;     /* Space before buttons */
       }
-            
+      
       #output:empty {
         display: none;
-      }
-
-      #buttons {
-        position: sticky;
-        bottom: 0;
-        background: inherit;
-        padding: 8px 0;
-        border-top: 1px solid #ddd;
-        z-index: 10;
       }
       
       #copyBtn {
@@ -101,12 +85,13 @@
         background: #4CAF50;
         color: white;
         border: none;
-        border-radius: 6px;
+        border-radius: 6px 0 0 6px;
         cursor: pointer;
         font-size: 14px;
         font-weight: 500;
         transition: background 0.2s;
-        width: 100%;
+        flex: 1;
+        position: relative;
       }
       
       #copyBtn:hover {
@@ -115,6 +100,74 @@
       
       #copyBtn:active {
         transform: scale(0.98);
+      }
+      
+      #chainBtn {
+        margin-top: 12px;
+        padding: 10px 12px;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 0 6px 6px 0;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background 0.2s;
+        border-left: 1px solid rgba(255,255,255,0.3);
+        position: relative;
+      }
+      
+      #chainBtn:hover {
+        background: #45a049;
+      }
+      
+      #chainBtn:active {
+        transform: scale(0.98);
+      }
+      
+      .button-group {
+        display: flex;
+        width: 100%;
+        margin-top: 12px;
+      }
+      
+      #chainMenu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        margin-top: 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        min-width: 200px;
+      }
+      
+      #chainMenu.show {
+        display: block;
+      }
+      
+      .chain-menu-item {
+        padding: 10px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+        color: #333;
+        font-size: 14px;
+        transition: background 0.2s;
+        text-align: left;
+        white-space: nowrap;
+      }
+      
+      .chain-menu-item:last-child {
+        border-bottom: none;
+      }
+      
+      .chain-menu-item:hover {
+        background: #f5f5f5;
       }
       
       #closeBtn {
@@ -190,7 +243,6 @@
           color: #b0b0b0;
           border-left-color: #66BB6A;
           box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-          transition: all 0.3s;
         }
         
         #status.error {
@@ -199,42 +251,39 @@
           border-left-color: #ef5350;
         }
         
-        #buttons { border-top: 1px solid #444; }
-
         #output {
           background: #2d2d2d;
           color: #e0e0e0;
           box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-          max-height: 55vh;
-          overflow-y: auto;
-          margin-bottom: 12px;
         }
         
-        #copyBtn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
+        #copyBtn, #chainBtn {
           background: #66BB6A;
         }
         
-        #copyBtn:hover {
+        #copyBtn:hover, #chainBtn:hover {
           background: #5cb860;
+        }
+        
+        #chainMenu {
+          background: #2d2d2d;
+          border-color: #444;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        
+        .chain-menu-item {
+          color: #e0e0e0;
+          border-bottom-color: #444;
+        }
+        
+        .chain-menu-item:hover {
+          background: #3d3d3d;
         }
         
         #closeBtn {
           background: #616161;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
         }
         
-        #copyBtn:hover, #closeBtn:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
         #closeBtn:hover {
           background: #757575;
         }
@@ -251,22 +300,16 @@
         a {
           color: #64B5F6;
         }
-
-        .logo { background: linear-gradient(135deg, #66BB6A 0%, #388E3C 100%); }
       }
     </style>
   </head>
   <body>
     <h2>
       <span class="logo">PI</span>
-      <span>Prompt It!</span>
+      <span>PromptIt</span>
     </h2>
     <div id="status">Waiting for input…</div>
     <div id="output"></div>
-    <div id="buttons">
-      <button id="copyBtn">📋 Copy Output</button>
-      <button id="closeBtn">✕ Close</button>
-    </div>
     <script src="sidepanel.js"></script>
   </body>
 </html>
