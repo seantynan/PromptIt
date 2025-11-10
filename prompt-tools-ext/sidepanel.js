@@ -257,10 +257,36 @@ function addCopyButton(text) {
   
   chainBtn.appendChild(chainMenu);
   
-  // Toggle menu on button click
+  // Toggle menu on button click with smart positioning
   chainBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    chainMenu.classList.toggle("show");
+    
+    if (chainMenu.classList.contains("show")) {
+      chainMenu.classList.remove("show");
+      return;
+    }
+    
+    // Show menu first to measure it
+    chainMenu.classList.add("show");
+    
+    // Check if there's enough space below
+    const btnRect = chainBtn.getBoundingClientRect();
+    const menuHeight = chainMenu.offsetHeight;
+    const spaceBelow = window.innerHeight - btnRect.bottom;
+    const spaceAbove = btnRect.top;
+    
+    // Position menu above if not enough space below
+    if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
+      chainMenu.style.top = 'auto';
+      chainMenu.style.bottom = '100%';
+      chainMenu.style.marginTop = '0';
+      chainMenu.style.marginBottom = '8px';
+    } else {
+      chainMenu.style.top = '100%';
+      chainMenu.style.bottom = 'auto';
+      chainMenu.style.marginTop = '8px';
+      chainMenu.style.marginBottom = '0';
+    }
   });
   
   // Close menu when clicking outside
