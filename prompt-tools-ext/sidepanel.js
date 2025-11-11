@@ -100,17 +100,13 @@ async function runPromptlet(selectedText, promptlet) {
       promptlet.frequencyPenalty ?? 0,
       promptlet.presencePenalty ?? 0
     );
-
-
-
-  function updateChainTooltip() {
-    const selection = window.getSelection().toString().trim();
-    chainBtn.title = selection 
-      ? "Run another promptlet on this text"
-      : "Run another promptlet on this output";
-  }
-
-
+    
+    function updateChainTooltip() {
+      const selection = window.getSelection().toString().trim();
+      chainBtn.title = selection 
+        ? "Run another promptlet on this text"
+        : "Run another promptlet on this output";
+    }
 
     // Display result
     updateStatus("✓ Done!");
