@@ -101,9 +101,43 @@ async function runPromptlet(selectedText, promptlet) {
       promptlet.presencePenalty ?? 0
     );
 
+
+
+  function updateChainTooltip() {
+    const selection = window.getSelection().toString().trim();
+    chainBtn.title = selection 
+      ? "Run another promptlet on this text"
+      : "Run another promptlet on this output";
+  }
+
+
+
     // Display result
     updateStatus("✓ Done!");
     displayOutput(result, promptlet);
+
+      // === TOOLTIP: Update after output is in DOM ===
+      const chainBtn = document.getElementById('chainBtn');
+      if (chainBtn) {
+      function updateChainTooltip() {
+        const selection = window.getSelection().toString().trim();
+        chainBtn.title = selection 
+          ? "Run another promptlet on this text"
+          : "Run another promptlet on this output";
+      }
+
+      // Update on selection change
+      const outputEl = document.getElementById('output');
+      outputEl.addEventListener('mouseup', updateChainTooltip);
+      outputEl.addEventListener('touchend', updateChainTooltip);
+
+      // Update on dropdown open
+      chainBtn.addEventListener('click', () => setTimeout(updateChainTooltip, 50));
+
+      // Initial update
+      updateChainTooltip();
+
+    }
 
   } catch (err) {
     console.error("Error running promptlet:", err);
