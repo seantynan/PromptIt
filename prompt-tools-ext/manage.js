@@ -180,14 +180,19 @@ function toggleEnabled(name, isEnabled) {
 // -------------------------
 // Show editor panel
 // -------------------------
-function showEditor(promptlet = null) {
+function showEditor(promptlet = null, isClone = false) {
   const panel = document.getElementById('editorPanel');
   const title = document.getElementById('editorTitle');
 
-  if (promptlet) {
+  if (promptlet && !isClone) {
     // Editing existing promptlet
     title.textContent = 'Edit Promptlet';
     editingPromptletName = promptlet.name;
+    populateEditor(promptlet);
+  } else if (promptlet && isClone) {
+    // Cloning promptlet
+    title.textContent = 'Add New Promptlet (Cloned)';
+    editingPromptletName = null; // Important: this is a new promptlet
     populateEditor(promptlet);
   } else {
     // Adding new promptlet
@@ -348,8 +353,8 @@ function clonePromptlet(promptlet) {
     lastModified: Date.now()
   };
 
-  // Show editor with cloned data
-  showEditor(clone);
+  // Show editor with cloned data (isClone = true)
+  showEditor(clone, true);
 }
 
 // -------------------------
