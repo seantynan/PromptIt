@@ -19,38 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // Event Listeners
 // -------------------------
 function setupEventListeners() {
-  // Add new promptlet
-  document.getElementById('addNewBtn').addEventListener('click', () => {
-    showEditor();
-  });
-
-  // Cancel editing
-  document.getElementById('cancelBtn').addEventListener('click', () => {
-    hideEditor();
-  });
-
-  // Save promptlet
-  document.getElementById('saveBtn').addEventListener('click', () => {
-    savePromptlet();
-  });
-
-  // Name validation
+  document.getElementById('addNewBtn').addEventListener('click', () => showEditor());
+  document.getElementById('cancelBtn').addEventListener('click', hideEditor);
+  document.getElementById('saveBtn').addEventListener('click', savePromptlet);
   document.getElementById('nameInput').addEventListener('input', validateName);
-
-  // Advanced settings toggle
   document.getElementById('advancedToggle').addEventListener('click', toggleAdvanced);
 
-  // Temperature slider
   document.getElementById('tempInput').addEventListener('input', (e) => {
     document.getElementById('tempValue').textContent = e.target.value;
   });
 
-  // Tokens slider
   document.getElementById('tokensInput').addEventListener('input', (e) => {
     document.getElementById('tokensValue').textContent = e.target.value;
   });
 
-  // Save API key
   document.getElementById('saveKeyBtn').addEventListener('click', saveApiKey);
 }
 
@@ -59,7 +41,7 @@ function setupEventListeners() {
 // -------------------------
 function loadPromptlets() {
   chrome.storage.local.get({ promptlets: [] }, (data) => {
-    allPromptlets = data.promptlets;
+    allPromptlets = data.promptlets || [];
     renderPromptlets();
   });
 }
@@ -73,24 +55,20 @@ function renderPromptlets() {
   const emptyState = document.getElementById('emptyState');
 
   // Separate default and user promptlets
-  const defaults = allPromptlets.filter(p => p.isDefault);
-  const customs = allPromptlets.filter(p => !p.isDefault);
+  const defaults = allPromptlets.filter(p => p.isDefault).sort((a,b) => a.name.localeCompare(b.name));
+  const customs = allPromptlets.filter(p => !p.isDefault).sort((a,b) => a.name.localeCompare(b.name));
 
   // Render defaults
   defaultList.innerHTML = '';
-  defaults.forEach(p => {
-    defaultList.appendChild(createPromptletCard(p, true));
-  });
+  defaults.forEach(p => defaultList.appendChild(createPromptletCard(p, true)));
 
-  // Render customs
+  // Render user promptlets
   userList.innerHTML = '';
   if (customs.length === 0) {
     emptyState.classList.remove('hidden');
   } else {
     emptyState.classList.add('hidden');
-    customs.forEach(p => {
-      userList.appendChild(createPromptletCard(p, false));
-    });
+    customs.forEach(p => userList.appendChild(createPromptletCard(p, false)));
   }
 }
 
@@ -126,7 +104,6 @@ function createPromptletCard(promptlet, isDefault) {
   actions.className = 'promptlet-actions';
 
   if (!isDefault) {
-    // Edit button (user promptlets only)
     const editBtn = document.createElement('button');
     editBtn.className = 'btn btn-small btn-secondary';
     editBtn.textContent = 'Edit';
@@ -134,7 +111,6 @@ function createPromptletCard(promptlet, isDefault) {
     actions.appendChild(editBtn);
   }
 
-  // Clone button (all promptlets)
   const cloneBtn = document.createElement('button');
   cloneBtn.className = 'btn btn-small btn-secondary';
   cloneBtn.textContent = 'Clone';
@@ -142,7 +118,6 @@ function createPromptletCard(promptlet, isDefault) {
   actions.appendChild(cloneBtn);
 
   if (!isDefault) {
-    // Delete button (user promptlets only)
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn btn-small btn-danger';
     deleteBtn.textContent = '×';
@@ -155,7 +130,6 @@ function createPromptletCard(promptlet, isDefault) {
   header.appendChild(name);
   header.appendChild(actions);
 
-  // Prompt preview
   const prompt = document.createElement('div');
   prompt.className = 'promptlet-prompt';
   prompt.textContent = promptlet.prompt;
@@ -185,17 +159,14 @@ function showEditor(promptlet = null, isClone = false) {
   const title = document.getElementById('editorTitle');
 
   if (promptlet && !isClone) {
-    // Editing existing promptlet
     title.textContent = 'Edit Promptlet';
     editingPromptletName = promptlet.name;
     populateEditor(promptlet);
   } else if (promptlet && isClone) {
-    // Cloning promptlet
     title.textContent = 'Add New Promptlet (Cloned)';
-    editingPromptletName = null; // Important: this is a new promptlet
+    editingPromptletName = null;
     populateEditor(promptlet);
   } else {
-    // Adding new promptlet
     title.textContent = 'Add New Promptlet';
     editingPromptletName = null;
     clearEditor();
@@ -245,8 +216,7 @@ function clearEditor() {
   document.getElementById('tokensInput').value = 1500;
   document.getElementById('tokensValue').textContent = '1500';
   
-  const validation = document.getElementById('nameValidation');
-  validation.classList.add('hidden');
+  document.getElementById('nameValidation').classList.add('hidden');
 }
 
 // -------------------------
@@ -264,10 +234,9 @@ function validateName() {
     return false;
   }
 
-  // Check if name already exists (case-insensitive)
-  const exists = allPromptlets.some(p => 
-    p.name.toLowerCase() === name.toLowerCase() && 
-    p.name !== editingPromptletName // Allow same name if editing
+  const exists = allPromptlets.some(p =>
+    p.name.toLowerCase() === name.toLowerCase() &&
+    p.name !== editingPromptletName
   );
 
   if (exists) {
@@ -291,25 +260,12 @@ function savePromptlet() {
   const emoji = document.getElementById('emojiInput').value.trim();
   const prompt = document.getElementById('promptInput').value.trim();
 
-  // Validate
-  if (!name) {
-    alert('Please enter a name');
-    return;
-  }
-
-  if (!prompt) {
-    alert('Please enter a prompt');
-    return;
-  }
-
-  if (!validateName()) {
-    return;
-  }
+  if (!name || !prompt || !validateName()) return;
 
   const promptletData = {
-    name: name,
+    name,
     emoji: emoji || '📝',
-    prompt: prompt,
+    prompt,
     model: document.getElementById('modelInput').value,
     temperature: parseFloat(document.getElementById('tempInput').value),
     maxTokens: parseInt(document.getElementById('tokensInput').value),
@@ -323,14 +279,12 @@ function savePromptlet() {
   };
 
   if (editingPromptletName) {
-    // Edit existing
     const index = allPromptlets.findIndex(p => p.name === editingPromptletName);
     if (index !== -1) {
-      promptletData.createdAt = allPromptlets[index].createdAt; // Preserve creation date
+      promptletData.createdAt = allPromptlets[index].createdAt;
       allPromptlets[index] = promptletData;
     }
   } else {
-    // Add new
     allPromptlets.push(promptletData);
   }
 
@@ -343,17 +297,7 @@ function savePromptlet() {
 // -------------------------
 function clonePromptlet(promptlet) {
   const clonedName = promptlet.name + ' (Copy)';
-  
-  const clone = {
-    ...promptlet,
-    name: clonedName,
-    isDefault: false,
-    isEnabled: true,
-    createdAt: Date.now(),
-    lastModified: Date.now()
-  };
-
-  // Show editor with cloned data (isClone = true)
+  const clone = { ...promptlet, name: clonedName, isDefault: false, isEnabled: true, createdAt: Date.now(), lastModified: Date.now() };
   showEditor(clone, true);
 }
 
@@ -368,21 +312,17 @@ function editPromptlet(promptlet) {
 // Delete promptlet
 // -------------------------
 function deletePromptlet(name) {
-  if (!confirm(`Delete "${name}"?`)) {
-    return;
-  }
-
+  if (!confirm(`Delete "${name}"?`)) return;
   allPromptlets = allPromptlets.filter(p => p.name !== name);
   saveAllPromptlets();
 }
 
 // -------------------------
-// Save all promptlets to storage
+// Save all promptlets
 // -------------------------
 function saveAllPromptlets() {
   chrome.storage.local.set({ promptlets: allPromptlets }, () => {
     renderPromptlets();
-    // Notify background to rebuild menus
     chrome.runtime.sendMessage({ action: 'updatePromptlets', promptlets: allPromptlets });
   });
 }
@@ -393,14 +333,8 @@ function saveAllPromptlets() {
 function toggleAdvanced() {
   const content = document.getElementById('advancedContent');
   const icon = document.getElementById('advancedIcon');
-  
-  if (content.classList.contains('show')) {
-    content.classList.remove('show');
-    icon.classList.remove('open');
-  } else {
-    content.classList.add('show');
-    icon.classList.add('open');
-  }
+  content.classList.toggle('show');
+  icon.classList.toggle('open');
 }
 
 // -------------------------
@@ -417,7 +351,5 @@ function loadApiKey() {
 // -------------------------
 function saveApiKey() {
   const apiKey = document.getElementById('apiKeyInput').value.trim();
-  chrome.storage.local.set({ apiKey }, () => {
-    alert('API key saved successfully!');
-  });
+  chrome.storage.local.set({ apiKey }, () => alert('API key saved successfully!'));
 }
