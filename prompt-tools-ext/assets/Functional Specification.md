@@ -6,11 +6,11 @@
 
 ## 🧭 1. Overview
 
-**PromptIt** is a modular AI interface that allows users to create, manage, and chain *Promptlets* — small, reusable text-processing units — inside host environments such as **Google Docs** or web browsers.
+**PromptIt** is a browser extension that allows the user to select text from any webpage, and run that text through an AI system together with a  pre-defined prompt called a Promptlet. The modular AI interface allows users to create, manage, and chain *Promptlets* — small, reusable, AI prompt based text-processing units.
 
-Each Promptlet accepts **text input**, applies a **user-defined prompt**, and returns **text output** — optionally divided into UI sections such as “Main Output,” “Notes,” or “Change Log.”
+Each Promptlet accepts **text input**, applies a **user-defined prompt**, and returns **text output** in a side panel.
 
-The current implementation operates as a Chromium based **browser extensions**
+The current implementation operates as a Chromium based **browser extension**
 
 The AI engine used is the OpenAI API. The user will provide their own OpenAI API Key. (BYOK: Bring Your Own Key model).
 ---
@@ -28,9 +28,8 @@ A **Promptlet** (PLT) is the atomic unit of PromptIt.
   "name": "Prettifier",
   "menuItem": "Prettify Selection",
   "prompt": "Rewrite the text clearly and elegantly...",
-  "outputStructure": ["main", "notes"],
   "model": "gpt-4-turbo",
-  "chainedPromptlets": []
+  etc.
 }
 ```
 
@@ -71,7 +70,7 @@ PromptIt supports **Promptlet workflows**, enabling users to chain multiple tran
 **Example chain:**
 
 ```
-Input Text → FoodAnalyser → Prettifier → Frenchifier
+Input Text → Recipe Creator → Veganise (custom prompt) → Nutrition Analyser
 ```
 
 The system executes each Promptlet’s transformation sequentially, passing the output of one as the input of the next.
@@ -84,10 +83,15 @@ This chaining is ad-hoc: the user can run the text ouput, or part of the output,
 
 PromptIt includes several built-in Promptlets to demonstrate capability:
 
+For example (this list may be refined prior to release):
+
 * **Summarise:** Cleans and reformats text.
 * **Rephrase:** Evaluates meal entries for nutrition.
+* **Verify:** Assesses the veracity of the selected text.
 * **Learn a Language:** Translates text in a nonEnglish langiuage )the language is auto-detected), translates to English and adds linguistic notes.
 etc
+* **Recipe Creator:** Creates a recipe for a meal or food item.
+* **Nutrition Analyser:** Analyses the nutritional content of a meal, recipe or food diary.
 
 Each one illustrates a distinct pattern of text transformation, output structuring, and practical use.
 
