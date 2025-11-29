@@ -126,7 +126,11 @@ function createPromptletElement(promptlet) {
         <button class="btn btn-small btn-secondary clone-btn">Clone</button>
       </div>
     </div>
-    <div class="promptlet-prompt">${promptlet.prompt}</div>
+    
+    ${promptlet.isDefault 
+      ? '' 
+      : `<div class="promptlet-prompt">${promptlet.prompt}</div>`
+    }
   `;
 
   // --- Attach Event Listeners ---
