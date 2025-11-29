@@ -323,7 +323,6 @@ function deletePromptlet(name) {
 function saveAllPromptlets() {
   chrome.storage.local.set({ promptlets: allPromptlets }, () => {
     renderPromptlets();
-    chrome.runtime.sendMessage({ action: 'updatePromptlets', promptlets: allPromptlets });
   });
 }
 
