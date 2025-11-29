@@ -34,149 +34,236 @@ function setupEventListeners() {
   });
 
   document.getElementById('saveKeyBtn').addEventListener('click', saveApiKey);
-  document.getElementById('resetDefaultsBtn').addEventListener('click', handleResetDefaults);
-}
-
-
-// -------------------------
-// Reset all promptlets to defaults
-// -------------------------
-function handleResetDefaults() {
-  if (!confirm("Are you sure you want to reset all promptlets to the factory defaults? Your custom promptlets will be removed.")) {
-    return;
+  
+  // Add listener for Reset button
+  const resetBtn = document.getElementById('resetDefaultsBtn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', handleResetDefaults);
   }
-
-  // Send message to the background service worker to perform the reset
-  chrome.runtime.sendMessage({ action: 'resetToDefaults' }, (response) => {
-    if (response && response.success) {
-      alert(`Promptlets reset successfully. ${response.count} default promptlets loaded.`);
-      
-      // Force a reload of the promptlets from storage to update the Manage page UI
-      loadPromptlets(); 
-    } else {
-      alert("Failed to reset promptlets.");
-      console.error("Reset failed:", response ? response.error : "No response");
-    }
-  });
 }
 
 // -------------------------
-// Load promptlets from storage
+// Load promptlets
 // -------------------------
 function loadPromptlets() {
   chrome.storage.local.get({ promptlets: [] }, (data) => {
-    allPromptlets = data.promptlets || [];
+    // Map over loaded data to ensure 'isActive' exists (default to true for legacy data)
+    allPromptlets = (data.promptlets || []).map(p => ({
+      ...p,
+      isActive: p.isActive === undefined ? true : p.isActive 
+    }));
     renderPromptlets();
   });
 }
 
 // -------------------------
-// Render promptlet lists
+// Render promptlets
 // -------------------------
 function renderPromptlets() {
   const defaultList = document.getElementById('defaultPromptlets');
   const userList = document.getElementById('userPromptlets');
   const emptyState = document.getElementById('emptyState');
 
-  // Separate default and user promptlets
-  const defaults = allPromptlets.filter(p => p.isDefault).sort((a,b) => a.name.localeCompare(b.name));
-  const customs = allPromptlets.filter(p => !p.isDefault).sort((a,b) => a.name.localeCompare(b.name));
-
-  // Render defaults
+  // Clear current lists
   defaultList.innerHTML = '';
-  defaults.forEach(p => defaultList.appendChild(createPromptletCard(p, true)));
-
-  // Render user promptlets
   userList.innerHTML = '';
-  if (customs.length === 0) {
-    emptyState.classList.remove('hidden');
-  } else {
-    emptyState.classList.add('hidden');
-    customs.forEach(p => userList.appendChild(createPromptletCard(p, false)));
+
+  // Sort by name for neatness
+  const sorted = [...allPromptlets].sort((a, b) => a.name.localeCompare(b.name));
+  
+  const defaults = sorted.filter(p => p.isDefault);
+  const customs = sorted.filter(p => !p.isDefault);
+
+  // Toggle empty state visibility
+  if (emptyState) {
+    emptyState.classList.toggle('hidden', customs.length > 0);
   }
+
+  // Render Default Promptlets
+  defaults.forEach(p => {
+    defaultList.appendChild(createPromptletElement(p));
+  });
+
+  // Render User Promptlets
+  customs.forEach(p => {
+    userList.appendChild(createPromptletElement(p));
+  });
 }
 
 // -------------------------
-// Create promptlet card element
+// Create promptlet element (Card)
 // -------------------------
-function createPromptletCard(promptlet, isDefault) {
-  const card = document.createElement('div');
-  card.className = `promptlet-card ${promptlet.isEnabled ? '' : 'disabled'}`;
+function createPromptletElement(promptlet) {
+  const item = document.createElement('div');
+  // Add 'disabled' class only for visual styling if you want opacity changes
+  item.className = `promptlet-card ${promptlet.isActive === false ? 'inactive' : ''}`;
+  item.dataset.name = promptlet.name;
 
-  const header = document.createElement('div');
-  header.className = 'promptlet-header';
+  // Determine active state (default to true)
+  const isActive = promptlet.isActive !== false;
 
-  // Checkbox
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.className = 'promptlet-checkbox';
-  checkbox.checked = promptlet.isEnabled;
-  checkbox.addEventListener('change', () => toggleEnabled(promptlet.name, checkbox.checked));
+  item.innerHTML = `
+    <div class="promptlet-header">
+      <label class="toggle-switch" title="${isActive ? 'Active' : 'Inactive'}">
+        <input 
+          type="checkbox" 
+          class="toggle-input" 
+          data-name="${promptlet.name}" 
+          ${isActive ? 'checked' : ''} 
+        >
+        <span class="toggle-slider"></span>
+      </label>
 
-  // Emoji
-  const emoji = document.createElement('span');
-  emoji.className = 'promptlet-emoji';
-  emoji.textContent = promptlet.emoji || '📝';
+      <span class="promptlet-emoji">${promptlet.emoji || '📝'}</span>
+      <span class="promptlet-name">${promptlet.name}</span>
+      
+      <div class="promptlet-actions">
+        ${promptlet.isDefault 
+          ? '<span style="font-size:11px; color:#888; margin-right:5px;">LOCKED</span>' 
+          : `<button class="btn btn-small btn-secondary edit-btn">Edit</button>
+             <button class="btn btn-small btn-danger delete-btn">×</button>`
+        }
+        <button class="btn btn-small btn-secondary clone-btn">Clone</button>
+      </div>
+    </div>
+    <div class="promptlet-prompt">${promptlet.prompt}</div>
+  `;
 
-  // Name
-  const name = document.createElement('span');
-  name.className = 'promptlet-name';
-  name.textContent = promptlet.name;
+  // --- Attach Event Listeners ---
 
-  // Actions
-  const actions = document.createElement('div');
-  actions.className = 'promptlet-actions';
+  // 1. Toggle Switch (Works for BOTH Default and Custom)
+  const toggleInput = item.querySelector('.toggle-input');
+  toggleInput.addEventListener('change', () => togglePromptletActive(promptlet.name));
 
-  if (!isDefault) {
-    const editBtn = document.createElement('button');
-    editBtn.className = 'btn btn-small btn-secondary';
-    editBtn.textContent = 'Edit';
-    editBtn.addEventListener('click', () => editPromptlet(promptlet));
-    actions.appendChild(editBtn);
-  }
-
-  const cloneBtn = document.createElement('button');
-  cloneBtn.className = 'btn btn-small btn-secondary';
-  cloneBtn.textContent = 'Clone';
+  // 2. Clone Button
+  const cloneBtn = item.querySelector('.clone-btn');
   cloneBtn.addEventListener('click', () => clonePromptlet(promptlet));
-  actions.appendChild(cloneBtn);
 
-  if (!isDefault) {
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'btn btn-small btn-danger';
-    deleteBtn.textContent = '×';
-    deleteBtn.addEventListener('click', () => deletePromptlet(promptlet.name));
-    actions.appendChild(deleteBtn);
+  // 3. Edit/Delete (Only for custom)
+  if (!promptlet.isDefault) {
+    item.querySelector('.edit-btn').addEventListener('click', () => editPromptlet(promptlet));
+    item.querySelector('.delete-btn').addEventListener('click', () => deletePromptlet(promptlet.name));
   }
 
-  header.appendChild(checkbox);
-  header.appendChild(emoji);
-  header.appendChild(name);
-  header.appendChild(actions);
-
-  const prompt = document.createElement('div');
-  prompt.className = 'promptlet-prompt';
-  prompt.textContent = promptlet.prompt;
-
-  card.appendChild(header);
-  card.appendChild(prompt);
-
-  return card;
+  return item;
 }
 
 // -------------------------
-// Toggle promptlet enabled/disabled
+// Toggle Active State
 // -------------------------
-function toggleEnabled(name, isEnabled) {
-  const promptlet = allPromptlets.find(p => p.name === name);
-  if (promptlet) {
-    promptlet.isEnabled = isEnabled;
+function togglePromptletActive(name) {
+  const index = allPromptlets.findIndex(p => p.name === name);
+  if (index > -1) {
+    // Flip state
+    allPromptlets[index].isActive = !allPromptlets[index].isActive;
+    
+    // Save immediately
     saveAllPromptlets();
   }
 }
 
 // -------------------------
-// Show editor panel
+// Save promptlet (Add or Edit)
+// -------------------------
+function savePromptlet() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) {
+    alert("Name is required");
+    return;
+  }
+  
+  if (!validateName()) return;
+
+  const newPromptletData = {
+    name: name,
+    emoji: document.getElementById('emojiInput').value.trim() || '📝',
+    prompt: document.getElementById('promptInput').value.trim(),
+    model: document.getElementById('modelInput').value,
+    temperature: parseFloat(document.getElementById('tempInput').value),
+    maxTokens: parseInt(document.getElementById('tokensInput').value),
+    outputStructure: ["main"],
+    isActive: true, // New/Edited are active by default
+    isDefault: false,
+    lastModified: Date.now()
+  };
+
+  if (editingPromptletName) {
+    // Update existing
+    const index = allPromptlets.findIndex(p => p.name === editingPromptletName);
+    if (index > -1) {
+      // Preserve original creation date or other hidden props if any
+      allPromptlets[index] = { ...allPromptlets[index], ...newPromptletData };
+    }
+  } else {
+    // Add new
+    newPromptletData.createdAt = Date.now();
+    allPromptlets.push(newPromptletData);
+  }
+
+  saveAllPromptlets();
+  hideEditor();
+}
+
+// -------------------------
+// Save All to Storage
+// -------------------------
+function saveAllPromptlets() {
+  chrome.storage.local.set({ promptlets: allPromptlets }, () => {
+    // Re-render UI to reflect changes (e.g. toggle switch state / ordering)
+    renderPromptlets();
+  });
+}
+
+// -------------------------
+// Clone
+// -------------------------
+function clonePromptlet(promptlet) {
+  const clonedName = promptlet.name + ' (Copy)';
+  const clone = { 
+    ...promptlet, 
+    name: clonedName, 
+    isDefault: false, 
+    isActive: true, // Clones start active
+    createdAt: Date.now() 
+  };
+  showEditor(clone, true);
+}
+
+// -------------------------
+// Edit
+// -------------------------
+function editPromptlet(promptlet) {
+  showEditor(promptlet);
+}
+
+// -------------------------
+// Delete
+// -------------------------
+function deletePromptlet(name) {
+  if (!confirm(`Delete "${name}"?`)) return;
+  allPromptlets = allPromptlets.filter(p => p.name !== name);
+  saveAllPromptlets();
+}
+
+// -------------------------
+// Reset Defaults
+// -------------------------
+function handleResetDefaults() {
+  if (!confirm("Are you sure you want to reset? Custom promptlets will be deleted.")) {
+    return;
+  }
+  chrome.runtime.sendMessage({ action: 'resetToDefaults' }, (response) => {
+    if (response && response.success) {
+      alert("Reset successful.");
+      loadPromptlets(); // Reload from storage
+    } else {
+      alert("Reset failed.");
+    }
+  });
+}
+
+// -------------------------
+// Editor UI Helpers
 // -------------------------
 function showEditor(promptlet = null, isClone = false) {
   const panel = document.getElementById('editorPanel');
@@ -187,7 +274,7 @@ function showEditor(promptlet = null, isClone = false) {
     editingPromptletName = promptlet.name;
     populateEditor(promptlet);
   } else if (promptlet && isClone) {
-    title.textContent = 'Add New Promptlet (Cloned)';
+    title.textContent = 'New Promptlet (Clone)';
     editingPromptletName = null;
     populateEditor(promptlet);
   } else {
@@ -200,36 +287,23 @@ function showEditor(promptlet = null, isClone = false) {
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// -------------------------
-// Hide editor panel
-// -------------------------
 function hideEditor() {
   document.getElementById('editorPanel').classList.add('hidden');
   editingPromptletName = null;
   clearEditor();
 }
 
-// -------------------------
-// Populate editor with promptlet data
-// -------------------------
 function populateEditor(promptlet) {
   document.getElementById('emojiInput').value = promptlet.emoji || '';
   document.getElementById('nameInput').value = promptlet.name;
   document.getElementById('promptInput').value = promptlet.prompt;
   document.getElementById('modelInput').value = promptlet.model || 'gpt-4o';
-  
-  const temp = promptlet.temperature ?? 1.0;
-  document.getElementById('tempInput').value = temp;
-  document.getElementById('tempValue').textContent = temp;
-  
-  const tokens = promptlet.maxTokens || 1500;
-  document.getElementById('tokensInput').value = tokens;
-  document.getElementById('tokensValue').textContent = tokens;
+  document.getElementById('tempInput').value = promptlet.temperature ?? 1.0;
+  document.getElementById('tempValue').textContent = promptlet.temperature ?? 1.0;
+  document.getElementById('tokensInput').value = promptlet.maxTokens || 1500;
+  document.getElementById('tokensValue').textContent = promptlet.maxTokens || 1500;
 }
 
-// -------------------------
-// Clear editor
-// -------------------------
 function clearEditor() {
   document.getElementById('emojiInput').value = '';
   document.getElementById('nameInput').value = '';
@@ -239,12 +313,11 @@ function clearEditor() {
   document.getElementById('tempValue').textContent = '1.0';
   document.getElementById('tokensInput').value = 1500;
   document.getElementById('tokensValue').textContent = '1500';
-  
   document.getElementById('nameValidation').classList.add('hidden');
 }
 
 // -------------------------
-// Validate name uniqueness
+// Name Validation
 // -------------------------
 function validateName() {
   const nameInput = document.getElementById('nameInput');
@@ -258,13 +331,14 @@ function validateName() {
     return false;
   }
 
+  // Check uniqueness (ignoring self if editing)
   const exists = allPromptlets.some(p =>
     p.name.toLowerCase() === name.toLowerCase() &&
     p.name !== editingPromptletName
   );
 
   if (exists) {
-    validation.textContent = `⚠️ A promptlet named "${name}" already exists`;
+    validation.textContent = `⚠️ "${name}" already exists`;
     validation.className = 'validation-message validation-error';
     validation.classList.remove('hidden');
     return false;
@@ -277,91 +351,7 @@ function validateName() {
 }
 
 // -------------------------
-// Save promptlet (add or edit)
-// -------------------------
-function savePromptlet() {
-  const name = document.getElementById('nameInput').value.trim();
-  const emoji = document.getElementById('emojiInput').value.trim();
-  const prompt = document.getElementById('promptInput').value.trim();
-
-  if (!name || !prompt || !validateName()) return;
-
-  const promptletData = {
-    name,
-    emoji: emoji || '📝',
-    prompt,
-    model: document.getElementById('modelInput').value,
-    temperature: parseFloat(document.getElementById('tempInput').value),
-    maxTokens: parseInt(document.getElementById('tokensInput').value),
-    topP: 1.0,
-    frequencyPenalty: 0.0,
-    presencePenalty: 0.0,
-    isDefault: false,
-    isEnabled: true,
-    createdAt: Date.now(),
-    lastModified: Date.now()
-  };
-
-  if (editingPromptletName) {
-    const index = allPromptlets.findIndex(p => p.name === editingPromptletName);
-    if (index !== -1) {
-      promptletData.createdAt = allPromptlets[index].createdAt;
-      allPromptlets[index] = promptletData;
-    }
-  } else {
-    allPromptlets.push(promptletData);
-  }
-
-  saveAllPromptlets();
-  hideEditor();
-}
-
-// -------------------------
-// Clone promptlet
-// -------------------------
-function clonePromptlet(promptlet) {
-  const clonedName = promptlet.name + ' (Copy)';
-  const clone = { ...promptlet, name: clonedName, isDefault: false, isEnabled: true, createdAt: Date.now(), lastModified: Date.now() };
-  showEditor(clone, true);
-}
-
-// -------------------------
-// Edit promptlet
-// -------------------------
-function editPromptlet(promptlet) {
-  showEditor(promptlet);
-}
-
-// -------------------------
-// Delete promptlet
-// -------------------------
-function deletePromptlet(name) {
-  if (!confirm(`Delete "${name}"?`)) return;
-  allPromptlets = allPromptlets.filter(p => p.name !== name);
-  saveAllPromptlets();
-}
-
-// -------------------------
-// Save all promptlets
-// -------------------------
-function saveAllPromptlets() {
-  chrome.storage.local.set({ promptlets: allPromptlets }, () => {
-    renderPromptlets();
-  });
-}
-
-// -------------------------
-// Toggle advanced settings
-// -------------------------
-function toggleAdvanced() {
-  const content = document.getElementById('advancedContent');
-  const icon = document.getElementById('advancedIcon');
-  content.classList.toggle('show');
-  icon.classList.toggle('open');
-}
-
-// -------------------------
-// Load API key
+// API Key Handling
 // -------------------------
 function loadApiKey() {
   chrome.storage.local.get({ apiKey: '' }, (data) => {
@@ -369,10 +359,17 @@ function loadApiKey() {
   });
 }
 
-// -------------------------
-// Save API key
-// -------------------------
 function saveApiKey() {
   const apiKey = document.getElementById('apiKeyInput').value.trim();
-  chrome.storage.local.set({ apiKey }, () => alert('API key saved successfully!'));
+  chrome.storage.local.set({ apiKey }, () => alert('API key saved!'));
+}
+
+// -------------------------
+// Toggle Advanced UI
+// -------------------------
+function toggleAdvanced() {
+  const content = document.getElementById('advancedContent');
+  const icon = document.getElementById('advancedIcon');
+  content.classList.toggle('show');
+  icon.classList.toggle('open');
 }

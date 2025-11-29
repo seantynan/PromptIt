@@ -336,6 +336,71 @@
     .hidden {
       display: none;
     }
+
+    /* ============================== */
+    /* NEW TOGGLE SWITCH STYLES */
+    /* ============================== */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px; /* Standard switch width */
+      height: 24px; /* Standard switch height */
+      margin-right: 15px;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    
+    /* Hide default checkbox */
+    .toggle-switch .toggle-input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    /* The slider */
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--text-disabled); /* Inactive color */
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px; /* Ball height */
+      width: 18px; /* Ball width */
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--bg-card); /* Ball color */
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    /* Checked state */
+    .toggle-input:checked + .toggle-slider {
+      background-color: var(--accent-green); /* Active color */
+    }
+    
+    .toggle-input:focus + .toggle-slider {
+      box-shadow: 0 0 1px var(--accent-green);
+    }
+    
+    .toggle-input:checked + .toggle-slider:before {
+      transform: translateX(24px); /* Move the ball */
+    }
+    
+    /* Disabled state */
+    .toggle-input:disabled + .toggle-slider {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+    
   </style>
 </head>
 <body>

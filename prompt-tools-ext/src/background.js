@@ -24,7 +24,8 @@ let isRebuildingMenus = false;
 function getPromptletsWithDefaultsFlag() {
   return DEFAULT_PROMPTLETS.map(p => ({
     ...p,
-    isDefault: true // Apply the flag here
+    isDefault: true, // System flag
+    isActive: true   // Default promptlets start active
   }));
 }
 
@@ -116,9 +117,14 @@ function buildContextMenus() {
     }
     
     chrome.storage.local.get({ promptlets: [] }, (data) => {
-      const promptlets = (data.promptlets && data.promptlets.length > 0)
+      // Fallback if empty
+      const allPromptlets = (data.promptlets && data.promptlets.length > 0)
         ? data.promptlets
         : getPromptletsWithDefaultsFlag();
+
+      // FILTER: Only show active promptlets in the right-click menu
+      // Treats undefined as true (legacy support)
+      const activePromptlets = allPromptlets.filter(p => p.isActive !== false);
 
       // Create root menu
       chrome.contextMenus.create({
@@ -133,8 +139,12 @@ function buildContextMenus() {
         }
 
         // Create promptlet submenus
-        promptlets.forEach((p, index) => {
-          const menuId = `promptlet_${index}_${p.name}`;
+        activePromptlets.forEach((p, index) => {
+          // Construct ID using name to allow robust lookup later
+          // Replace spaces with underscores for ID safety
+          const safeName = p.name.replace(/\s/g, '_');
+          const menuId = `promptlet_${index}_${safeName}`;
+          
           chrome.contextMenus.create({
             id: menuId,
             parentId: CONTEXT_MENU_ROOT_ID,
@@ -159,7 +169,7 @@ function buildContextMenus() {
           contexts: ["selection"]
         });
 
-        console.log(`Built ${promptlets.length} context menu items`);
+        console.log(`Built ${activePromptlets.length} active context menu items`);
         isRebuildingMenus = false;
       });
     });
@@ -181,79 +191,73 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     console.warn("No text selected - aborting");
     return;
   }
+
+  // Parse the promptlet name from the menu ID
+  // Expected format: promptlet_INDEX_Name_With_Underscores
+  const match = info.menuItemId.match(/^promptlet_\d+_(.+)$/);
   
-  // Check if tab is invalid (side panel = -1, or missing)
-  if (!tab || !tab.id || tab.id === -1) {
-    console.log("Side panel selection detected.");
-    
-    chrome.storage.local.get({ promptlets: [] }, (data) => {
-      const promptlets = (data.promptlets && data.promptlets.length > 0)
-        ? data.promptlets
-        : getPromptletsWithDefaultsFlag();
-      
-      const match = info.menuItemId.match(/^promptlet_(\d+)_/);
-      if (!match) return;
-      
-      const promptletIndex = parseInt(match[1], 10);
-      const promptlet = promptlets[promptletIndex];
-      
-      if (!promptlet) return;
-      
-      const promptletData = {
-        promptlet: promptlet,
-        text: info.selectionText,
-        timestamp: Date.now()
-      };
-      
-      chrome.storage.local.set({ pendingPromptlet: promptletData }, () => {
-        chrome.runtime.sendMessage({
-          action: "runPromptlet",
-          promptlet: promptlet,
-          text: info.selectionText,
-          timestamp: Date.now()
-        }).catch(err => {
-          console.log("Message send attempted:", err.message);
-        });
-      });
-    });
+  if (!match) {
+    console.error("Could not parse promptlet ID from menu item");
     return;
   }
 
-  const match = info.menuItemId.match(/^promptlet_(\d+)_/);
-  
-  if (!match) return;
+  // Revert underscores to spaces to get original name
+  const promptletName = match[1].replace(/_/g, ' '); 
 
-  const promptletIndex = parseInt(match[1], 10);
-  runPromptletByIndex(tab.id, promptletIndex, info.selectionText);
+  // Check if tab is invalid (side panel = -1, or missing)
+  if (!tab || !tab.id || tab.id === -1) {
+    console.log("Side panel selection detected.");
+    handleSidePanelSelection(promptletName, info.selectionText);
+    return;
+  }
+
+  // Normal browser tab execution
+  runPromptletByName(tab.id, promptletName, info.selectionText);
 });
 
 // -------------------------
-// Run promptlet by index
+// Helper: Handle execution when selecting text INSIDE the side panel
 // -------------------------
-function runPromptletByIndex(tabId, index, selectionText) {
+function handleSidePanelSelection(promptletName, text) {
   chrome.storage.local.get({ promptlets: [] }, (data) => {
-    const promptlets = (data.promptlets && data.promptlets.length > 0)
-      ? data.promptlets
-      : getPromptletsWithDefaultsFlag();
-
-    const promptlet = promptlets[index];
+    const allPromptlets = data.promptlets || getPromptletsWithDefaultsFlag();
+    const promptlet = allPromptlets.find(p => p.name === promptletName);
+    
     if (!promptlet) return;
-
-    runPromptlet(tabId, promptlet, selectionText);
+    
+    const promptletData = {
+      promptlet: promptlet,
+      text: text,
+      timestamp: Date.now()
+    };
+    
+    // Store data and notify side panel
+    chrome.storage.local.set({ pendingPromptlet: promptletData }, () => {
+      chrome.runtime.sendMessage({
+        action: "runPromptlet",
+        promptlet: promptlet,
+        text: text,
+        timestamp: Date.now()
+      }).catch(err => {
+        // Message might fail if panel is closed/reloading; storage is the backup
+        console.log("Message send attempted:", err.message);
+      });
+    });
   });
 }
 
 // -------------------------
-// Run promptlet by name
+// Run promptlet by Name (Robust lookup)
 // -------------------------
 function runPromptletByName(tabId, promptletName, selectionText) {
   chrome.storage.local.get({ promptlets: [] }, (data) => {
-    const promptlets = (data.promptlets && data.promptlets.length > 0)
-      ? data.promptlets
-      : getPromptletsWithDefaultsFlag();
+    const allPromptlets = data.promptlets || getPromptletsWithDefaultsFlag();
 
-    const promptlet = promptlets.find(p => p.name === promptletName);
-    if (!promptlet) return;
+    const promptlet = allPromptlets.find(p => p.name === promptletName);
+    if (!promptlet) {
+      console.error(`Promptlet "${promptletName}" not found`);
+      return;
+    }
 
     runPromptlet(tabId, promptlet, selectionText);
   });
@@ -272,13 +276,16 @@ function runPromptlet(tabId, promptlet, selectionText) {
   };
 
   try {
+    // Open the Side Panel
     chrome.sidePanel.open({ tabId: tabId }, () => {
       if (chrome.runtime.lastError) {
         console.error("Error opening side panel:", chrome.runtime.lastError);
         return;
       }
       
+      // Store data for the panel to pick up
       chrome.storage.local.set({ pendingPromptlet: promptletData }, () => {
+        // Short delay to ensure panel is listening
         setTimeout(() => {
           chrome.runtime.sendMessage({
             action: "runPromptlet",
@@ -304,7 +311,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   switch (msg.action) {
     
-    // --- NEW: Handle prompt execution request from sidepanel ---
+    // --- EXECUTE PROMPT (Secure API Call) ---
     case "executePrompt":
       console.log("[BG] Executing prompt request from sidepanel.");
       
@@ -336,6 +343,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       })();
       return true; // Keep channel open for async response
 
+    // --- OTHER ACTIONS ---
     case "runPromptlet":
       if (msg.name && msg.tabId) {
         runPromptletByName(msg.tabId, msg.name, msg.text || "");
@@ -348,42 +356,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       pendingPromptletData = null;
       break;
 
-    case "runPromptletChain":
-      console.log("Promptlet chaining not yet implemented");
-      sendResponse({ success: false, error: "Chaining not implemented" });
-      break;
-
-    case "addUserPromptlet":
-      chrome.storage.local.get({ promptlets: [] }, (data) => {
-        const promptlets = data.promptlets || [];
-        promptlets.push(msg.promptlet);
-        chrome.storage.local.set({ promptlets }, () => {
-          buildContextMenus();
-          sendResponse({ success: true });
-        });
-      });
-      return true;
-
-    case "deleteUserPromptlet":
-      chrome.storage.local.get({ promptlets: [] }, (data) => {
-        const promptlets = data.promptlets || [];
-        const filtered = promptlets.filter(p => p.id !== msg.id);
-        chrome.storage.local.set({ promptlets: filtered }, () => {
-          buildContextMenus();
-          sendResponse({ success: true });
-        });
-      });
-      return true;
-
-    case "updatePromptlets":
-      chrome.storage.local.set({ promptlets: msg.promptlets }, () => {
-        buildContextMenus();
-        sendResponse({ success: true });
-      });
-      return true;
-
     case "resetToDefaults":
-      // Reset to default promptlets (Uses helper)
+      // Reset to default promptlets (Uses helper to ensure flags)
       const resetPromptlets = getPromptletsWithDefaultsFlag();
       chrome.storage.local.set({ promptlets: resetPromptlets }, () => {
         buildContextMenus();
@@ -422,6 +396,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
+// Error handling
 self.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled promise rejection:', event.reason);
 });
