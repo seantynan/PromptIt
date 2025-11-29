@@ -34,6 +34,30 @@ function setupEventListeners() {
   });
 
   document.getElementById('saveKeyBtn').addEventListener('click', saveApiKey);
+  document.getElementById('resetDefaultsBtn').addEventListener('click', handleResetDefaults);
+}
+
+
+// -------------------------
+// Reset all promptlets to defaults
+// -------------------------
+function handleResetDefaults() {
+  if (!confirm("Are you sure you want to reset all promptlets to the factory defaults? Your custom promptlets will be removed.")) {
+    return;
+  }
+
+  // Send message to the background service worker to perform the reset
+  chrome.runtime.sendMessage({ action: 'resetToDefaults' }, (response) => {
+    if (response && response.success) {
+      alert(`Promptlets reset successfully. ${response.count} default promptlets loaded.`);
+      
+      // Force a reload of the promptlets from storage to update the Manage page UI
+      loadPromptlets(); 
+    } else {
+      alert("Failed to reset promptlets.");
+      console.error("Reset failed:", response ? response.error : "No response");
+    }
+  });
 }
 
 // -------------------------

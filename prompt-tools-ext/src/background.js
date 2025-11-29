@@ -40,7 +40,7 @@ function initializeDefaults() {
     // Only initialize if this is truly the first run
     if (!data.hasInitialized) {
       chrome.storage.local.set({ 
-        promptlets: DEFAULT_PROMPTLETS,
+        promptlets: getPromptletsWithDefaultsFlag(),
         hasInitialized: true 
       }, () => {
         console.log(`Initialized with ${DEFAULT_PROMPTLETS.length} default promptlets`);
@@ -358,9 +358,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
     case "resetToDefaults":
       // Reset to default promptlets
-      chrome.storage.local.set({ promptlets: DEFAULT_PROMPTLETS }, () => {
+      const flaggedDefaults = getPromptletsWithDefaultsFlag();
+      chrome.storage.local.set({ promptlets: flaggedDefaults }, () => {
         buildContextMenus();
-        sendResponse({ success: true, count: DEFAULT_PROMPTLETS.length });
+        sendResponse({ success: true, count: flaggedDefaults.length });
       });
       return true;
 
@@ -395,6 +396,16 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     buildContextMenus();
   }
 });
+
+// ------------------------
+// Helper to apply default flag
+// ------------------------
+function getPromptletsWithDefaultsFlag() {
+  return DEFAULT_PROMPTLETS.map(p => ({
+    ...p,
+    isDefault: true // <--- Apply the flag here once
+  }));
+}
 
 // -------------------------
 // Error handling for unhandled promise rejections
