@@ -5,6 +5,7 @@
 
 const statusDiv = document.getElementById("status");
 const outputDiv = document.getElementById("output");
+let allPromptlets = []; // Store all promptlets here
 
 // -------------------------
 // Initialize - Check for pending promptlet data
@@ -14,6 +15,9 @@ updateStatus("Ready. Select text and run a promptlet.");
 
 // Check if there's a pending promptlet when side panel opens
 checkForPendingPromptlet();
+
+// Load promptlets and set up menu
+loadAndRenderChainMenu(); 
 
 async function checkForPendingPromptlet() {
   try {
@@ -40,6 +44,21 @@ async function checkForPendingPromptlet() {
     });
   } catch (err) {
     console.error("Error checking for pending promptlet:", err);
+  }
+}
+
+// -------------------------
+// Load Promptlets and Build Chain Menu
+// -------------------------
+async function loadAndRenderChainMenu() {
+  try {
+    const data = await chrome.storage.local.get({ promptlets: [] });
+    allPromptlets = data.promptlets || [];
+    console.log(`Loaded ${allPromptlets.length} promptlets for chaining menu.`);
+    // The menu is actually built/populated inside addCopyButton now, but we need
+    // to ensure allPromptlets is ready before any output appears.
+  } catch (err) {
+    console.error("Error loading promptlets for side panel:", err);
   }
 }
 
@@ -261,7 +280,7 @@ function addCopyButton(text) {
   // Chain button (dropdown)
   const chainBtn = document.createElement("button");
   chainBtn.id = "chainBtn";
-  chainBtn.innerHTML = "▼";
+  chainBtn.innerHTML = "🔗 Chain ▼"; // Changed text for better UX
   chainBtn.title = "Run another promptlet on this output";
   chainBtn.setAttribute("aria-label", "Chain promptlet menu");
   
@@ -270,20 +289,18 @@ function addCopyButton(text) {
   chainMenu.id = "chainMenu";
   chainMenu.setAttribute("role", "menu");
   
-  // Populate chain menu with promptlets
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
-    const promptlets = data.promptlets || [];
-    promptlets.forEach((promptlet) => {
-      const item = document.createElement("div");
-      item.className = "chain-menu-item";
-      item.textContent = `${promptlet.emoji || "📝"} ${promptlet.name}`;
-      item.addEventListener("click", (e) => {
-        e.stopPropagation(); // Prevent bubbling to document click handler
-        chainMenu.classList.remove("show");
-        runChainedPromptlet(promptlet, text);
-      });
-      chainMenu.appendChild(item);
+  // Populate chain menu using the loaded global array (UPDATED)
+  allPromptlets.forEach((promptlet) => {
+    const item = document.createElement("div");
+    item.className = "chain-menu-item";
+    item.textContent = `${promptlet.emoji || "📝"} ${promptlet.name}`;
+    item.addEventListener("click", (e) => {
+      e.stopPropagation(); 
+      chainMenu.classList.remove("show");
+      // Pass the full output text for chaining
+      runChainedPromptlet(promptlet, text); 
     });
+    chainMenu.appendChild(item);
   });
   
   chainBtn.appendChild(chainMenu);
@@ -292,6 +309,7 @@ function addCopyButton(text) {
   chainBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     
+    // click handler for showing/positioning menu)
     if (chainMenu.classList.contains("show")) {
       chainMenu.classList.remove("show");
       return;
