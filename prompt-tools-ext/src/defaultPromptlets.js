@@ -11,6 +11,7 @@ const DEFAULT_PROMPTLETS = [
     emoji: "💡",
     prompt: "Summarise this text clearly and concisely.",
     model: model,
+    maxTokens: 1500,
     outputStructure: ["main"]
   },
   {
@@ -18,6 +19,7 @@ const DEFAULT_PROMPTLETS = [
     emoji: "✏️",
     prompt: "Rephrase this text to improve clarity and flow.",
     model: model,
+    maxTokens: 1500,
     outputStructure: ["main"]
   },
 
@@ -43,6 +45,7 @@ CLAIM:
 
 `,
     model: model,
+    maxTokens: 4000,
     outputStructure: ["main"]
   },
   {
@@ -66,6 +69,7 @@ The user's text to be translated to English is as follows:
 
 `,
     model: model,
+    maxTokens: 4000,
     outputStructure: ["main"]
   },
     {
@@ -77,6 +81,7 @@ The user's text to be translated to English is as follows:
     Keep it clear and constructive.
     Finish by rating the nutritional quality out of ten`,
     model: model,
+    maxTokens: 4000,
     outputStructure: ["main", "notes"]
   },
     {
@@ -100,6 +105,7 @@ Optional notes or variations (e.g., substitutions, serving ideas, dietary adjust
 
 `,
     model: model,
+    maxTokens: 4000,
     outputStructure: ["main", "notes"]
   },
 ];
