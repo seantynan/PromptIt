@@ -79,42 +79,39 @@ async function runPromptlet(selectedText, promptlet) {
   outputDiv.textContent = "";
 
   try {
-    // Get API key from storage
-    const { apiKey } = await chrome.storage.local.get("apiKey");
-    
-    if (!apiKey || apiKey.trim() === "") {
-      throw new Error("API key not found. Please add it in Manage Promptlets.");
-    }
-
-    // Build the combined prompt
+    // 1. Build the combined prompt
     const combinedPrompt = `${promptlet.prompt}\n\n${selectedText}`;
-    
-    // Call OpenAI API with promptlet-specific settings (with defaults)
-    const result = await callOpenAI(
-      combinedPrompt, 
-      apiKey, 
-      promptlet.model || "gpt-4o",
-      promptlet.temperature ?? 1,
-      promptlet.maxTokens || 3000,
-      promptlet.topP ?? 1,
-      promptlet.frequencyPenalty ?? 0,
-      promptlet.presencePenalty ?? 0
-    );
-    
-    function updateChainTooltip() {
-      const selection = window.getSelection().toString().trim();
-      chainBtn.title = selection 
-        ? "Run another promptlet on this text"
-        : "Run another promptlet on this output";
+
+    // 2. Delegate execution to the Background Service Worker
+    const response = await new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage({
+        action: 'executePrompt', // New action for the background script
+        prompt: combinedPrompt,
+        promptlet: promptlet // Send the promptlet config (model, temperature, etc.)
+      }, (response) => {
+        if (chrome.runtime.lastError) {
+          return reject(new Error(chrome.runtime.lastError.message || "Background script failed to respond."));
+        }
+        if (!response) {
+            return reject(new Error("No response received from background script."));
+        }
+        resolve(response);
+      });
+    });
+
+    if (!response.success) {
+      throw new Error(response.error || "Unknown error during API execution.");
     }
 
+    const result = response.result;
+    
     // Display result
     updateStatus("✓ Done!");
     displayOutput(result, promptlet);
 
-      // === TOOLTIP: Update after output is in DOM ===
-      const chainBtn = document.getElementById('chainBtn');
-      if (chainBtn) {
+    // === TOOLTIP: Update after output is in DOM ===
+    const chainBtn = document.getElementById('chainBtn');
+    if (chainBtn) {
       function updateChainTooltip() {
         const selection = window.getSelection().toString().trim();
         chainBtn.title = selection 
@@ -132,24 +129,27 @@ async function runPromptlet(selectedText, promptlet) {
 
       // Initial update
       updateChainTooltip();
-
     }
 
   } catch (err) {
     console.error("Error running promptlet:", err);
     updateStatus("Error", true);
+    
+    const isApiKeyError = err.message.includes("API key not found") || 
+                          err.message.includes("Invalid Authentication") || 
+                          err.message.includes("You must provide an API key");
+
     outputDiv.innerHTML = `
       <div style="color: red; padding: 10px; background: #fee; border-radius: 4px;">
         <strong>Error:</strong> ${err.message}
       </div>
       <div style="margin-top: 10px; font-size: 12px; color: #666;">
-        ${err.message.includes("API key") ? 
+        ${isApiKeyError ? 
           'Go to <a href="#" id="openManage">Manage Promptlets</a> to set your API key.' : 
           'Check the console for details.'}
       </div>
     `;
 
-    // Add click handler for manage link
     const manageLink = document.getElementById("openManage");
     if (manageLink) {
       manageLink.addEventListener("click", (e) => {
@@ -359,46 +359,6 @@ function runChainedPromptlet(promptlet, fullOutputText) {
   
   // Run the promptlet on the text
   runPromptlet(textToProcess, promptlet);
-}
-
-// -------------------------
-// Call OpenAI API
-// -------------------------
-async function callOpenAI(prompt, apiKey, model = "gpt-4o", temperature = 1, maxTokens = 3000, topP = 1, frequencyPenalty = 0, presencePenalty = 0) {
-  console.log(`Calling OpenAI API:`, {
-    model,
-    temperature,
-    max_tokens: maxTokens,
-    top_p: topP,
-    frequency_penalty: frequencyPenalty,
-    presence_penalty: presencePenalty
-  });
-  
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: model,
-      messages: [{ role: "user", content: prompt }],
-      temperature: temperature,
-      max_completion_tokens: maxTokens,
-      top_p: topP,
-      frequency_penalty: frequencyPenalty,
-      presence_penalty: presencePenalty
-    })
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const errorMessage = errorData.error?.message || `API error: ${response.status}`;
-    throw new Error(errorMessage);
-  }
-
-  const data = await response.json();
-  return data.choices[0].message.content.trim();
 }
 
 // -------------------------

@@ -18,6 +18,16 @@ let pendingPromptletData = null;
 // Flag to prevent duplicate menu builds
 let isRebuildingMenus = false;
 
+// ------------------------
+// Helper to apply default flag
+// ------------------------
+function getPromptletsWithDefaultsFlag() {
+  return DEFAULT_PROMPTLETS.map(p => ({
+    ...p,
+    isDefault: true // Apply the flag here
+  }));
+}
+
 // -------------------------
 // Initialization
 // -------------------------
@@ -39,17 +49,51 @@ function initializeDefaults() {
   chrome.storage.local.get({ promptlets: [], apiKey: "", hasInitialized: false }, (data) => {
     // Only initialize if this is truly the first run
     if (!data.hasInitialized) {
+      const initialPromptlets = getPromptletsWithDefaultsFlag();
       chrome.storage.local.set({ 
-        promptlets: getPromptletsWithDefaultsFlag(),
+        promptlets: initialPromptlets,
         hasInitialized: true 
       }, () => {
-        console.log(`Initialized with ${DEFAULT_PROMPTLETS.length} default promptlets`);
+        console.log(`Initialized with ${initialPromptlets.length} default promptlets`);
         buildContextMenus();
       });
     } else {
       console.log(`Using ${data.promptlets.length} stored promptlets`);
     }
   });
+}
+
+// -------------------------
+// Securely call OpenAI API
+// -------------------------
+async function callOpenAI(prompt, apiKey, model = "gpt-4o", temperature = 1, maxTokens = 3000, topP = 1, frequencyPenalty = 0, presencePenalty = 0) {
+  console.log(`[BG] Calling OpenAI API:`, { model, maxTokens });
+  
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [{ role: "user", content: prompt }],
+      temperature: temperature,
+      max_completion_tokens: maxTokens,
+      top_p: topP,
+      frequency_penalty: frequencyPenalty,
+      presence_penalty: presencePenalty
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.error?.message || `API error: ${response.status} ${response.statusText}`;
+    throw new Error(errorMessage);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content.trim();
 }
 
 // -------------------------
@@ -74,7 +118,7 @@ function buildContextMenus() {
     chrome.storage.local.get({ promptlets: [] }, (data) => {
       const promptlets = (data.promptlets && data.promptlets.length > 0)
         ? data.promptlets
-        : DEFAULT_PROMPTLETS;
+        : getPromptletsWithDefaultsFlag();
 
       // Create root menu
       chrome.contextMenus.create({
@@ -127,14 +171,8 @@ function buildContextMenus() {
 // -------------------------
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   console.log("=== CONTEXT MENU CLICKED ===");
-  console.log("Full info object:", JSON.stringify(info, null, 2));
-  console.log("Menu ID:", info.menuItemId);
-  console.log("Selection:", info.selectionText);
-  console.log("Tab object:", JSON.stringify(tab, null, 2));
-  console.log("Tab ID:", tab?.id);
   
   if (info.menuItemId === MANAGE_PROMPTLETS_ID) {
-    console.log("Opening options page");
     chrome.runtime.openOptionsPage();
     return;
   }
@@ -146,15 +184,12 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   
   // Check if tab is invalid (side panel = -1, or missing)
   if (!tab || !tab.id || tab.id === -1) {
-    console.log("Side panel selection detected. Tab ID:", tab?.id);
-    console.log("Side panel is already open - just updating content");
+    console.log("Side panel selection detected.");
     
-    // Don't try to open the side panel - it's already open!
-    // Just store the data and let the side panel pick it up
     chrome.storage.local.get({ promptlets: [] }, (data) => {
       const promptlets = (data.promptlets && data.promptlets.length > 0)
         ? data.promptlets
-        : DEFAULT_PROMPTLETS;
+        : getPromptletsWithDefaultsFlag();
       
       const match = info.menuItemId.match(/^promptlet_(\d+)_/);
       if (!match) return;
@@ -162,10 +197,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       const promptletIndex = parseInt(match[1], 10);
       const promptlet = promptlets[promptletIndex];
       
-      if (!promptlet) {
-        console.error(`Promptlet at index ${promptletIndex} not found`);
-        return;
-      }
+      if (!promptlet) return;
       
       const promptletData = {
         promptlet: promptlet,
@@ -173,11 +205,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         timestamp: Date.now()
       };
       
-      // Store data for side panel to pick up
       chrome.storage.local.set({ pendingPromptlet: promptletData }, () => {
-        console.log("Stored promptlet data for side panel");
-        
-        // Notify side panel directly
         chrome.runtime.sendMessage({
           action: "runPromptlet",
           promptlet: promptlet,
@@ -191,18 +219,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     return;
   }
 
-  // Extract promptlet index from menu ID
   const match = info.menuItemId.match(/^promptlet_(\d+)_/);
-  console.log("Regex match:", match);
   
-  if (!match) {
-    console.error("No match for menu ID pattern");
-    return;
-  }
+  if (!match) return;
 
   const promptletIndex = parseInt(match[1], 10);
-  console.log("Promptlet index:", promptletIndex);
-  
   runPromptletByIndex(tab.id, promptletIndex, info.selectionText);
 });
 
@@ -210,76 +231,54 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 // Run promptlet by index
 // -------------------------
 function runPromptletByIndex(tabId, index, selectionText) {
-  console.log("=== RUN PROMPTLET BY INDEX ===");
-  console.log("Index:", index, "TabId:", tabId);
-  
   chrome.storage.local.get({ promptlets: [] }, (data) => {
     const promptlets = (data.promptlets && data.promptlets.length > 0)
       ? data.promptlets
-      : DEFAULT_PROMPTLETS;
+      : getPromptletsWithDefaultsFlag();
 
     const promptlet = promptlets[index];
-    if (!promptlet) {
-      console.error(`Promptlet at index ${index} not found`);
-      return;
-    }
+    if (!promptlet) return;
 
-    console.log("Found promptlet:", promptlet.name);
     runPromptlet(tabId, promptlet, selectionText);
   });
 }
 
 // -------------------------
-// Run promptlet by name (for popup/other triggers)
+// Run promptlet by name
 // -------------------------
 function runPromptletByName(tabId, promptletName, selectionText) {
   chrome.storage.local.get({ promptlets: [] }, (data) => {
     const promptlets = (data.promptlets && data.promptlets.length > 0)
       ? data.promptlets
-      : DEFAULT_PROMPTLETS;
+      : getPromptletsWithDefaultsFlag();
 
     const promptlet = promptlets.find(p => p.name === promptletName);
-    if (!promptlet) {
-      console.error(`Promptlet "${promptletName}" not found`);
-      return;
-    }
+    if (!promptlet) return;
 
     runPromptlet(tabId, promptlet, selectionText);
   });
 }
 
 // -------------------------
-// Core function to execute a promptlet
+// Core function to execute a promptlet (Opens Panel)
 // -------------------------
 function runPromptlet(tabId, promptlet, selectionText) {
   console.log(`Running promptlet: ${promptlet.name}`);
-  console.log(`Tab ID: ${tabId}`);
-  console.log(`Selected text length: ${selectionText?.length || 0}`);
 
-  // Store data for side panel to retrieve
   const promptletData = {
     promptlet: promptlet,
     text: selectionText || "",
     timestamp: Date.now()
   };
 
-  // CRITICAL: Open side panel FIRST, before any async operations
-  // This must be synchronous to preserve user gesture context
   try {
-    console.log("Opening side panel (synchronous)...");
     chrome.sidePanel.open({ tabId: tabId }, () => {
       if (chrome.runtime.lastError) {
         console.error("Error opening side panel:", chrome.runtime.lastError);
         return;
       }
       
-      console.log("Side panel opened!");
-      
-      // NOW do async storage operations
       chrome.storage.local.set({ pendingPromptlet: promptletData }, () => {
-        console.log("Stored pending promptlet data");
-        
-        // Try sending message as backup
         setTimeout(() => {
           chrome.runtime.sendMessage({
             action: "runPromptlet",
@@ -304,8 +303,40 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   console.log("Background received message:", msg.action);
 
   switch (msg.action) {
+    
+    // --- NEW: Handle prompt execution request from sidepanel ---
+    case "executePrompt":
+      console.log("[BG] Executing prompt request from sidepanel.");
+      
+      (async () => {
+        try {
+          const { apiKey } = await chrome.storage.local.get("apiKey");
+
+          if (!apiKey || apiKey.trim() === "") {
+            throw new Error("API key not found. Please add it in Manage Promptlets.");
+          }
+
+          const result = await callOpenAI(
+            msg.prompt,
+            apiKey,
+            msg.promptlet.model || "gpt-4o",
+            msg.promptlet.temperature ?? 1,
+            msg.promptlet.maxTokens || 3000,
+            msg.promptlet.topP ?? 1,
+            msg.promptlet.frequencyPenalty ?? 0,
+            msg.promptlet.presencePenalty ?? 0
+          );
+          
+          sendResponse({ success: true, result: result });
+
+        } catch (err) {
+          console.error("[BG] API Execution Error:", err.message);
+          sendResponse({ success: false, error: err.message });
+        }
+      })();
+      return true; // Keep channel open for async response
+
     case "runPromptlet":
-      // From popup or other sources
       if (msg.name && msg.tabId) {
         runPromptletByName(msg.tabId, msg.name, msg.text || "");
       }
@@ -313,19 +344,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       break;
 
     case "getPendingPromptlet":
-      // Side panel requesting pending data
       sendResponse({ data: pendingPromptletData });
-      pendingPromptletData = null; // Clear after retrieval
+      pendingPromptletData = null;
       break;
 
     case "runPromptletChain":
-      // Future: chain multiple promptlets
       console.log("Promptlet chaining not yet implemented");
       sendResponse({ success: false, error: "Chaining not implemented" });
       break;
 
     case "addUserPromptlet":
-      // Add new promptlet
       chrome.storage.local.get({ promptlets: [] }, (data) => {
         const promptlets = data.promptlets || [];
         promptlets.push(msg.promptlet);
@@ -334,10 +362,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           sendResponse({ success: true });
         });
       });
-      return true; // Keep channel open for async response
+      return true;
 
     case "deleteUserPromptlet":
-      // Delete promptlet by ID
       chrome.storage.local.get({ promptlets: [] }, (data) => {
         const promptlets = data.promptlets || [];
         const filtered = promptlets.filter(p => p.id !== msg.id);
@@ -346,22 +373,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           sendResponse({ success: true });
         });
       });
-      return true; // Keep channel open for async response
+      return true;
 
-    // case "updatePromptlets":
-    //   // Update entire promptlet list
-    //   chrome.storage.local.set({ promptlets: msg.promptlets }, () => {
-    //     buildContextMenus();
-    //     sendResponse({ success: true });
-    //   });
-    //   return true;
+    case "updatePromptlets":
+      chrome.storage.local.set({ promptlets: msg.promptlets }, () => {
+        buildContextMenus();
+        sendResponse({ success: true });
+      });
+      return true;
 
     case "resetToDefaults":
-      // Reset to default promptlets
-      const flaggedDefaults = getPromptletsWithDefaultsFlag();
-      chrome.storage.local.set({ promptlets: flaggedDefaults }, () => {
+      // Reset to default promptlets (Uses helper)
+      const resetPromptlets = getPromptletsWithDefaultsFlag();
+      chrome.storage.local.set({ promptlets: resetPromptlets }, () => {
         buildContextMenus();
-        sendResponse({ success: true, count: flaggedDefaults.length });
+        sendResponse({ success: true, count: resetPromptlets.length });
       });
       return true;
 
@@ -379,7 +405,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 // Handle toolbar icon click
 // -------------------------
 chrome.action.onClicked.addListener((tab) => {
-  // Try to open side panel, fallback to options page
   if (chrome.sidePanel && chrome.sidePanel.open) {
     chrome.sidePanel.open({ tabId: tab.id });
   } else {
@@ -397,19 +422,6 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-// ------------------------
-// Helper to apply default flag
-// ------------------------
-function getPromptletsWithDefaultsFlag() {
-  return DEFAULT_PROMPTLETS.map(p => ({
-    ...p,
-    isDefault: true // <--- Apply the flag here once
-  }));
-}
-
-// -------------------------
-// Error handling for unhandled promise rejections
-// -------------------------
 self.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled promise rejection:', event.reason);
 });
