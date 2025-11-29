@@ -12,6 +12,7 @@ Each Promptlet accepts **text input**, applies a **user-defined prompt**, and re
 
 The current implementation operates as a Chromium based **browser extensions**
 
+The AI engine used is the OpenAI API. The user will provide their own OpenAI API Key. (BYOK: Bring Your Own Key model).
 ---
 
 ## ⚙️ 2. Core Functionality
@@ -128,6 +129,27 @@ All transformations are stateless between runs.
 
 ---
 
+
+## 🧩 4. Manage Promptlets
+
+The browser extension wiull be packaged with a few default promptlets. These cannot be modified, but can be disabled.
+
+The user can add/edit/delete their own promptlets. There will be the ability to Clone an existing promptlet (default or custom) which copies the settings, crates a new promptlet and copies those settings into the newly created promptlet. Each promptlet name needs to be uniue, so the cloned promptlet name will be a modified version of the name of the cloned promptlet.
+
+
+For each promoptlet, there will be an option to expand to advanced settings. This will list the parameters to the OpenAI API call, with appropriate defaults.
+
+Each setting will have an appropriate UI widget to allow the user to customise each promptlet. For example the Temperature option may have a slider widget.
+
+Parameter Type  Suggested Default Notes
+model string  e.g. "gpt-3.5-turbo" Choice of model; pick a lighter option for faster/cheaper output.
+messages  array of {role,content} — Required: your conversation history. No default.
+temperature number (0-2)  0.7 Creativity vs predictability. Lower → deterministic, higher → creative.
+top_p number (0-1)  1.0 Nucleus sampling alternative to temperature. Use 1.0 to disable.
+n integer 1 Number of completions to generate. Higher → more outputs but more cost.
+max_tokens  integer 256 Maximum number of tokens for the output. Adjust based on expected size.
+presence_penalty  number (-2.0-2.0) 0.0 Penalizes new topics. Leave 0 unless you want less topic drift.
+frequency_penalty number (-2.0-2.0) 0.0 Penalizes repetition. Leave 0 unless you see repeated phrases.
 ---
 
 ## 🧠 5. Philosophy
