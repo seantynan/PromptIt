@@ -282,6 +282,20 @@ function showEditor(promptlet = null, isClone = false) {
   const panel = document.getElementById('editorPanel');
   const title = document.getElementById('editorTitle');
 
+  // --- ADD OR UPDATE THIS BLOCK FOR MAX TOKENS ---
+  const tokensInput = document.getElementById('tokensInput');
+  const tokensValue = document.getElementById('tokensValue');
+
+  // Load the Max Tokens value from the promptlet object (4000 for Verify)
+  // or fall back to the default 1500 for a completely new promptlet.
+  const currentTokens = promptlet.maxTokens !== undefined ? promptlet.maxTokens : 1500;
+
+  tokensInput.value = currentTokens;
+  tokensValue.textContent = currentTokens;
+  
+  // Also ensure the event listener updates the display
+  tokensInput.dispatchEvent(new Event('input'));
+
   if (promptlet && !isClone) {
     title.textContent = 'Edit Promptlet';
     editingPromptletName = promptlet.name;

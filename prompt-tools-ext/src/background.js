@@ -22,7 +22,7 @@ let isRebuildingMenus = false;
 // Helper to apply default flag
 // ------------------------
 function getPromptletsWithDefaultsFlag() {
-  return DEFAULT_PROMPTLETS.map(p => ({
+  return DEFAULT_PROMPTLETS.map((p, index) => ({
     ...p,
     isDefault: true, // System flag
     isActive: true,   // Default promptlets start active
@@ -106,6 +106,29 @@ function buildContextMenus() {
     console.log("Menu rebuild already in progress, skipping...");
     return;
   }
+
+  // ... (Code to clear old menus)
+
+  chrome.storage.local.get({ promptlets: [] }, (data) => {
+    const promptlets = data.promptlets || [];
+
+    promptlets.forEach((promptlet) => {
+      // Check the logic here. Does it only use fields that existed before?
+      // For example, if it's using a `for...in` loop, you might need checks:
+
+      if (promptlet.name) { // Ensures it's a valid promptlet object
+          // Create the context menu item here.
+          // Your context menu logic should not rely on maxTokens, 
+          // but if it uses object iteration, ensure it's safe.
+          
+          chrome.contextMenus.create({
+              id: promptlet.name, // Use the promptlet name
+              title: `${promptlet.emoji} ${promptlet.name}`, // Use emoji and name
+              // ... and so on
+          });
+      }
+    });
+  });
   
   isRebuildingMenus = true;
   console.log("Building context menus...");
