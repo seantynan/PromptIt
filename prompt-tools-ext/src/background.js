@@ -348,13 +348,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       });
       return true; // Keep channel open for async response
 
-    case "updatePromptlets":
-      // Update entire promptlet list
-      chrome.storage.local.set({ promptlets: msg.promptlets }, () => {
-        buildContextMenus();
-        sendResponse({ success: true });
-      });
-      return true;
+    // case "updatePromptlets":
+    //   // Update entire promptlet list
+    //   chrome.storage.local.set({ promptlets: msg.promptlets }, () => {
+    //     buildContextMenus();
+    //     sendResponse({ success: true });
+    //   });
+    //   return true;
 
     case "resetToDefaults":
       // Reset to default promptlets
