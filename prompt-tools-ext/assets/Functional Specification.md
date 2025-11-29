@@ -1,6 +1,6 @@
 ---
 
-# 🧩 **PromptIt Functional Specification (v0.11 — 11 Oct 2025)**
+# 🧩 **PromptIt Functional Specification (v1.0 — 29 Nov 2025)**
 
 ---
 
