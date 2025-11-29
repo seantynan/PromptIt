@@ -25,7 +25,8 @@ function getPromptletsWithDefaultsFlag() {
   return DEFAULT_PROMPTLETS.map(p => ({
     ...p,
     isDefault: true, // System flag
-    isActive: true   // Default promptlets start active
+    isActive: true,   // Default promptlets start active
+    defaultIndex: index // Stable index for ordering
   }));
 }
 
@@ -122,6 +123,24 @@ function buildContextMenus() {
         ? data.promptlets
         : getPromptletsWithDefaultsFlag();
 
+        // Composite Sort Logic
+        const sortedPromptlets = [...allPromptlets].sort((a, b) => {
+        // 1. Grouping: Defaults always come before Customs (Defaults = 0, Customs = 1)
+        const aGroup = a.isDefault ? 0 : 1;
+        const bGroup = b.isDefault ? 0 : 1;
+        if (aGroup !== bGroup) return aGroup - bGroup;
+
+        // 2. Ordering within groups
+        if (a.isDefault && b.isDefault) {
+          // Defaults: Sort by explicit defaultIndex
+          return (a.defaultIndex || 0) - (b.defaultIndex || 0);
+        } else {
+          // Customs: Sort by createdAt (oldest/first created should be first)
+          // If createdAt is missing, treat as latest (highest timestamp)
+          return (a.createdAt || Infinity) - (b.createdAt || Infinity);
+        }
+      });
+
       // FILTER: Only show active promptlets in the right-click menu
       // Treats undefined as true (legacy support)
       const activePromptlets = allPromptlets.filter(p => p.isActive !== false);
@@ -144,6 +163,10 @@ function buildContextMenus() {
           // Replace spaces with underscores for ID safety
           const safeName = p.name.replace(/\s/g, '_');
           const menuId = `promptlet_${index}_${safeName}`;
+
+          // Get the description, fallback to the prompt snippet if empty
+          const descriptionText = p.description || 
+                                  (p.prompt ? p.prompt.substring(0, 80) + '...' : '');
           
           chrome.contextMenus.create({
             id: menuId,

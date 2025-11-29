@@ -47,10 +47,13 @@ function setupEventListeners() {
 // -------------------------
 function loadPromptlets() {
   chrome.storage.local.get({ promptlets: [] }, (data) => {
-    // Map over loaded data to ensure 'isActive' exists (default to true for legacy data)
+// Ensure every promptlet has necessary properties (defaulting to safe values)
     allPromptlets = (data.promptlets || []).map(p => ({
       ...p,
-      isActive: p.isActive === undefined ? true : p.isActive 
+      // Default to true if the property is missing
+      isActive: p.isActive === undefined ? true : p.isActive,
+      // Default createdAt to 0 for old/defaults so they appear first if custom sort fails
+      createdAt: p.createdAt || 0 
     }));
     renderPromptlets();
   });
@@ -68,11 +71,17 @@ function renderPromptlets() {
   defaultList.innerHTML = '';
   userList.innerHTML = '';
 
-  // Sort by name for neatness
-  const sorted = [...allPromptlets].sort((a, b) => a.name.localeCompare(b.name));
-  
-  const defaults = sorted.filter(p => p.isDefault);
-  const customs = sorted.filter(p => !p.isDefault);
+  // 1. Separate Promptlets
+  let defaults = allPromptlets.filter(p => p.isDefault);
+  let customs = allPromptlets.filter(p => !p.isDefault);
+
+  // 2. Sort Promptlets (Matching background.js logic for consistency)
+  // Defaults: Sort by defaultIndex (set in background.js helper)
+  defaults.sort((a, b) => (a.defaultIndex || 0) - (b.defaultIndex || 0));
+
+  // Customs: Sort by creation date (oldest first)
+  // If createdAt is missing, treat it as very old (0)
+  customs.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 
   // Toggle empty state visibility
   if (emptyState) {
