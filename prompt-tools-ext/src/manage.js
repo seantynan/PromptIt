@@ -288,8 +288,12 @@ function showEditor(promptlet = null, isClone = false) {
 
   // Load the Max Tokens value from the promptlet object (4000 for Verify)
   // or fall back to the default 1500 for a completely new promptlet.
-  const currentTokens = promptlet.maxTokens !== undefined ? promptlet.maxTokens : 1500;
-
+  // CRITICAL FIX: Add (promptlet && ...) to check if the promptlet object exists 
+  // before trying to access its property.
+  const currentTokens = (promptlet && promptlet.maxTokens !== undefined) 
+      ? promptlet.maxTokens 
+      : 1500;
+      
   tokensInput.value = currentTokens;
   tokensValue.textContent = currentTokens;
   
