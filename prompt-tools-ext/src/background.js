@@ -11,6 +11,8 @@ importScripts('defaultPromptlets.js');
 // -------------------------
 const CONTEXT_MENU_ROOT_ID = "promptit_root";
 const MANAGE_PROMPTLETS_ID = "manage_promptlets";
+const OPTIONS_PAGE_URL = chrome.runtime.getURL('src/manage.html');
+const SIDEPANEL_PATH = 'src/sidepanel.html';
 
 // Store pending promptlet data
 let pendingPromptletData = null;
@@ -35,15 +37,24 @@ function getPromptletsWithDefaultsFlag() {
 // -------------------------
 chrome.runtime.onInstalled.addListener(() => {
   console.log("PromptIt installed");
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error) => console.error(error));
+  // Set the path programmatically since it's removed from manifest.json
+    chrome.sidePanel.setOptions({
+        path: SIDEPANEL_PATH
+    });
   initializeDefaults();
   buildContextMenus();
+});
+
+// Set the path for the side panel explicitly
+chrome.sidePanel.setOptions({
+    path: SIDEPANEL_PATH
 });
 
 chrome.runtime.onStartup.addListener(() => {
   console.log("PromptIt started");
   buildContextMenus();
 });
-
 
 // Function to open the management page
 function openManagePage() {
@@ -63,6 +74,8 @@ function openManagePage() {
 
 // Add the listener for the browser action (icon) click
 chrome.action.onClicked.addListener(() => {
+  // Ensure the side panel is closed (or ignored)
+  // And the Manage page is opened instead.
   openManagePage();
 });
 

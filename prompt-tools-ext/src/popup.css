@@ -1,0 +1,79 @@
+/* src/popup.css */
+
+/* --- General Reset and Body --- */
+
+body {
+    /* Critical: Zeroed out for transparent, full-bleed content */
+    width: 200px; 
+    padding: 0; 
+    margin: 0;
+    
+    background-color: transparent; 
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+}
+
+/* --- Menu Container --- */
+
+#popup-menu {
+    display: flex;
+    flex-direction: column;
+    
+    /* REMOVED PADDING HERE — we will add margin to the items */
+    padding: 0; 
+    margin: 0; 
+    
+    /* The visible box: Dark background and rounding */
+    background-color: #2e2e2e; 
+    
+    /* Slightly increase rounding */
+    border-radius: 8px; 
+    
+    /* Keeps the shadow effect to hide artifacts */
+    box-shadow: 0 0 0 1px #2e2e2e; 
+    
+    /* This must remain to clip the content at the rounded edge */
+    overflow: hidden; 
+}
+
+/* --- Menu Item Styling (The Buttons) --- */
+
+.menu-item {
+    display: flex; 
+    align-items: center;
+    width: 100%;
+    
+    /* Added back padding to the items themselves */
+    padding: 8px 10px; 
+    
+    /* Added a small margin to pull the buttons away from the edges and each other */
+    margin: 4px 4px 0 4px; 
+    
+    background-color: transparent;
+    color: inherit; 
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap; 
+    
+    /* Ensure the hover effect remains rounded */
+    border-radius: 4px; 
+}
+
+.menu-item:last-child {
+    margin-bottom: 4px; /* Add margin to the bottom of the last button */
+}
+
+/* --- Hover Effect --- */
+
+.menu-item:hover {
+    background-color: rgba(60, 60, 60, 0.9); 
+}
+
+/* --- Emoji Spacing --- */
+.emoji {
+    margin-right: 8px; 
+    font-size: 16px; 
+    line-height: 1;
+}
