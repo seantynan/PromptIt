@@ -430,6 +430,7 @@
       cursor: pointer;
       transition: background 0.1s;
       flex-shrink: 0;
+      margin-left: -12px;
     }
 
     .picker-trigger-icon:hover {
