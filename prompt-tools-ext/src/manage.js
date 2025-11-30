@@ -5,6 +5,7 @@
 
 let allPromptlets = [];
 let editingPromptletName = null; // Track which promptlet we're editing
+const model = "gpt-5-mini"; // New recommended default for speed and cost-efficiency
 
 // -------------------------
 // Initialize
@@ -328,7 +329,7 @@ function populateEditor(promptlet) {
   document.getElementById('emojiInput').value = promptlet.emoji || '';
   document.getElementById('nameInput').value = promptlet.name;
   document.getElementById('promptInput').value = promptlet.prompt;
-  document.getElementById('modelInput').value = promptlet.model || 'gpt-4o';
+  document.getElementById('modelInput').value = promptlet.model || model;
   document.getElementById('tempInput').value = promptlet.temperature ?? 1.0;
   document.getElementById('tempValue').textContent = promptlet.temperature ?? 1.0;
   document.getElementById('tokensInput').value = promptlet.maxTokens || 1500;
@@ -339,7 +340,7 @@ function clearEditor() {
   document.getElementById('emojiInput').value = '';
   document.getElementById('nameInput').value = '';
   document.getElementById('promptInput').value = '';
-  document.getElementById('modelInput').value = 'gpt-4o';
+  document.getElementById('modelInput').value = model;
   document.getElementById('tempInput').value = 1.0;
   document.getElementById('tempValue').textContent = '1.0';
   document.getElementById('tokensInput').value = 1500;
