@@ -130,7 +130,7 @@ function createPromptletElement(promptlet) {
         ${promptlet.isDefault 
           ? '<span style="font-size:11px; color:#888; margin-right:5px;">LOCKED</span>' 
           : `<button class="btn btn-small btn-secondary edit-btn">Edit</button>
-             <button class="btn btn-small btn-danger delete-btn">×</button>`
+             <button class="btn btn-small btn-danger delete-btn">Delete</button>`
         }
         <button class="btn btn-small btn-secondary clone-btn">Clone</button>
       </div>
