@@ -213,6 +213,8 @@
 
     .form-group {
       margin-bottom: 20px;
+      position: relative;
+      flex: 1;
     }
 
     .form-label {
@@ -448,6 +450,8 @@
 
     .emoji-picker {
       position: absolute; /* Position relative to .form-group if it's position:relative */
+      top: 100%; /* Pushes it below the input */
+      left: 0;   /* Aligns it to the left */
       z-index: 1000;
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -478,7 +482,6 @@
 
     /* Update the individual category buttons */
     .emoji-group-button {
-      /* ... existing styles ... */
       background: none;
       border: none;
       padding: 5px 10px; /* Increase horizontal padding */
@@ -520,4 +523,15 @@
 
     .emoji-item:hover {
       background: var(--bg-primary);
+    }
+
+    .emoji-list-container {
+        padding: 5px;
+        max-height: 330px; 
+        overflow-y: hidden;
+    }
+    .emoji-list {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 4px;
     }
