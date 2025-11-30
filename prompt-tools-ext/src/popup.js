@@ -18,3 +18,26 @@ document.getElementById('helpBtn').addEventListener('click', () => {
     // Open the help page in a new tab
     chrome.tabs.create({ url: helpUrl });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Buttons defined in src/popup.html
+    const manageBtn = document.getElementById('manageBtn');
+    const helpBtn = document.getElementById('helpBtn');
+
+    // --- 1. Manage Promptlets Button Logic ---
+    manageBtn.addEventListener('click', () => {
+        // Since 'options_page' is set in manifest, we use chrome.runtime.openOptionsPage()
+        chrome.runtime.openOptionsPage();
+        window.close(); // Close the popup window after clicking
+    });
+
+    // --- 2. Help/User Guide Button Logic (NEW) ---
+    helpBtn.addEventListener('click', () => {
+        // Open the help page in a new tab
+        // Note: The path is relative to the extension's root directory
+        chrome.tabs.create({
+            url: 'src/help.html'
+        });
+        window.close(); // Close the popup window after clicking
+    });
+});

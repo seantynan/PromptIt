@@ -1,0 +1,76 @@
+/* src/help.css */
+
+/* --- Page Layout (Ensuring readability for long content) --- */
+
+.container {
+    max-width: 800px; /* Limits the width of the text block for better readability */
+    margin: 0 auto; /* Centers the content block */
+    padding: 20px;
+}
+
+/* --- Headers and Titles --- */
+
+.page-header {
+    border-bottom: 2px solid #555;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-size: 2em;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+h2 {
+    font-size: 1.5em;
+    color: #90CAF9; /* Light blue color for section headings */
+    margin-top: 40px;
+    border-bottom: 1px dashed #444;
+    padding-bottom: 5px;
+}
+
+h3 {
+    font-size: 1.2em;
+    color: #ffffff;
+    margin-top: 25px;
+}
+
+/* --- Emphasis Styles (Code Snippets and Placeholders) --- */
+
+code {
+    /* Style for text placeholders like [SELECTED_TEXT] */
+    background-color: #383838; /* Slightly lighter dark background */
+    color: #ffcc66; /* Amber/yellow color for code contrast */
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+/* --- List Styles --- */
+
+ul, ol {
+    padding-left: 20px;
+    line-height: 1.6;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+/* --- Note Blocks --- */
+
+p.note {
+    /* Style for important troubleshooting notes */
+    background-color: #444; /* Darker grey background for the note box */
+    border-left: 5px solid #ff9800; /* Orange border for visual warning/emphasis */
+    padding: 10px 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+    color: #e0e0e0;
+}
+
+p.note strong {
+    color: #fff;
+}
