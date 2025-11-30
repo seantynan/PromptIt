@@ -3,7 +3,7 @@
 /* --- General Reset and Body --- */
 
 body {
-    /* Critical: Zeroed out for transparent, full-bleed content */
+    /* Critical: Set size, zero out padding/margin, set transparent background */
     width: 200px; 
     padding: 0; 
     margin: 0;
@@ -12,6 +12,9 @@ body {
     color: #ffffff;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 14px;
+    
+    /* Ensure no rounding on the body */
+    border-radius: 0;
 }
 
 /* --- Menu Container --- */
@@ -20,21 +23,19 @@ body {
     display: flex;
     flex-direction: column;
     
-    /* REMOVED PADDING HERE — we will add margin to the items */
+    /* SHARP CORNERS: Remove rounding properties */
     padding: 0; 
     margin: 0; 
-    
-    /* The visible box: Dark background and rounding */
     background-color: #2e2e2e; 
+    border-radius: 0; 
     
-    /* Slightly increase rounding */
-    border-radius: 8px; 
+    /* Negative margin to push content against the outer browser frame */
+    margin: -1px; 
+    padding: 1px;
     
-    /* Keeps the shadow effect to hide artifacts */
-    box-shadow: 0 0 0 1px #2e2e2e; 
-    
-    /* This must remain to clip the content at the rounded edge */
-    overflow: hidden; 
+    /* Ensure no clipping is active */
+    overflow: visible; 
+    box-shadow: none; 
 }
 
 /* --- Menu Item Styling (The Buttons) --- */
@@ -44,11 +45,11 @@ body {
     align-items: center;
     width: 100%;
     
-    /* Added back padding to the items themselves */
+    /* Adjust internal padding */
     padding: 8px 10px; 
     
-    /* Added a small margin to pull the buttons away from the edges and each other */
-    margin: 4px 4px 0 4px; 
+    /* Use margin for internal spacing */
+    margin: 0; 
     
     background-color: transparent;
     color: inherit; 
@@ -57,17 +58,22 @@ body {
     text-align: left;
     white-space: nowrap; 
     
-    /* Ensure the hover effect remains rounded */
-    border-radius: 4px; 
+    /* Ensure no rounding on the buttons */
+    border-radius: 0; 
+    
+    /* Add a thin border between items if desired, similar to context menus */
+    border-bottom: 1px solid rgba(60, 60, 60, 0.9);
 }
 
 .menu-item:last-child {
-    margin-bottom: 4px; /* Add margin to the bottom of the last button */
+    /* Remove border from the last item */
+    border-bottom: none; 
 }
 
 /* --- Hover Effect --- */
 
 .menu-item:hover {
+    /* Use a contrasting color for the selected item */
     background-color: rgba(60, 60, 60, 0.9); 
 }
 
