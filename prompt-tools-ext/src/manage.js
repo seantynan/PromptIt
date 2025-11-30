@@ -54,88 +54,84 @@ document.addEventListener('DOMContentLoaded', () => {
 // -------------------------
 // Event Listeners
 // -------------------------
+// -------------------------
+// Event Listeners
+// -------------------------
 function setupEventListeners() {
-  document.getElementById('addNewBtn').addEventListener('click', () => showEditor());
-  document.getElementById('cancelBtn').addEventListener('click', hideEditor);
-  document.getElementById('saveBtn').addEventListener('click', savePromptlet);
-  document.getElementById('nameInput').addEventListener('input', validateName);
-  document.getElementById('advancedToggle').addEventListener('click', toggleAdvanced);
+    // --- Core UI Listeners ---
+    document.getElementById('addNewBtn').addEventListener('click', () => showEditor());
+    document.getElementById('cancelBtn').addEventListener('click', hideEditor);
+    document.getElementById('saveBtn').addEventListener('click', savePromptlet);
+    document.getElementById('nameInput').addEventListener('input', validateName);
+    document.getElementById('advancedToggle').addEventListener('click', toggleAdvanced);
 
-  document.getElementById('tempInput').addEventListener('input', (e) => {
-    document.getElementById('tempValue').textContent = e.target.value;
-  });
+    // --- Editor Control Listeners ---
+    document.getElementById('tempInput').addEventListener('input', (e) => {
+        document.getElementById('tempValue').textContent = e.target.value;
+    });
+    document.getElementById('tokensInput').addEventListener('input', (e) => {
+        document.getElementById('tokensValue').textContent = e.target.value;
+    });
 
-  document.getElementById('tokensInput').addEventListener('input', (e) => {
-    document.getElementById('tokensValue').textContent = e.target.value;
-  });
+    // --- API Key Listeners ---
+    document.getElementById('saveKeyBtn').addEventListener('click', saveApiKey);
+    
+    // --- Reset Button Listener ---
+    const resetBtn = document.getElementById('resetDefaultsBtn');
+    if (resetBtn) {
+        // Assuming you want the correct function name here
+        resetBtn.addEventListener('click', handleResetDefaults); 
+    }
 
-  document.getElementById('saveKeyBtn').addEventListener('click', saveApiKey);
-  
-  // Add listener for Reset button
-  const resetBtn = document.getElementById('resetDefaultsBtn');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', handleResetDefaults);
-  }
+    // =======================================================
+    // 🔥 EMOJI PICKER LISTENERS (DEFENSIVELY WRAPPED) 🔥
+    // =======================================================
+    const emojiDisplay = document.getElementById('emojiDisplay');
+    const emojiInput = document.getElementById('emojiInput');
+    const emojiPicker = document.getElementById('emojiPicker');
+    const emojiSearchInput = document.getElementById('emojiSearchInput');
+    const pickerTriggerIcon = document.getElementById('pickerTriggerIcon');
 
-  // --- Emoji Picker Listeners ---
-  const emojiDisplay = document.getElementById('emojiDisplay');
-  const emojiInput = document.getElementById('emojiInput');
-  const emojiPicker = document.getElementById('emojiPicker');
-  const emojiSearchInput = document.getElementById('emojiSearchInput');
+    // CRITICAL FIX: Only add listeners and call helpers if ALL five elements exist
+    if (emojiDisplay && emojiInput && emojiPicker && emojiSearchInput && pickerTriggerIcon) {
+        
+        // 1. Toggle Picker Visibility (Action is now only on the new trigger icon)
+        pickerTriggerIcon.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            emojiPicker.classList.toggle('hidden');
+            if (!emojiPicker.classList.contains('hidden')) {
+                // Ensure the list is populated when opened
+                renderEmojis(EMOJI_DATA, 'Objects'); 
+            }
+        });
 
+        // 2. Close picker if user clicks outside of it
+        document.addEventListener('click', (e) => {
+            if (!emojiPicker.classList.contains('hidden') && 
+                !emojiPicker.contains(e.target) && 
+                e.target !== emojiDisplay && // Don't close if we click the large display area
+                e.target !== pickerTriggerIcon) { // Don't close if we click the trigger
+                emojiPicker.classList.add('hidden');
+            }
+        });
 
-  // CRITICAL: Ensure ALL elements are found before adding listeners
-  if (emojiDisplay && emojiInput && emojiPicker && emojiSearchInput) {
-      // 1. Toggle Picker Visibility
-      // If your line 87 was here, this now runs safely after the check.
-      emojiDisplay.addEventListener('click', (e) => {
-          // Prevent the click from propagating to the document body handler
-          e.stopPropagation(); 
-          emojiPicker.classList.toggle('hidden');
-          if (!emojiPicker.classList.contains('hidden')) {
-              // Default to the first category when opening
-              renderEmojis(EMOJI_DATA, 'Objects'); 
-          }
-      });
+        // 3. Handle Search Input
+        emojiSearchInput.addEventListener('input', () => {
+            const query = emojiSearchInput.value.toLowerCase();
+            const filtered = EMOJI_DATA.filter(p => 
+                p.keywords.some(k => k.includes(query)) || p.emoji.includes(query)
+            );
+            renderEmojis(filtered);
+        });
 
-      // Close picker if user clicks outside of it
-      document.addEventListener('click', (e) => {
-          if (!emojiPicker.classList.contains('hidden') && 
-              !emojiPicker.contains(e.target) && 
-              e.target !== emojiDisplay) {
-              emojiPicker.classList.add('hidden');
-          }
-      });
+        // 4. Handle Manual Text/Emoji Input (Updates the large display area)
+        emojiInput.addEventListener('input', (e) => {
+            emojiDisplay.textContent = e.target.value.substring(0, 2) || '❓'; 
+        });
 
-      // 2. Handle Search Input
-      emojiSearchInput.addEventListener('input', () => {
-          const query = emojiSearchInput.value.toLowerCase();
-          const filtered = EMOJI_DATA.filter(p => 
-              p.keywords.some(k => k.includes(query)) || p.emoji.includes(query)
-          );
-          renderEmojis(filtered);
-      });
-
-      // 3. Handle Manual Text/Emoji Input
-      emojiInput.addEventListener('input', (e) => {
-          // Display what the user typed immediately
-          emojiDisplay.textContent = e.target.value.substring(0, 2) || '📝'; 
-      });
-      
-      // Call this function when setting up listeners
-      // CRITICAL: Ensure ALL elements are found before adding listeners
-      if (emojiDisplay && emojiInput && emojiPicker && emojiSearchInput) {
-          // ... all the addEventListener calls (Toggle, Search, Input) ...
-
-          // Call this function when setting up listeners
-          renderCategoryButtons(); 
-      }
-  }
-
-  // Call this function when setting up listeners
-  renderCategoryButtons(); 
-
-  // ... rest of setupEventListeners
+        // 5. Final Setup: Only call rendering function once, inside the safe block
+        renderCategoryButtons();
+    }
 }
 
 // -------------------------
@@ -431,51 +427,61 @@ function handleResetDefaults() {
 // -------------------------
 // Editor UI Helpers
 // -------------------------
-function showEditor(promptlet = null, isClone = false) {
-  const panel = document.getElementById('editorPanel');
-  const title = document.getElementById('editorTitle');
+function showEditor(promptlet = null) {
+    // Determine the emoji to display (using '❓' as the new default)
+    const currentEmoji = promptlet ? promptlet.emoji : '❓';
 
-  // --- ADD OR UPDATE THIS BLOCK FOR MAX TOKENS ---
-  const tokensInput = document.getElementById('tokensInput');
-  const tokensValue = document.getElementById('tokensValue');
+    // ------------------------------------------
+    // Set Emoji Values (Defensively)
+    // ------------------------------------------
+    const emojiDisplay = document.getElementById('emojiDisplay');
+    const emojiInput = document.getElementById('emojiInput');
 
-  // Load the Max Tokens value from the promptlet object (4000 for Verify)
-  // or fall back to the default 1500 for a completely new promptlet.
-  // CRITICAL FIX: Add (promptlet && ...) to check if the promptlet object exists 
-  // before trying to access its property.
-  const currentTokens = (promptlet && promptlet.maxTokens !== undefined) 
-      ? promptlet.maxTokens 
-      : 1500;
-      
-  tokensInput.value = currentTokens;
-  tokensValue.textContent = currentTokens;
-  
-  // Also ensure the event listener updates the display
-  tokensInput.dispatchEvent(new Event('input'));
+    if (emojiDisplay) {
+        emojiDisplay.textContent = currentEmoji;
+    }
+    if (emojiInput) {
+        emojiInput.value = currentEmoji;
+    }
+    // ------------------------------------------
 
-  if (promptlet && !isClone) {
-    title.textContent = 'Edit Promptlet';
-    editingPromptletName = promptlet.name;
-    populateEditor(promptlet);
-  } else if (promptlet && isClone) {
-    title.textContent = 'New Promptlet (Clone)';
-    editingPromptletName = null;
-    populateEditor(promptlet);
-  } else {
-    title.textContent = 'Add New Promptlet';
-    editingPromptletName = null;
-    clearEditor();
-  }
+    // --- Existing Logic for Editor UI ---
+    editingPromptletName = promptlet ? promptlet.name : null;
 
-  // Set default/existing emoji values
-  const currentEmoji = promptlet ? promptlet.emoji : '📝';
-  document.getElementById('emojiDisplay').textContent = currentEmoji;
-  document.getElementById('emojiInput').value = currentEmoji;
+    // Set other promptlet fields
+    document.getElementById('nameInput').value = promptlet ? promptlet.name : '';
+    document.getElementById('promptInput').value = promptlet ? promptlet.prompt : '';
 
-  panel.classList.remove('hidden');
-  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Set advanced settings (assuming these exist and have default fallbacks)
+    const model = promptlet ? promptlet.model : 'gpt-5-mini';
+    const maxTokens = promptlet ? promptlet.maxTokens : 1500;
+    const temperature = promptlet ? promptlet.temperature : 1.0;
+
+    document.getElementById('modelInput').value = model;
+    document.getElementById('tokensInput').value = maxTokens;
+    document.getElementById('tokensValue').textContent = maxTokens;
+    document.getElementById('tempInput').value = temperature;
+    document.getElementById('tempValue').textContent = temperature;
+    
+    // If we're creating a new one, ensure the advanced panel is collapsed
+    const advancedContent = document.getElementById('advancedContent');
+    if (advancedContent && !promptlet) {
+        advancedContent.classList.add('hidden');
+    }
+    
+    // 🔥 CRITICAL FIX: Get the element and check for null before showing it
+    const editorPanel = document.getElementById('editorPanel');
+
+    if (!editorPanel) {
+        // This is primarily for console clarity, but the script will likely crash below if this is null.
+        console.error("CRITICAL ERROR: Editor Panel (#editorPanel) not found.");
+        return; 
+    }
+
+    // Final Action: Show the Panel
+    editorPanel.classList.remove('hidden');
+    editorPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-
 function hideEditor() {
   document.getElementById('editorPanel').classList.add('hidden');
   editingPromptletName = null;
@@ -575,7 +581,7 @@ function renderCategoryButtons() {
         console.error("Error: Could not find element with ID 'emojiGroups'. Please check manage.html.");
         return; 
     }
-    
+
     groupsContainer.innerHTML = ''; 
 
     for (const category in EMOJI_CATEGORIES) {
