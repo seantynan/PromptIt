@@ -3,17 +3,14 @@
 /* --- General Reset and Body --- */
 
 body {
-    /* Critical: Set size, zero out padding/margin, set transparent background */
     width: 200px; 
     padding: 0; 
     margin: 0;
     
-    background-color: transparent; 
+    background-color: transparent; /* Allows surrounding OS/browser color to show */
     color: #ffffff;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 14px;
-    
-    /* Ensure no rounding on the body */
     border-radius: 0;
 }
 
@@ -23,32 +20,23 @@ body {
     display: flex;
     flex-direction: column;
     
-    /* SHARP CORNERS: Remove rounding properties */
-    padding: 0; 
-    margin: 0; 
-    background-color: #2e2e2e; 
-    border-radius: 0; 
-    
-    /* Negative margin to push content against the outer browser frame */
+    /* Use negative margin to pull the content right to the sharp edge of the window frame */
     margin: -1px; 
     padding: 1px;
     
-    /* Ensure no clipping is active */
+    background-color: #2e2e2e; 
+    border-radius: 0; /* Ensures sharp corners */
     overflow: visible; 
-    box-shadow: none; 
 }
 
-/* --- Menu Item Styling (The Buttons) --- */
+/* --- Menu Item Styling --- */
 
 .menu-item {
     display: flex; 
     align-items: center;
     width: 100%;
     
-    /* Adjust internal padding */
     padding: 8px 10px; 
-    
-    /* Use margin for internal spacing */
     margin: 0; 
     
     background-color: transparent;
@@ -57,23 +45,17 @@ body {
     cursor: pointer;
     text-align: left;
     white-space: nowrap; 
-    
-    /* Ensure no rounding on the buttons */
     border-radius: 0; 
     
-    /* Add a thin border between items if desired, similar to context menus */
+    /* Item Separator */
     border-bottom: 1px solid rgba(60, 60, 60, 0.9);
 }
 
 .menu-item:last-child {
-    /* Remove border from the last item */
     border-bottom: none; 
 }
 
-/* --- Hover Effect --- */
-
 .menu-item:hover {
-    /* Use a contrasting color for the selected item */
     background-color: rgba(60, 60, 60, 0.9); 
 }
 
