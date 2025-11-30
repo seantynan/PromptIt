@@ -113,7 +113,7 @@ function createPromptletElement(promptlet) {
 
   item.innerHTML = `
     <div class="promptlet-header">
-      <label class="toggle-switch" title="${isActive ? 'Active' : 'Inactive'}">
+      <label class="toggle-switch" title="${isActive ? 'On' : 'Off'}">
         <input 
           type="checkbox" 
           class="toggle-input" 
