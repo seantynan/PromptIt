@@ -18,3 +18,5 @@ Branding: icons, polish, screenshots... generate images using nano banana
 
 Positional ordering by drag and drop
 
+Prevent resettiing defaults from deleting user prompts
+
