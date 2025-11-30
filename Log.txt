@@ -1,0 +1,20 @@
+
+
+30 NOV 2025
+
+Version 0.2 "Cadence" released.
+
+Next steps:
+
+System prompt, include locale and markdown formatting
+
+Review default prompts
+
+Help documentation
+
+README.md
+
+Branding: icons, polish, screenshots... generate images using nano banana
+
+Positional ordering by drag and drop
+
