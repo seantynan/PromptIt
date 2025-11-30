@@ -44,6 +44,28 @@ chrome.runtime.onStartup.addListener(() => {
   buildContextMenus();
 });
 
+
+// Function to open the management page
+function openManagePage() {
+  const optionsUrl = chrome.runtime.getURL('src/manage.html');
+
+  // Check if the page is already open
+  chrome.tabs.query({ url: optionsUrl }, (tabs) => {
+    if (tabs.length > 0) {
+      // If found, activate the existing tab
+      chrome.tabs.update(tabs[0].id, { active: true });
+    } else {
+      // Otherwise, open a new tab
+      chrome.tabs.create({ url: optionsUrl });
+    }
+  });
+}
+
+// Add the listener for the browser action (icon) click
+chrome.action.onClicked.addListener(() => {
+  openManagePage();
+});
+
 // -------------------------
 // Ensure default promptlets exist on first install
 // -------------------------
