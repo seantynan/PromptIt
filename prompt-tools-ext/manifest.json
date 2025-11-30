@@ -6,7 +6,7 @@
   "permissions": ["contextMenus", "sidePanel", "storage", "activeTab", "scripting"],
   "host_permissions": ["<all_urls>"],
   "action": {
-    "default_title": "Prompt It! - Click to open side panel"
+    "default_title": "Prompt It! - AI in your right-click"
   },
   "side_panel": {
     "default_path": "src/sidepanel.html"
