@@ -1,0 +1,396 @@
+ :root {
+      --bg-primary: #f5f5f5;
+      --bg-card: #ffffff;
+      --bg-input: #ffffff;
+      --text-primary: #333333;
+      --text-secondary: #666666;
+      --text-disabled: #999999;
+      --border: #dddddd;
+      --border-input: #cccccc;
+      --accent-green: #4CAF50;
+      --accent-green-hover: #45a049;
+      --accent-blue: #2196F3;
+      --accent-red: #f44336;
+      --accent-red-hover: #da190b;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1e1e1e;
+        --bg-card: #2d2d2d;
+        --bg-input: #252525;
+        --text-primary: #e0e0e0;
+        --text-secondary: #b0b0b0;
+        --text-disabled: #666666;
+        --border: #444444;
+        --border-input: #555555;
+        --accent-green: #66BB6A;
+        --accent-green-hover: #5cb860;
+        --accent-blue: #64B5F6;
+        --accent-red: #ef5350;
+        --accent-red-hover: #e53935;
+        --shadow: rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin: 0 0 24px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 32px 0 16px 0;
+      color: var(--text-primary);
+    }
+
+    .section-intro {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .promptlet-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .promptlet-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 3px var(--shadow);
+      transition: box-shadow 0.2s;
+    }
+
+    .promptlet-card.disabled {
+      opacity: 0.6;
+    }
+
+    .promptlet-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .promptlet-checkbox {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .promptlet-emoji {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .promptlet-name {
+      font-weight: 600;
+      font-size: 15px;
+      flex: 1;
+    }
+
+    .promptlet-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .promptlet-prompt {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-left: 42px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .promptlet-card.disabled .promptlet-prompt {
+      color: var(--text-disabled);
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-small {
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+
+    .btn-primary {
+      background: var(--accent-green);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-green-hover);
+    }
+
+    .btn-secondary {
+      background: #757575;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #616161;
+    }
+
+    .btn-danger {
+      background: var(--accent-red);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: var(--accent-red-hover);
+    }
+
+    .btn-large {
+      padding: 12px 24px;
+      font-size: 15px;
+      width: 100%;
+    }
+
+    .add-section {
+      margin-top: 32px;
+    }
+
+    .editor-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 16px;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-input);
+      border-radius: 6px;
+      font-size: 14px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-family: inherit;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .form-input-small {
+      width: 80px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    textarea.form-input {
+      min-height: 120px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .validation-message {
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .validation-error {
+      color: var(--accent-red);
+    }
+
+    .validation-success {
+      color: var(--accent-green);
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .advanced-toggle {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .advanced-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .advanced-header:hover {
+      color: var(--accent-blue);
+    }
+
+    .advanced-icon {
+      transition: transform 0.2s;
+    }
+
+    .advanced-icon.open {
+      transform: rotate(90deg);
+    }
+
+    .advanced-content {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .advanced-content.show {
+      display: block;
+    }
+
+    .api-settings {
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+
+    .help-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-secondary);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* ============================== */
+    /* NEW TOGGLE SWITCH STYLES */
+    /* ============================== */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px; /* Standard switch width */
+      height: 24px; /* Standard switch height */
+      margin-right: 15px;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    
+    /* Hide default checkbox */
+    .toggle-switch .toggle-input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    /* The slider */
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--text-disabled); /* Inactive color */
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px; /* Ball height */
+      width: 18px; /* Ball width */
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--bg-card); /* Ball color */
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    /* Checked state */
+    .toggle-input:checked + .toggle-slider {
+      background-color: var(--accent-green); /* Active color */
+    }
+    
+    .toggle-input:focus + .toggle-slider {
+      box-shadow: 0 0 1px var(--accent-green);
+    }
+    
+    .toggle-input:checked + .toggle-slider:before {
+      transform: translateX(24px); /* Move the ball */
+    }
+    
+    /* Disabled state */
+    .toggle-input:disabled + .toggle-slider {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+    
