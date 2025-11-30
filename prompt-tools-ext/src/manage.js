@@ -7,6 +7,41 @@ let allPromptlets = [];
 let editingPromptletName = null; // Track which promptlet we're editing
 const model = "gpt-5-mini"; // New recommended default for speed and cost-efficiency
 
+// manage.js (Near the top, after the 'model' definition)
+
+const EMOJI_CATEGORIES = {
+    'Faces': '😀',
+    'People': '🧑',
+    'Objects': '💡',
+    'Food': '🍕',
+    'Travel': '✈️',
+    'Symbols': '⭐'
+};
+
+const EMOJI_DATA = [
+    // Faces & People
+    { emoji: '💡', category: 'Objects', keywords: ['light', 'idea', 'thought'] },
+    { emoji: '📝', category: 'Objects', keywords: ['note', 'document', 'write'] },
+    { emoji: '✏️', category: 'Objects', keywords: ['edit', 'pen', 'write'] },
+    { emoji: '✅', category: 'Symbols', keywords: ['check', 'verify', 'correct'] },
+    { emoji: '📚', category: 'Objects', keywords: ['book', 'read', 'learn'] },
+    { emoji: '⚙️', category: 'Symbols', keywords: ['settings', 'gear', 'manage'] },
+    { emoji: '✨', category: 'Symbols', keywords: ['sparkle', 'magic', 'enhance'] },
+    { emoji: '💬', category: 'Symbols', keywords: ['chat', 'comment', 'discuss'] },
+    { emoji: '🌐', category: 'Symbols', keywords: ['web', 'world', 'global'] },
+    { emoji: '🧠', category: 'Objects', keywords: ['brain', 'smart', 'thinking'] },
+    { emoji: '📈', category: 'Symbols', keywords: ['chart', 'trend', 'analytics'] },
+    { emoji: '🍎', category: 'Food', keywords: ['apple', 'fruit', 'nutrition'] },
+    { emoji: '🍽️', category: 'Food', keywords: ['eat', 'dinner', 'recipe'] },
+    { emoji: '👨‍💻', category: 'People', keywords: ['developer', 'coder', 'man'] },
+    { emoji: '👩‍💻', category: 'People', keywords: ['developer', 'coder', 'woman'] },
+    { emoji: '😀', category: 'Faces', keywords: ['happy', 'face'] },
+    { emoji: '🤔', category: 'Faces', keywords: ['think', 'hmm'] },
+    { emoji: '🚀', category: 'Travel', keywords: ['rocket', 'launch', 'fast'] },
+    { emoji: '⭐', category: 'Symbols', keywords: ['star', 'favorite', 'rating'] },
+    // Add more emojis as needed, following the same structure
+];
+
 // -------------------------
 // Initialize
 // -------------------------
@@ -41,6 +76,66 @@ function setupEventListeners() {
   if (resetBtn) {
     resetBtn.addEventListener('click', handleResetDefaults);
   }
+
+  // --- Emoji Picker Listeners ---
+  const emojiDisplay = document.getElementById('emojiDisplay');
+  const emojiInput = document.getElementById('emojiInput');
+  const emojiPicker = document.getElementById('emojiPicker');
+  const emojiSearchInput = document.getElementById('emojiSearchInput');
+
+
+  // CRITICAL: Ensure ALL elements are found before adding listeners
+  if (emojiDisplay && emojiInput && emojiPicker && emojiSearchInput) {
+      // 1. Toggle Picker Visibility
+      // If your line 87 was here, this now runs safely after the check.
+      emojiDisplay.addEventListener('click', (e) => {
+          // Prevent the click from propagating to the document body handler
+          e.stopPropagation(); 
+          emojiPicker.classList.toggle('hidden');
+          if (!emojiPicker.classList.contains('hidden')) {
+              // Default to the first category when opening
+              renderEmojis(EMOJI_DATA, 'Objects'); 
+          }
+      });
+
+      // Close picker if user clicks outside of it
+      document.addEventListener('click', (e) => {
+          if (!emojiPicker.classList.contains('hidden') && 
+              !emojiPicker.contains(e.target) && 
+              e.target !== emojiDisplay) {
+              emojiPicker.classList.add('hidden');
+          }
+      });
+
+      // 2. Handle Search Input
+      emojiSearchInput.addEventListener('input', () => {
+          const query = emojiSearchInput.value.toLowerCase();
+          const filtered = EMOJI_DATA.filter(p => 
+              p.keywords.some(k => k.includes(query)) || p.emoji.includes(query)
+          );
+          renderEmojis(filtered);
+      });
+
+      // 3. Handle Manual Text/Emoji Input
+      emojiInput.addEventListener('input', (e) => {
+          // Display what the user typed immediately
+          emojiDisplay.textContent = e.target.value.substring(0, 2) || '📝'; 
+      });
+      
+      // Call this function when setting up listeners
+      // CRITICAL: Ensure ALL elements are found before adding listeners
+      if (emojiDisplay && emojiInput && emojiPicker && emojiSearchInput) {
+          // ... all the addEventListener calls (Toggle, Search, Input) ...
+
+          // Call this function when setting up listeners
+          renderCategoryButtons(); 
+      }
+  }
+
+  // Call this function when setting up listeners
+  renderCategoryButtons(); 
+
+  // ... rest of setupEventListeners
 }
 
 // -------------------------
@@ -180,42 +275,99 @@ function togglePromptletActive(name) {
 // Save promptlet (Add or Edit)
 // -------------------------
 function savePromptlet() {
-  const name = document.getElementById('nameInput').value.trim();
-  if (!name) {
-    alert("Name is required");
-    return;
-  }
-  
-  if (!validateName()) return;
+    // 1. Get all the form values using the new helper
+    const formValues = getPromptletFormValues();
+    
+    // Use the name from the form values for validation
+    const name = formValues.name;
 
-  const newPromptletData = {
-    name: name,
-    emoji: document.getElementById('emojiInput').value.trim() || '📝',
-    prompt: document.getElementById('promptInput').value.trim(),
-    model: document.getElementById('modelInput').value,
-    temperature: parseFloat(document.getElementById('tempInput').value),
-    maxTokens: parseInt(document.getElementById('tokensInput').value),
-    outputStructure: ["main"],
-    isActive: true, // New/Edited are active by default
-    isDefault: false,
-    lastModified: Date.now()
-  };
-
-  if (editingPromptletName) {
-    // Update existing
-    const index = allPromptlets.findIndex(p => p.name === editingPromptletName);
-    if (index > -1) {
-      // Preserve original creation date or other hidden props if any
-      allPromptlets[index] = { ...allPromptlets[index], ...newPromptletData };
+    if (!name) {
+        alert("Name is required");
+        return;
     }
-  } else {
-    // Add new
-    newPromptletData.createdAt = Date.now();
-    allPromptlets.push(newPromptletData);
-  }
+    
+    // Note: Assuming validateName checks the 'nameInput' field directly
+    if (!validateName()) return;
 
-  saveAllPromptlets();
-  hideEditor();
+    // 2. Assemble the final promptlet object, adding metadata
+    const newPromptletData = {
+        ...formValues, // Contains name, emoji, prompt, model, etc.
+        isActive: true, // New/Edited are active by default
+        isDefault: false,
+        lastModified: Date.now()
+    };
+
+    if (editingPromptletName) {
+        // Update existing
+        const index = allPromptlets.findIndex(p => p.name === editingPromptletName);
+        if (index > -1) {
+            // Preserve original properties (like createdAt) then apply new data
+            allPromptlets[index] = { 
+                ...allPromptlets[index], 
+                ...newPromptletData 
+            };
+        }
+    } else {
+        // Add new
+        newPromptletData.createdAt = Date.now();
+        allPromptlets.push(newPromptletData);
+    }
+
+    saveAllPromptlets();
+    hideEditor();
+}
+
+/**
+ * Gathers user-editable form data from the Promptlet Editor.
+ * This is where the emoji input logic (max 2 chars) is enforced.
+ * @returns {object} An object containing the current values of the editor fields.
+ */
+function getPromptletFormValues() {
+    // Enforce max length of 2 characters and provide a fallback '📝'
+    const emojiValue = document.getElementById('emojiInput').value.trim().substring(0, 2);
+
+    return {
+        name: document.getElementById('nameInput').value.trim(),
+        emoji: emojiValue || '📝',
+        prompt: document.getElementById('promptInput').value.trim(),
+        model: document.getElementById('modelInput').value,
+        temperature: parseFloat(document.getElementById('tempInput').value),
+        maxTokens: parseInt(document.getElementById('tokensInput').value, 10),
+        // Assuming 'outputStructure' is currently always set to ["main"]
+        outputStructure: ["main"] 
+    };
+}
+
+/**
+ * Gathers all data from the Promptlet Editor form fields.
+ * @returns {object} A promptlet object containing all current form values.
+ */
+function getPromptletData() {
+    // You likely have a function to get the current model and output structure, 
+    // but we'll use sensible defaults and focus on the key fields.
+    const modelSelect = document.getElementById('modelSelect');
+    const outputStructureSelect = document.getElementById('outputStructureSelect');
+    
+    // Ensure the emoji is only 1 or 2 characters
+    const emojiValue = document.getElementById('emojiInput').value.trim().substring(0, 2);
+
+    return {
+        // --- New Emoji Field ---
+        emoji: emojiValue || '📝', 
+        // -----------------------
+        
+        name: document.getElementById('nameInput').value.trim(),
+        prompt: document.getElementById('promptInput').value.trim(),
+
+        // --- Advanced Settings ---
+        // Assuming you have these elements:
+        model: modelSelect ? modelSelect.value : 'gpt-5-mini',
+        maxTokens: parseInt(document.getElementById('tokensInput').value, 10),
+        temperature: parseFloat(document.getElementById('tempInput').value),
+        outputStructure: outputStructureSelect 
+                         ? Array.from(outputStructureSelect.options).filter(opt => opt.selected).map(opt => opt.value)
+                         : ['main']
+    };
 }
 
 // -------------------------
@@ -315,6 +467,11 @@ function showEditor(promptlet = null, isClone = false) {
     clearEditor();
   }
 
+  // Set default/existing emoji values
+  const currentEmoji = promptlet ? promptlet.emoji : '📝';
+  document.getElementById('emojiDisplay').textContent = currentEmoji;
+  document.getElementById('emojiInput').value = currentEmoji;
+
   panel.classList.remove('hidden');
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -404,4 +561,72 @@ function toggleAdvanced() {
   const icon = document.getElementById('advancedIcon');
   content.classList.toggle('show');
   icon.classList.toggle('open');
+}
+
+// -------------------------
+// Emoji picker functions
+// -------------------------
+
+function renderCategoryButtons() {
+    const groupsContainer = document.getElementById('emojiGroups');
+
+    // 🔥 CRITICAL FIX: If the element isn't found, stop here to prevent the crash.
+    if (!groupsContainer) {
+        console.error("Error: Could not find element with ID 'emojiGroups'. Please check manage.html.");
+        return; 
+    }
+    
+    groupsContainer.innerHTML = ''; 
+
+    for (const category in EMOJI_CATEGORIES) {
+        const button = document.createElement('button');
+        button.className = 'emoji-group-button';
+        button.textContent = EMOJI_CATEGORIES[category];
+        button.title = category;
+        button.setAttribute('data-category', category);
+
+        button.addEventListener('click', () => {
+            // Highlight the active button
+            document.querySelectorAll('.emoji-group-button').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Filter and render the emojis for this category
+            const filtered = EMOJI_DATA.filter(p => p.category === category);
+            renderEmojis(filtered);
+        });
+        groupsContainer.appendChild(button);
+    }
+}
+
+function renderEmojis(data, initialCategory = null) {
+    const grid = document.getElementById('emojiGrid');
+    grid.innerHTML = '';
+    
+    // If an initial category is provided, filter the data
+    if (initialCategory) {
+        data = data.filter(p => p.category === initialCategory);
+        // Highlight the initial category button
+        document.querySelectorAll('.emoji-group-button').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-category') === initialCategory) {
+                btn.classList.add('active');
+            }
+        });
+    }
+
+    data.forEach(item => {
+        const span = document.createElement('span');
+        span.className = 'emoji-item';
+        span.textContent = item.emoji;
+        span.title = item.keywords.join(', ');
+
+        span.addEventListener('click', () => {
+            // Set the value in the display and the hidden input
+            document.getElementById('emojiDisplay').textContent = item.emoji;
+            document.getElementById('emojiInput').value = item.emoji;
+            document.getElementById('emojiPicker').classList.add('hidden');
+        });
+
+        grid.appendChild(span);
+    });
 }

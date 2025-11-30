@@ -51,8 +51,30 @@
       
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Emoji</label>
-          <input type="text" class="form-input form-input-small" id="emojiInput" maxlength="2" placeholder="✨">
+            <label class="form-label" for="emojiInput">Emoji:</label>
+            
+            <div class="form-row emoji-picker-container">
+                <div id="emojiDisplay" class="emoji-display">
+                    📝
+                </div>
+                
+                <input 
+                    type="text" 
+                    class="form-input form-input-small" 
+                    id="emojiInput" 
+                    placeholder="💡" 
+                    maxlength="2"
+                >
+            </div>
+            <p class="help-text">Select a single emoji or type text (max 2 characters) for the context menu.</p>
+            
+            <div id="emojiPicker" class="emoji-picker hidden">
+                <input type="text" id="emojiSearchInput" class="form-input" placeholder="Search emojis...">
+                <div id="emojiGroups" class="emoji-groups-list">
+                    </div>
+                <div id="emojiGrid" class="emoji-grid">
+                    </div>
+            </div>
         </div>
         
         <div class="form-group" style="flex: 1;">
