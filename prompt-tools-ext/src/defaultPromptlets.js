@@ -22,8 +22,7 @@ const DEFAULT_PROMPTLETS = [
     maxTokens: 1500,
     outputStructure: ["main"]
   },
-
-    {
+  {
     name: "Verify",
     emoji: "✅",
     prompt: `You are an evidence-driven analyst. Evaluate the CLAIM below as TRUE, MOSTLY TRUE, MISLEADING, FALSE, or UNVERIFIABLE, and provide a confidence score (0–100%). 
@@ -72,19 +71,7 @@ The user's text to be translated to English is as follows:
     maxTokens: 4000,
     outputStructure: ["main"]
   },
-    {
-    name: "Nutrition Analyser",
-    emoji: "🍎",
-    prompt: `You are a **nutrition analyst**. The user will provide a food item, meal description or daily food log. 
-    Your task is to **analyze, evaluate, and optimize** the diet in a structured way. 
-    List key nutrients, health benefits, and any concerns (e.g. high fat, sodium). 
-    Keep it clear and constructive.
-    Finish by rating the nutritional quality out of ten`,
-    model: model,
-    maxTokens: 4000,
-    outputStructure: ["main", "notes"]
-  },
-    {
+  {
     name: "Recipe Creator",
     emoji: "🍽️",
     prompt: `You are a professional chef and recipe developer. Read the text below — it may describe a meal, ingredient combination, or restaurant-style dish — and turn it into a complete, well-structured recipe.
@@ -104,6 +91,18 @@ Step-by-step method with numbered instructions.
 Optional notes or variations (e.g., substitutions, serving ideas, dietary adjustments):
 
 `,
+    model: model,
+    maxTokens: 4000,
+    outputStructure: ["main", "notes"]
+  },
+  {
+    name: "Nutrition Analyser",
+    emoji: "🍎",
+    prompt: `You are a **nutrition analyst**. The user will provide a food item, meal description or daily food log. 
+    Your task is to **analyze, evaluate, and optimize** the diet in a structured way. 
+    List key nutrients, health benefits, and any concerns (e.g. high fat, sodium). 
+    Keep it clear and constructive.
+    Finish by rating the nutritional quality out of ten`,
     model: model,
     maxTokens: 4000,
     outputStructure: ["main", "notes"]

@@ -10,6 +10,10 @@ System prompt, include locale and markdown formatting
 
 Review default prompts
 
+test dark mode
+
+Make toggle grey out promptlets in Manage, smooth transition
+
 Help documentation
 
 README.md
@@ -18,5 +22,5 @@ Branding: icons, polish, screenshots... generate images using nano banana
 
 Positional ordering by drag and drop
 
-Prevent resettiing defaults from deleting user prompts
+Prevent resetting defaults from deleting user prompts
 
