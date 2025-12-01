@@ -1,4 +1,9 @@
 
+01 DEC 2025
+
+Switched OpenAI endpoint from completions to responses
+
+Added Max Reasoning default promptlet
 
 30 NOV 2025
 
@@ -42,3 +47,4 @@ Inner/outer context for e.g. Expand promptlet
 promptlet ideas:
 Irish times crossword solver
 
+Flex processing: add to advanced settings
