@@ -5,42 +5,7 @@
 
 let allPromptlets = [];
 let editingPromptletName = null; // Track which promptlet we're editing
-const model = "gpt-5-mini"; // New recommended default for speed and cost-efficiency
-
-// manage.js (Near the top, after the 'model' definition)
-
-const EMOJI_CATEGORIES = {
-    'Faces': '😀',
-    'People': '🧑',
-    'Objects': '💡',
-    'Food': '🍕',
-    'Travel': '✈️',
-    'Symbols': '⭐'
-};
-
-const EMOJI_DATA = [
-    // Faces & People
-    { emoji: '💡', category: 'Objects', keywords: ['light', 'idea', 'thought'] },
-    { emoji: '📝', category: 'Objects', keywords: ['note', 'document', 'write'] },
-    { emoji: '✏️', category: 'Objects', keywords: ['edit', 'pen', 'write'] },
-    { emoji: '✅', category: 'Symbols', keywords: ['check', 'verify', 'correct'] },
-    { emoji: '📚', category: 'Objects', keywords: ['book', 'read', 'learn'] },
-    { emoji: '⚙️', category: 'Symbols', keywords: ['settings', 'gear', 'manage'] },
-    { emoji: '✨', category: 'Symbols', keywords: ['sparkle', 'magic', 'enhance'] },
-    { emoji: '💬', category: 'Symbols', keywords: ['chat', 'comment', 'discuss'] },
-    { emoji: '🌐', category: 'Symbols', keywords: ['web', 'world', 'global'] },
-    { emoji: '🧠', category: 'Objects', keywords: ['brain', 'smart', 'thinking'] },
-    { emoji: '📈', category: 'Symbols', keywords: ['chart', 'trend', 'analytics'] },
-    { emoji: '🍎', category: 'Food', keywords: ['apple', 'fruit', 'nutrition'] },
-    { emoji: '🍽️', category: 'Food', keywords: ['eat', 'dinner', 'recipe'] },
-    { emoji: '👨‍💻', category: 'People', keywords: ['developer', 'coder', 'man'] },
-    { emoji: '👩‍💻', category: 'People', keywords: ['developer', 'coder', 'woman'] },
-    { emoji: '😀', category: 'Faces', keywords: ['happy', 'face'] },
-    { emoji: '🤔', category: 'Faces', keywords: ['think', 'hmm'] },
-    { emoji: '🚀', category: 'Travel', keywords: ['rocket', 'launch', 'fast'] },
-    { emoji: '⭐', category: 'Symbols', keywords: ['star', 'favorite', 'rating'] },
-    // Add more emojis as needed, following the same structure
-];
+const model = "gpt-4o"; // New recommended default for speed and cost-efficiency
 
 // -------------------------
 // Initialize
@@ -54,84 +19,28 @@ document.addEventListener('DOMContentLoaded', () => {
 // -------------------------
 // Event Listeners
 // -------------------------
-// -------------------------
-// Event Listeners
-// -------------------------
 function setupEventListeners() {
-    // --- Core UI Listeners ---
-    document.getElementById('addNewBtn').addEventListener('click', () => showEditor());
-    document.getElementById('cancelBtn').addEventListener('click', hideEditor);
-    document.getElementById('saveBtn').addEventListener('click', savePromptlet);
-    document.getElementById('nameInput').addEventListener('input', validateName);
-    document.getElementById('advancedToggle').addEventListener('click', toggleAdvanced);
+  document.getElementById('addNewBtn').addEventListener('click', () => showEditor());
+  document.getElementById('cancelBtn').addEventListener('click', hideEditor);
+  document.getElementById('saveBtn').addEventListener('click', savePromptlet);
+  document.getElementById('nameInput').addEventListener('input', validateName);
+  document.getElementById('advancedToggle').addEventListener('click', toggleAdvanced);
 
-    // --- Editor Control Listeners ---
-    document.getElementById('tempInput').addEventListener('input', (e) => {
-        document.getElementById('tempValue').textContent = e.target.value;
-    });
-    document.getElementById('tokensInput').addEventListener('input', (e) => {
-        document.getElementById('tokensValue').textContent = e.target.value;
-    });
+  document.getElementById('tempInput').addEventListener('input', (e) => {
+    document.getElementById('tempValue').textContent = e.target.value;
+  });
 
-    // --- API Key Listeners ---
-    document.getElementById('saveKeyBtn').addEventListener('click', saveApiKey);
-    
-    // --- Reset Button Listener ---
-    const resetBtn = document.getElementById('resetDefaultsBtn');
-    if (resetBtn) {
-        // Assuming you want the correct function name here
-        resetBtn.addEventListener('click', handleResetDefaults); 
-    }
+  document.getElementById('tokensInput').addEventListener('input', (e) => {
+    document.getElementById('tokensValue').textContent = e.target.value;
+  });
 
-    // =======================================================
-    // 🔥 EMOJI PICKER LISTENERS (DEFENSIVELY WRAPPED) 🔥
-    // =======================================================
-    const emojiDisplay = document.getElementById('emojiDisplay');
-    const emojiInput = document.getElementById('emojiInput');
-    const emojiPicker = document.getElementById('emojiPicker');
-    const emojiSearchInput = document.getElementById('emojiSearchInput');
-    const pickerTriggerIcon = document.getElementById('pickerTriggerIcon');
-
-    // CRITICAL FIX: Only add listeners and call helpers if ALL five elements exist
-    if (emojiDisplay && emojiInput && emojiPicker && emojiSearchInput && pickerTriggerIcon) {
-        
-        // 1. Toggle Picker Visibility (Action is now only on the new trigger icon)
-        pickerTriggerIcon.addEventListener('click', (e) => {
-            e.stopPropagation(); 
-            emojiPicker.classList.toggle('hidden');
-            if (!emojiPicker.classList.contains('hidden')) {
-                // Ensure the list is populated when opened
-                renderEmojis(EMOJI_DATA, 'Objects'); 
-            }
-        });
-
-        // 2. Close picker if user clicks outside of it
-        document.addEventListener('click', (e) => {
-            if (!emojiPicker.classList.contains('hidden') && 
-                !emojiPicker.contains(e.target) && 
-                e.target !== emojiDisplay && // Don't close if we click the large display area
-                e.target !== pickerTriggerIcon) { // Don't close if we click the trigger
-                emojiPicker.classList.add('hidden');
-            }
-        });
-
-        // 3. Handle Search Input
-        emojiSearchInput.addEventListener('input', () => {
-            const query = emojiSearchInput.value.toLowerCase();
-            const filtered = EMOJI_DATA.filter(p => 
-                p.keywords.some(k => k.includes(query)) || p.emoji.includes(query)
-            );
-            renderEmojis(filtered);
-        });
-
-        // 4. Handle Manual Text/Emoji Input (Updates the large display area)
-        emojiInput.addEventListener('input', (e) => {
-            emojiDisplay.textContent = e.target.value.substring(0, 2) || '❓'; 
-        });
-
-        // 5. Final Setup: Only call rendering function once, inside the safe block
-        renderCategoryButtons();
-    }
+  document.getElementById('saveKeyBtn').addEventListener('click', saveApiKey);
+  
+  // Add listener for Reset button
+  const resetBtn = document.getElementById('resetDefaultsBtn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', handleResetDefaults);
+  }
 }
 
 // -------------------------
@@ -271,99 +180,49 @@ function togglePromptletActive(name) {
 // Save promptlet (Add or Edit)
 // -------------------------
 function savePromptlet() {
-    // 1. Get all the form values using the new helper
-    const formValues = getPromptletFormValues();
-    
-    // Use the name from the form values for validation
-    const name = formValues.name;
+  const name = document.getElementById('nameInput').value.trim();
+  const prompt = document.getElementById('promptInput').value.trim();
+  
+  if (!name) {
+    alert("Name is required");
+    return;
+  }
 
-    if (!name) {
-        alert("Name is required");
-        return;
+  if (!prompt) {
+    alert("Prompt is required");
+    return;
+  }
+  
+  if (!validateName()) return;
+
+  const newPromptletData = {
+    name: name,
+    emoji: document.getElementById('emojiInput').value.trim() || '📝',
+    prompt: prompt,
+    model: document.getElementById('modelInput').value,
+    temperature: parseFloat(document.getElementById('tempInput').value),
+    maxTokens: parseInt(document.getElementById('tokensInput').value),
+    outputStructure: ["main"],
+    isActive: true, // New/Edited are active by default
+    isDefault: false,
+    lastModified: Date.now()
+  };
+
+  if (editingPromptletName) {
+    // Update existing
+    const index = allPromptlets.findIndex(p => p.name === editingPromptletName);
+    if (index > -1) {
+      // Preserve original creation date or other hidden props if any
+      allPromptlets[index] = { ...allPromptlets[index], ...newPromptletData };
     }
-    
-    // Note: Assuming validateName checks the 'nameInput' field directly
-    if (!validateName()) return;
+  } else {
+    // Add new
+    newPromptletData.createdAt = Date.now();
+    allPromptlets.push(newPromptletData);
+  }
 
-    // 2. Assemble the final promptlet object, adding metadata
-    const newPromptletData = {
-        ...formValues, // Contains name, emoji, prompt, model, etc.
-        isActive: true, // New/Edited are active by default
-        isDefault: false,
-        lastModified: Date.now()
-    };
-
-    if (editingPromptletName) {
-        // Update existing
-        const index = allPromptlets.findIndex(p => p.name === editingPromptletName);
-        if (index > -1) {
-            // Preserve original properties (like createdAt) then apply new data
-            allPromptlets[index] = { 
-                ...allPromptlets[index], 
-                ...newPromptletData 
-            };
-        }
-    } else {
-        // Add new
-        newPromptletData.createdAt = Date.now();
-        allPromptlets.push(newPromptletData);
-    }
-
-    saveAllPromptlets();
-    hideEditor();
-}
-
-/**
- * Gathers user-editable form data from the Promptlet Editor.
- * This is where the emoji input logic (max 2 chars) is enforced.
- * @returns {object} An object containing the current values of the editor fields.
- */
-function getPromptletFormValues() {
-    // Enforce max length of 2 characters and provide a fallback '📝'
-    const emojiValue = document.getElementById('emojiInput').value.trim().substring(0, 2);
-
-    return {
-        name: document.getElementById('nameInput').value.trim(),
-        emoji: emojiValue || '📝',
-        prompt: document.getElementById('promptInput').value.trim(),
-        model: document.getElementById('modelInput').value,
-        temperature: parseFloat(document.getElementById('tempInput').value),
-        maxTokens: parseInt(document.getElementById('tokensInput').value, 10),
-        // Assuming 'outputStructure' is currently always set to ["main"]
-        outputStructure: ["main"] 
-    };
-}
-
-/**
- * Gathers all data from the Promptlet Editor form fields.
- * @returns {object} A promptlet object containing all current form values.
- */
-function getPromptletData() {
-    // You likely have a function to get the current model and output structure, 
-    // but we'll use sensible defaults and focus on the key fields.
-    const modelSelect = document.getElementById('modelSelect');
-    const outputStructureSelect = document.getElementById('outputStructureSelect');
-    
-    // Ensure the emoji is only 1 or 2 characters
-    const emojiValue = document.getElementById('emojiInput').value.trim().substring(0, 2);
-
-    return {
-        // --- New Emoji Field ---
-        emoji: emojiValue || '📝', 
-        // -----------------------
-        
-        name: document.getElementById('nameInput').value.trim(),
-        prompt: document.getElementById('promptInput').value.trim(),
-
-        // --- Advanced Settings ---
-        // Assuming you have these elements:
-        model: modelSelect ? modelSelect.value : 'gpt-5-mini',
-        maxTokens: parseInt(document.getElementById('tokensInput').value, 10),
-        temperature: parseFloat(document.getElementById('tempInput').value),
-        outputStructure: outputStructureSelect 
-                         ? Array.from(outputStructureSelect.options).filter(opt => opt.selected).map(opt => opt.value)
-                         : ['main']
-    };
+  saveAllPromptlets();
+  hideEditor();
 }
 
 // -------------------------
@@ -427,61 +286,46 @@ function handleResetDefaults() {
 // -------------------------
 // Editor UI Helpers
 // -------------------------
-function showEditor(promptlet = null) {
-    // Determine the emoji to display (using '❓' as the new default)
-    const currentEmoji = promptlet ? promptlet.emoji : '❓';
+function showEditor(promptlet = null, isClone = false) {
+  const panel = document.getElementById('editorPanel');
+  const title = document.getElementById('editorTitle');
 
-    // ------------------------------------------
-    // Set Emoji Values (Defensively)
-    // ------------------------------------------
-    const emojiDisplay = document.getElementById('emojiDisplay');
-    const emojiInput = document.getElementById('emojiInput');
+  // --- ADD OR UPDATE THIS BLOCK FOR MAX TOKENS ---
+  const tokensInput = document.getElementById('tokensInput');
+  const tokensValue = document.getElementById('tokensValue');
 
-    if (emojiDisplay) {
-        emojiDisplay.textContent = currentEmoji;
-    }
-    if (emojiInput) {
-        emojiInput.value = currentEmoji;
-    }
-    // ------------------------------------------
+  // Load the Max Tokens value from the promptlet object (4000 for Verify)
+  // or fall back to the default 1500 for a completely new promptlet.
+  // CRITICAL FIX: Add (promptlet && ...) to check if the promptlet object exists 
+  // before trying to access its property.
+  const currentTokens = (promptlet && promptlet.maxTokens !== undefined) 
+      ? promptlet.maxTokens 
+      : 1500;
+      
+  tokensInput.value = currentTokens;
+  tokensValue.textContent = currentTokens;
+  
+  // Also ensure the event listener updates the display
+  tokensInput.dispatchEvent(new Event('input'));
 
-    // --- Existing Logic for Editor UI ---
-    editingPromptletName = promptlet ? promptlet.name : null;
+  if (promptlet && !isClone) {
+    title.textContent = 'Edit Promptlet';
+    editingPromptletName = promptlet.name;
+    populateEditor(promptlet);
+  } else if (promptlet && isClone) {
+    title.textContent = 'New Promptlet (Clone)';
+    editingPromptletName = null;
+    populateEditor(promptlet);
+  } else {
+    title.textContent = 'Add New Promptlet';
+    editingPromptletName = null;
+    clearEditor();
+  }
 
-    // Set other promptlet fields
-    document.getElementById('nameInput').value = promptlet ? promptlet.name : '';
-    document.getElementById('promptInput').value = promptlet ? promptlet.prompt : '';
-
-    // Set advanced settings (assuming these exist and have default fallbacks)
-    const model = promptlet ? promptlet.model : 'gpt-5-mini';
-    const maxTokens = promptlet ? promptlet.maxTokens : 1500;
-    const temperature = promptlet ? promptlet.temperature : 1.0;
-
-    document.getElementById('modelInput').value = model;
-    document.getElementById('tokensInput').value = maxTokens;
-    document.getElementById('tokensValue').textContent = maxTokens;
-    document.getElementById('tempInput').value = temperature;
-    document.getElementById('tempValue').textContent = temperature;
-    
-    // If we're creating a new one, ensure the advanced panel is collapsed
-    const advancedContent = document.getElementById('advancedContent');
-    if (advancedContent && !promptlet) {
-        advancedContent.classList.add('hidden');
-    }
-    
-    // 🔥 CRITICAL FIX: Get the element and check for null before showing it
-    const editorPanel = document.getElementById('editorPanel');
-
-    if (!editorPanel) {
-        // This is primarily for console clarity, but the script will likely crash below if this is null.
-        console.error("CRITICAL ERROR: Editor Panel (#editorPanel) not found.");
-        return; 
-    }
-
-    // Final Action: Show the Panel
-    editorPanel.classList.remove('hidden');
-    editorPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  panel.classList.remove('hidden');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
+
 function hideEditor() {
   document.getElementById('editorPanel').classList.add('hidden');
   editingPromptletName = null;
@@ -567,72 +411,4 @@ function toggleAdvanced() {
   const icon = document.getElementById('advancedIcon');
   content.classList.toggle('show');
   icon.classList.toggle('open');
-}
-
-// -------------------------
-// Emoji picker functions
-// -------------------------
-
-function renderCategoryButtons() {
-    const groupsContainer = document.getElementById('emojiGroups');
-
-    // 🔥 CRITICAL FIX: If the element isn't found, stop here to prevent the crash.
-    if (!groupsContainer) {
-        console.error("Error: Could not find element with ID 'emojiGroups'. Please check manage.html.");
-        return; 
-    }
-
-    groupsContainer.innerHTML = ''; 
-
-    for (const category in EMOJI_CATEGORIES) {
-        const button = document.createElement('button');
-        button.className = 'emoji-group-button';
-        button.textContent = EMOJI_CATEGORIES[category];
-        button.title = category;
-        button.setAttribute('data-category', category);
-
-        button.addEventListener('click', () => {
-            // Highlight the active button
-            document.querySelectorAll('.emoji-group-button').forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            
-            // Filter and render the emojis for this category
-            const filtered = EMOJI_DATA.filter(p => p.category === category);
-            renderEmojis(filtered);
-        });
-        groupsContainer.appendChild(button);
-    }
-}
-
-function renderEmojis(data, initialCategory = null) {
-    const grid = document.getElementById('emojiGrid');
-    grid.innerHTML = '';
-    
-    // If an initial category is provided, filter the data
-    if (initialCategory) {
-        data = data.filter(p => p.category === initialCategory);
-        // Highlight the initial category button
-        document.querySelectorAll('.emoji-group-button').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.getAttribute('data-category') === initialCategory) {
-                btn.classList.add('active');
-            }
-        });
-    }
-
-    data.forEach(item => {
-        const span = document.createElement('span');
-        span.className = 'emoji-item';
-        span.textContent = item.emoji;
-        span.title = item.keywords.join(', ');
-
-        span.addEventListener('click', () => {
-            // Set the value in the display and the hidden input
-            document.getElementById('emojiDisplay').textContent = item.emoji;
-            document.getElementById('emojiInput').value = item.emoji;
-            document.getElementById('emojiPicker').classList.add('hidden');
-        });
-
-        grid.appendChild(span);
-    });
 }
