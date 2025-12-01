@@ -103,20 +103,31 @@ function initializeDefaults() {
 // -------------------------
 // Securely call OpenAI API
 // -------------------------
-async function callOpenAI(prompt, apiKey, model = "gpt-4o", temperature = 1, maxTokens = 3000, topP = 1, frequencyPenalty = 0, presencePenalty = 0) {
+async function callOpenAI(
+  prompt,
+  apiKey,
+  model = "gpt-4o",
+  temperature = 1,
+  maxTokens = 3000,
+  topP = 1,
+  frequencyPenalty = 0,
+  presencePenalty = 0,
+  systemPrompt = "" // Optional top-level system instruction
+) {
   console.log(`[BG] Calling OpenAI API:`, { model, maxTokens });
-  
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: model,
-      messages: [{ role: "user", content: prompt }],
-      temperature: temperature,
-      max_completion_tokens: maxTokens,
+      model,
+      system: systemPrompt,             
+      input: prompt,                    
+      temperature,
+      max_output_tokens: maxTokens,     
       top_p: topP,
       frequency_penalty: frequencyPenalty,
       presence_penalty: presencePenalty
@@ -125,12 +136,16 @@ async function callOpenAI(prompt, apiKey, model = "gpt-4o", temperature = 1, max
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    const errorMessage = errorData.error?.message || `API error: ${response.status} ${response.statusText}`;
+    const errorMessage =
+      errorData.error?.message ||
+      `API error: ${response.status} ${response.statusText}`;
     throw new Error(errorMessage);
   }
 
   const data = await response.json();
-  return data.choices[0].message.content.trim();
+
+  // Responses API returns unified text output here:
+  return data.output_text?.trim() ?? "";
 }
 
 // -------------------------
