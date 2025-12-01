@@ -22,14 +22,14 @@ loadAndRenderChainMenu();
 async function checkForPendingPromptlet() {
   try {
     // First try storage
-    const { pendingPromptlet } = await chrome.storage.local.get("pendingPromptlet");
+    const { pendingPromptlet } = await chrome.storage.sync.get("pendingPromptlet");
     
     if (pendingPromptlet && pendingPromptlet.timestamp) {
       // Check if it's recent (within last 5 seconds)
       const age = Date.now() - pendingPromptlet.timestamp;
       if (age < 5000) {
         console.log("Found pending promptlet in storage");
-        await chrome.storage.local.remove("pendingPromptlet");
+        await chrome.storage.sync.remove("pendingPromptlet");
         runPromptlet(pendingPromptlet.text, pendingPromptlet.promptlet);
         return;
       }
@@ -52,7 +52,7 @@ async function checkForPendingPromptlet() {
 // -------------------------
 async function loadAndRenderChainMenu() {
   try {
-    const data = await chrome.storage.local.get({ promptlets: [] });
+    const data = await chrome.storage.sync.get({ promptlets: [] });
     allPromptlets = data.promptlets || [];
     console.log(`Loaded ${allPromptlets.length} promptlets for chaining menu.`);
     // The menu is actually built/populated inside addCopyButton now, but we need

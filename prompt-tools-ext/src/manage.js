@@ -47,7 +47,7 @@ function setupEventListeners() {
 // Load promptlets
 // -------------------------
 function loadPromptlets() {
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
+  chrome.storage.sync.get({ promptlets: [] }, (data) => {
 // Ensure every promptlet has necessary properties (defaulting to safe values)
     allPromptlets = (data.promptlets || []).map(p => ({
       ...p,
@@ -224,7 +224,7 @@ function savePromptlet() {
 // Save All to Storage
 // -------------------------
 function saveAllPromptlets() {
-  chrome.storage.local.set({ promptlets: allPromptlets }, () => {
+  chrome.storage.sync.set({ promptlets: allPromptlets }, () => {
     // Re-render UI to reflect changes (e.g. toggle switch state / ordering)
     renderPromptlets();
   });
@@ -388,14 +388,14 @@ function validateName() {
 // API Key Handling
 // -------------------------
 function loadApiKey() {
-  chrome.storage.local.get({ apiKey: '' }, (data) => {
+  chrome.storage.sync.get({ apiKey: '' }, (data) => {
     document.getElementById('apiKeyInput').value = data.apiKey || '';
   });
 }
 
 function saveApiKey() {
   const apiKey = document.getElementById('apiKeyInput').value.trim();
-  chrome.storage.local.set({ apiKey }, () => alert('API key saved!'));
+  chrome.storage.sync.set({ apiKey }, () => alert('API key saved!'));
 }
 
 // -------------------------

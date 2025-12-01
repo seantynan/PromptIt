@@ -83,11 +83,11 @@ chrome.action.onClicked.addListener(() => {
 // Ensure default promptlets exist on first install
 // -------------------------
 function initializeDefaults() {
-  chrome.storage.local.get({ promptlets: [], apiKey: "", hasInitialized: false }, (data) => {
+  chrome.storage.sync.get({ promptlets: [], apiKey: "", hasInitialized: false }, (data) => {
     // Only initialize if this is truly the first run
     if (!data.hasInitialized) {
       const initialPromptlets = getPromptletsWithDefaultsFlag();
-      chrome.storage.local.set({ 
+      chrome.storage.sync.set({ 
         promptlets: initialPromptlets,
         hasInitialized: true 
       }, () => {
@@ -159,7 +159,7 @@ function buildContextMenus() {
 
   // ... (Code to clear old menus)
 
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
+  chrome.storage.sync.get({ promptlets: [] }, (data) => {
     const promptlets = data.promptlets || [];
 
     promptlets.forEach((promptlet) => {
@@ -190,7 +190,7 @@ function buildContextMenus() {
       return;
     }
     
-    chrome.storage.local.get({ promptlets: [] }, (data) => {
+    chrome.storage.sync.get({ promptlets: [] }, (data) => {
       // Fallback if empty
       const allPromptlets = (data.promptlets && data.promptlets.length > 0)
         ? data.promptlets
@@ -315,7 +315,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 // Helper: Handle execution when selecting text INSIDE the side panel
 // -------------------------
 function handleSidePanelSelection(promptletName, text) {
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
+  chrome.storage.sync.get({ promptlets: [] }, (data) => {
     const allPromptlets = data.promptlets || getPromptletsWithDefaultsFlag();
     const promptlet = allPromptlets.find(p => p.name === promptletName);
     
@@ -328,7 +328,7 @@ function handleSidePanelSelection(promptletName, text) {
     };
     
     // Store data and notify side panel
-    chrome.storage.local.set({ pendingPromptlet: promptletData }, () => {
+    chrome.storage.sync.set({ pendingPromptlet: promptletData }, () => {
       chrome.runtime.sendMessage({
         action: "runPromptlet",
         promptlet: promptlet,
@@ -346,7 +346,7 @@ function handleSidePanelSelection(promptletName, text) {
 // Run promptlet by Name (Robust lookup)
 // -------------------------
 function runPromptletByName(tabId, promptletName, selectionText) {
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
+  chrome.storage.sync.get({ promptlets: [] }, (data) => {
     const allPromptlets = data.promptlets || getPromptletsWithDefaultsFlag();
 
     const promptlet = allPromptlets.find(p => p.name === promptletName);
@@ -380,7 +380,7 @@ function runPromptlet(tabId, promptlet, selectionText) {
       }
       
       // Store data for the panel to pick up
-      chrome.storage.local.set({ pendingPromptlet: promptletData }, () => {
+      chrome.storage.sync.set({ pendingPromptlet: promptletData }, () => {
         // Short delay to ensure panel is listening
         setTimeout(() => {
           chrome.runtime.sendMessage({
@@ -413,7 +413,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       
       (async () => {
         try {
-          const { apiKey } = await chrome.storage.local.get("apiKey");
+          const { apiKey } = await chrome.storage.sync.get("apiKey");
 
           if (!apiKey || apiKey.trim() === "") {
             throw new Error("API key not found. Please add it in Manage Promptlets.");
@@ -455,7 +455,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     case "resetToDefaults":
       // Reset to default promptlets (Uses helper to ensure flags)
       const resetPromptlets = getPromptletsWithDefaultsFlag();
-      chrome.storage.local.set({ promptlets: resetPromptlets }, () => {
+      chrome.storage.sync.set({ promptlets: resetPromptlets }, () => {
         buildContextMenus();
         sendResponse({ success: true, count: resetPromptlets.length });
       });
