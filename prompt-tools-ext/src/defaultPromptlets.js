@@ -48,6 +48,15 @@ CLAIM:
     outputStructure: ["main"]
   },
   {
+    // This allows users to test the maximum reasoning capabilities of the model
+    name: "Max Reasoning",
+    emoji: "👑",
+    prompt: "",
+    model: "gpt-5.1",
+    maxTokens: 16000,
+    outputStructure: ["main"]
+  },
+  {
     name: "Learn a Language",
     emoji: "🌍",
     prompt: `You are an ai translator that translates from from any language to English. 
