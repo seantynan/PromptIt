@@ -1,4 +1,9 @@
 
+
+Next step: Fine-Tuning Promptlet Defaults
+
+
+
 01 DEC 2025
 
 chrome.storage.local changed to chrome.storage.sync
