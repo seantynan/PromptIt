@@ -87,6 +87,12 @@
       margin-bottom: 16px;
     }
 
+    /* --- Plain links, no colour, keep underline --- */
+    a.plain {
+      color: inherit;       /* removes blue */
+      text-decoration: underline;
+    }
+
     .promptlet-list {
       display: flex;
       flex-direction: column;
