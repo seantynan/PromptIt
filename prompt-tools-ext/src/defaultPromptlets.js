@@ -23,6 +23,15 @@ const DEFAULT_PROMPTLETS = [
     outputStructure: ["main"]
   },
   {
+    // This allows users to test the maximum reasoning capabilities of the model
+    name: "Max Reasoning",
+    emoji: "👑",
+    prompt: "",
+    model: "gpt-5.1",
+    maxTokens: 16000,
+    outputStructure: ["main"]
+  },
+  {
     name: "Verify",
     emoji: "✅",
     prompt: `You are an evidence-driven analyst. Evaluate the CLAIM below as TRUE, MOSTLY TRUE, MISLEADING, FALSE, or UNVERIFIABLE, and provide a confidence score (0–100%). 
@@ -106,15 +115,6 @@ Optional notes or variations (e.g., substitutions, serving ideas, dietary adjust
     model: model,
     maxTokens: 4000,
     outputStructure: ["main", "notes"]
-  },
-  {
-    // This allows users to test the maximum reasoning capabilities of the model
-    name: "Max Reasoning",
-    emoji: "👑",
-    prompt: "",
-    model: "gpt-5.1",
-    maxTokens: 16000,
-    outputStructure: ["main"]
   },
 ];
 
