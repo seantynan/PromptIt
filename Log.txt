@@ -37,3 +37,8 @@ Promptlet marketplace
 Secondary input box for auxiliary input e.g. crossword solver
 
 Inner/outer context for e.g. Expand promptlet
+
+
+promptlet ideas:
+Irish times crossword solver
+
