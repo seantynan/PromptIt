@@ -107,6 +107,15 @@ Optional notes or variations (e.g., substitutions, serving ideas, dietary adjust
     maxTokens: 4000,
     outputStructure: ["main", "notes"]
   },
+  {
+    // This allows users to test the maximum reasoning capabilities of the model
+    name: "Max Reasoning",
+    emoji: "👑",
+    prompt: "",
+    model: "gpt-5.1",
+    maxTokens: 16000,
+    outputStructure: ["main"]
+  },
 ];
 
 // Export for use in other modules
