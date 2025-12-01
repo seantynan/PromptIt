@@ -10,11 +10,11 @@ System prompt, include locale and markdown formatting
 
 Review default prompts
 
-Emoji picker
+Emoji picker: in progress on separate branch
 
 test dark mode: looks ok
 
-Make toggle grey out promptlets in Manage, smooth transition
+Make toggle grey out promptlets in Manage, smooth transition: too tricky
 
 Help documentation
 
