@@ -10,8 +10,6 @@ System prompt, include locale and markdown formatting
 
 Review default prompts
 
-Emoji picker: in progress on separate branch. The alternative is for the user to copy emojis from https://emojipedia.org/ Link added to Emoji label.
-
 test dark mode: looks ok
 
 Make toggle grey out promptlets in Manage, smooth transition: too tricky
