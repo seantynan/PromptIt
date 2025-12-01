@@ -56,15 +56,15 @@
         </div>
         
         <div class="form-group" style="flex: 1;">
-          <label class="form-label">Name</label>
-          <input type="text" class="form-input" id="nameInput" placeholder="My Promptlet" maxlength="7000">
+          <label class="form-label">Name *</label>
+          <input type="text" class="form-input" id="nameInput" placeholder="My Promptlet" required>
           <div class="validation-message hidden" id="nameValidation"></div>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Prompt *</label>
-        <textarea class="form-input" id="promptInput" placeholder="Enter your prompt here..." required></textarea>
+        <label class="form-label">Prompt</label>
+        <textarea class="form-input" id="promptInput" placeholder="Enter your prompt here..." maxlength="7000"></textarea>
       </div>
 
       <!-- Advanced Settings -->
