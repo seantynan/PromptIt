@@ -5,7 +5,7 @@
 
 let allPromptlets = [];
 let editingPromptletName = null; // Track which promptlet we're editing
-const model = "gpt-5-mini"; // New recommended default for speed and cost-efficiency
+const model = "gpt-4o"; // New recommended default for speed and cost-efficiency
 
 // -------------------------
 // Initialize
