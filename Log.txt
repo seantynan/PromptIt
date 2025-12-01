@@ -1,6 +1,10 @@
 
 01 DEC 2025
 
+chrome.storage.local changed to chrome.storage.sync
+
+Prompt made optional
+
 Switched OpenAI endpoint from completions to responses
 
 Added Max Reasoning default promptlet
