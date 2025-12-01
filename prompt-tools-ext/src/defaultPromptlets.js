@@ -26,7 +26,7 @@ const DEFAULT_PROMPTLETS = [
     // This allows users to test the maximum reasoning capabilities of the model
     name: "Max Reasoning",
     emoji: "👑",
-    prompt: "",
+    prompt: "", // User's selection becomes the entire prompt
     model: "gpt-5.1",
     maxTokens: 16000,
     outputStructure: ["main"]
