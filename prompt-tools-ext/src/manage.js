@@ -181,8 +181,15 @@ function togglePromptletActive(name) {
 // -------------------------
 function savePromptlet() {
   const name = document.getElementById('nameInput').value.trim();
+  const prompt = document.getElementById('promptInput').value.trim();
+  
   if (!name) {
     alert("Name is required");
+    return;
+  }
+
+  if (!prompt) {
+    alert("Prompt is required");
     return;
   }
   
@@ -191,7 +198,7 @@ function savePromptlet() {
   const newPromptletData = {
     name: name,
     emoji: document.getElementById('emojiInput').value.trim() || '📝',
-    prompt: document.getElementById('promptInput').value.trim(),
+    prompt: prompt,
     model: document.getElementById('modelInput').value,
     temperature: parseFloat(document.getElementById('tempInput').value),
     maxTokens: parseInt(document.getElementById('tokensInput').value),
