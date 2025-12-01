@@ -187,11 +187,6 @@ function savePromptlet() {
     alert("Name is required");
     return;
   }
-
-  if (!prompt) {
-    alert("Prompt is required");
-    return;
-  }
   
   if (!validateName()) return;
 
