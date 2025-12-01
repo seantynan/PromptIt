@@ -6,13 +6,17 @@ Version 0.2 "Cadence" released.
 
 Next steps:
 
+Using a custom Promptlet with a blank prompt field is the most direct and elegant way to create a dedicated "Direct Prompt" or "Flagship Query" mode.
+
 System prompt, include locale and markdown formatting
 
 Review default prompts
 
 test dark mode: looks ok
 
-Make toggle grey out promptlets in Manage, smooth transition: too tricky
+Make toggle grey out promptlets in Manage
+
+smooth toggle transition: too tricky, revisit
 
 Help documentation
 
@@ -26,3 +30,10 @@ Prevent resetting defaults from deleting user prompts
 
 Promptlet marketplace
 
+
+
+----------------
+
+Secondary input box for auxiliary input e.g. crossword solver
+
+Inner/outer context for e.g. Expand promptlet
