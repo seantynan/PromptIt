@@ -10,19 +10,13 @@ System prompt, include locale and markdown formatting
 
 Review default prompts
 
-Emoji picker
-
-test dark mode: looks ok
-
-Make toggle grey out promptlets in Manage, smooth transition
-
 Help documentation
 
 README.md
 
 Branding: icons, polish, screenshots... generate images using nano banana
 
-Positional ordering by drag and drop
+Positional ordering by drag and drop: later
 
 Prevent resetting defaults from deleting user prompts
 
