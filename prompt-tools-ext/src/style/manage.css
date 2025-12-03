@@ -138,7 +138,6 @@
 
     /* 3. Text Decoration: Cross out the name for clear visual feedback */
     .promptlet-card.disabled .promptlet-name {
-        text-decoration: line-through;
         color: var(--text-disabled);
     }
 
