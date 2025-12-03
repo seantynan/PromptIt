@@ -115,7 +115,21 @@ Optional notes or variations (e.g., substitutions, serving ideas, dietary adjust
     model: model,
     maxTokens: 4000,
     outputStructure: ["main", "notes"]
-  },
+    },
+    {
+        name: "Crossword Solver",
+        emoji: "🧩",
+        prompt: `You are an expert crossword solver, for both simple and cryptic crosswords.
+        Solve the clue step- by - step and give:
+            1. The exact answer in ** bold **
+            2. A clear explanation of definition + wordplay
+        3. Letter count confirmation
+
+        Clue: `,
+        model: "gpt-5.1",
+        maxTokens: 15000,
+        outputStructure: ["main"]
+    },
 ];
 
 // Export for use in other modules
