@@ -103,17 +103,21 @@ function renderPromptlets() {
 // -------------------------
 // Create promptlet element (Card)
 // -------------------------
+// [manage.js] - Replace the 'createPromptletElement' function entirely
+
 function createPromptletElement(promptlet) {
-  const item = document.createElement('div');
-  // Add 'disabled' class only for visual styling if you want opacity changes
-  item.className = `promptlet-card ${promptlet.isActive === false ? 'inactive' : ''}`;
-  item.dataset.name = promptlet.name;
+    const item = document.createElement('div');
 
-  // Determine active state (default to true)
-  const isActive = promptlet.isActive !== false;
+    // 1. Determine active state (default to true if undefined)
+    const isActive = promptlet.isActive !== false;
 
-  item.innerHTML = `
-    <div class="promptlet-header">
+    // 2. Apply 'disabled' class only if inactive
+    item.className = `promptlet-card ${!isActive ? 'disabled' : ''}`;
+
+    item.dataset.name = promptlet.name;
+
+    item.innerHTML = `
+     <div class="promptlet-header">
       <label class="toggle-switch" title="${isActive ? 'On' : 'Off'}">
         <input 
           type="checkbox" 
@@ -128,38 +132,42 @@ function createPromptletElement(promptlet) {
       <span class="promptlet-name">${promptlet.name}</span>
       
       <div class="promptlet-actions">
-        ${promptlet.isDefault 
-          ? '<span style="font-size:11px; color:#888; margin-right:5px;">LOCKED</span>' 
-          : `<button class="btn btn-small btn-secondary edit-btn">Edit</button>
+        ${promptlet.isDefault
+            ? '<span style="font-size:11px; color:#888; margin-right:5px;">LOCKED</span>'
+            : `<button class="btn btn-small btn-secondary edit-btn">Edit</button>
              <button class="btn btn-small btn-danger delete-btn">Delete</button>`
         }
         <button class="btn btn-small btn-secondary clone-btn">Clone</button>
       </div>
     </div>
     
-    ${promptlet.isDefault 
-      ? '' 
-      : `<div class="promptlet-prompt">${promptlet.prompt}</div>`
+    ${promptlet.isDefault
+            ? ''
+            : `<div class="promptlet-prompt">${promptlet.prompt}</div>`
+        }
+   `;
+
+    // --- Attach Event Listeners ---
+
+    // 1. Toggle Switch
+    const toggleInput = item.querySelector('.toggle-input');
+    toggleInput.addEventListener('change', () => togglePromptletActive(promptlet.name));
+
+    // 2. Clone Button (Always Active)
+    const cloneBtn = item.querySelector('.clone-btn');
+    cloneBtn.addEventListener('click', (e) => {
+        // Prevent the click from triggering parent events if any
+        e.stopPropagation();
+        clonePromptlet(promptlet);
+    });
+
+    // 3. Edit/Delete (Only for custom)
+    if (!promptlet.isDefault) {
+        item.querySelector('.edit-btn').addEventListener('click', () => editPromptlet(promptlet));
+        item.querySelector('.delete-btn').addEventListener('click', () => deletePromptlet(promptlet.name));
     }
-  `;
 
-  // --- Attach Event Listeners ---
-
-  // 1. Toggle Switch (Works for BOTH Default and Custom)
-  const toggleInput = item.querySelector('.toggle-input');
-  toggleInput.addEventListener('change', () => togglePromptletActive(promptlet.name));
-
-  // 2. Clone Button
-  const cloneBtn = item.querySelector('.clone-btn');
-  cloneBtn.addEventListener('click', () => clonePromptlet(promptlet));
-
-  // 3. Edit/Delete (Only for custom)
-  if (!promptlet.isDefault) {
-    item.querySelector('.edit-btn').addEventListener('click', () => editPromptlet(promptlet));
-    item.querySelector('.delete-btn').addEventListener('click', () => deletePromptlet(promptlet.name));
-  }
-
-  return item;
+    return item;
 }
 
 // -------------------------
