@@ -311,6 +311,9 @@ function handleSidePanelSelection(promptletName, text) {
       text: text,
       timestamp: Date.now()
     };
+
+    // Keep an in-memory fallback for the side panel's initial fetch
+    pendingPromptletData = promptletData;
     
     // Store data and notify side panel
     chrome.storage.local.set({ pendingPromptlet: promptletData }, () => {
@@ -355,6 +358,9 @@ function runPromptlet(tabId, promptlet, selectionText) {
     text: selectionText || "",
     timestamp: Date.now()
   };
+
+  // Keep an in-memory fallback for the side panel's initial fetch
+  pendingPromptletData = promptletData;
 
   try {
     // Open the Side Panel
