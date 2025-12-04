@@ -116,7 +116,7 @@ async function callOpenAI(prompt, apiKey, model = "gpt-4o", temperature = 1, max
       model: model,
       messages: [{ role: "user", content: prompt }],
       temperature: temperature,
-      max_completion_tokens: maxTokens,
+      maxTokens: maxTokens,
       top_p: topP,
       frequency_penalty: frequencyPenalty,
       presence_penalty: presencePenalty
