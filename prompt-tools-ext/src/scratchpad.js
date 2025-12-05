@@ -31,7 +31,10 @@ const PRESET_THEMES = {
   Solarized: { font: '"Helvetica Neue", Arial, sans-serif', size: 16, bg: '#002b36', fg: '#eee8d5' },
   'High Contrast': { font: 'Arial Black, Arial, sans-serif', size: 17, bg: '#000000', fg: '#ffffff' },
   'Warm Cream': { font: 'Georgia, serif', size: 17, bg: '#f9f5eb', fg: '#2d2418' },
-  'Hacker Night': { font: '"Fira Code", monospace', size: 15, bg: '#0b0f0c', fg: '#5ce38a' }
+  'Hacker Night': { font: '"Fira Code", monospace', size: 15, bg: '#0b0f0c', fg: '#5ce38a' },
+  'Ocean Breeze': { font: 'Inter, sans-serif', size: 16, bg: '#0e1f2f', fg: '#b3e5fc' },
+  'Midnight Plum': { font: '"IBM Plex Sans", sans-serif', size: 16, bg: '#1b1026', fg: '#e0c3ff' },
+  'Forest Trail': { font: '"Source Serif Pro", serif', size: 17, bg: '#0f1a14', fg: '#d7e7c1' }
 };
 
 const FONT_OPTIONS = [
