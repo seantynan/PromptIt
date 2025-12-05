@@ -346,7 +346,7 @@ function buildLayoutFromStorage() {
   const isVertical = stored === 'vertical';
   workspace.classList.toggle('vertical', isVertical);
   workspace.classList.toggle('horizontal', !isVertical);
-  layoutBtn.textContent = isVertical ? '▮▮' : '☰';
+    layoutBtn.textContent = isVertical ? '↔️' : '↕️';
 }
 
 function buildThemeMenu() {
