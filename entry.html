@@ -1,15 +1,288 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PromptIt Scratchpad</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22d3ee;
+      --textarea: #0b1220;
+      --textarea-border: #1f2937;
+      --textarea-text: #e5e7eb;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--bg), #0b1220);
+      color: var(--text);
+      font-family: var(--font);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .page {
+      width: min(960px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0;
+      letter-spacing: 0.2px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 4px 0 0;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    select {
+      background: var(--textarea);
+      color: var(--text);
+      border: 1px solid var(--textarea-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      min-width: 190px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 460px;
+      background: var(--textarea);
+      color: var(--textarea-text);
+      border: 1px solid var(--textarea-border);
+      border-radius: 14px;
+      padding: 18px;
+      font-size: 16px;
+      line-height: 1.6;
+      font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+
+      .page {
+        padding: 18px;
+      }
+
+      textarea {
+        min-height: 320px;
+      }
+    }
+  </style>
 </head>
 <body>
   <main class="page">
-    <textarea>
-
-    </textarea>
+    <header>
+      <div>
+        <h1>Scratchpad</h1>
+        <p class="muted">Pick a preset to set the mood for your quick notes.</p>
+      </div>
+      <div class="controls">
+        <label for="themeSelect">Theme</label>
+        <select id="themeSelect" aria-label="Scratchpad theme">
+          <!-- Options populated by script -->
+        </select>
+      </div>
+    </header>
+    <textarea id="scratchpad" placeholder="Jot down ideas, prompt drafts, or meeting notes..."></textarea>
   </main>
+
+  <script>
+    const themes = {
+      midnight: {
+        label: 'Midnight Neon',
+        variables: {
+          '--bg': '#0f172a',
+          '--panel': '#111827',
+          '--panel-border': '#1f2937',
+          '--text': '#e5e7eb',
+          '--muted': '#9ca3af',
+          '--accent': '#22d3ee',
+          '--textarea': '#0b1220',
+          '--textarea-border': '#1f2937',
+          '--textarea-text': '#e5e7eb',
+          '--font': "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        },
+      },
+      daylight: {
+        label: 'Daylight',
+        variables: {
+          '--bg': '#f5f7fb',
+          '--panel': '#ffffff',
+          '--panel-border': '#e5e7eb',
+          '--text': '#1f2937',
+          '--muted': '#6b7280',
+          '--accent': '#2563eb',
+          '--textarea': '#f9fafb',
+          '--textarea-border': '#e5e7eb',
+          '--textarea-text': '#111827',
+          '--font': "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        },
+      },
+      sepia: {
+        label: 'Sepia Notebook',
+        variables: {
+          '--bg': '#f7f0e7',
+          '--panel': '#fdf9f3',
+          '--panel-border': '#e0d6c8',
+          '--text': '#3c2f2f',
+          '--muted': '#6d5b4f',
+          '--accent': '#c47f1c',
+          '--textarea': '#f4eadc',
+          '--textarea-border': '#decfbf',
+          '--textarea-text': '#352520',
+          '--font': "'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif",
+        },
+      },
+      dusk: {
+        label: 'Twilight Focus',
+        variables: {
+          '--bg': '#1f1d2b',
+          '--panel': '#262335',
+          '--panel-border': '#332e45',
+          '--text': '#f3f4f6',
+          '--muted': '#a5b4fc',
+          '--accent': '#c084fc',
+          '--textarea': '#1b1926',
+          '--textarea-border': '#332e45',
+          '--textarea-text': '#f8fafc',
+          '--font': "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        },
+      },
+      forest: {
+        label: 'Forest Canvas',
+        variables: {
+          '--bg': '#0b1d16',
+          '--panel': '#0f261c',
+          '--panel-border': '#123326',
+          '--text': '#e4f2e8',
+          '--muted': '#9bb8a9',
+          '--accent': '#38c793',
+          '--textarea': '#0a1b14',
+          '--textarea-border': '#1b3a2b',
+          '--textarea-text': '#e9f5ed',
+          '--font': "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        },
+      },
+      contrast: {
+        label: 'High Contrast',
+        variables: {
+          '--bg': '#000000',
+          '--panel': '#000000',
+          '--panel-border': '#1f1f1f',
+          '--text': '#ffffff',
+          '--muted': '#d4d4d4',
+          '--accent': '#ffd166',
+          '--textarea': '#0c0c0c',
+          '--textarea-border': '#2a2a2a',
+          '--textarea-text': '#ffffff',
+          '--font': "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        },
+      },
+      ocean: {
+        label: 'Ocean Breeze',
+        variables: {
+          '--bg': '#0c1c26',
+          '--panel': '#0f2533',
+          '--panel-border': '#143042',
+          '--text': '#e2f3ff',
+          '--muted': '#a0c7dd',
+          '--accent': '#4dd0e1',
+          '--textarea': '#0b1b26',
+          '--textarea-border': '#16425b',
+          '--textarea-text': '#eaf7ff',
+          '--font': "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        },
+      },
+    };
+
+    const themeSelect = document.getElementById('themeSelect');
+    const root = document.documentElement;
+    const defaultThemeKey = 'midnight';
+
+    const savedTheme = localStorage.getItem('scratchpad-theme');
+    const initialThemeKey = savedTheme && themes[savedTheme] ? savedTheme : defaultThemeKey;
+
+    Object.entries(themes).forEach(([key, theme]) => {
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = theme.label;
+      themeSelect.appendChild(option);
+    });
+
+    const applyTheme = (key) => {
+      const theme = themes[key] || themes[defaultThemeKey];
+      Object.entries(theme.variables).forEach(([variable, value]) => {
+        root.style.setProperty(variable, value);
+      });
+      themeSelect.value = key;
+      localStorage.setItem('scratchpad-theme', key);
+    };
+
+    themeSelect.addEventListener('change', (event) => {
+      applyTheme(event.target.value);
+    });
+
+    applyTheme(initialThemeKey);
+  </script>
 </body>
 </html>
