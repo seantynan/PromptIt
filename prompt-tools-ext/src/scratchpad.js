@@ -384,9 +384,9 @@ function buildFontMenus() {
 }
 
 function applyTheme(theme, themeName = 'custom') {
-  document.documentElement.style.setProperty('--panel-bg', theme.bg);
-  document.documentElement.style.setProperty('--bg', theme.bg);
-  document.documentElement.style.setProperty('--text', theme.fg);
+  workspace.style.setProperty('--panel-bg', theme.bg);
+  workspace.style.setProperty('--bg', theme.bg);
+  workspace.style.setProperty('--text', theme.fg);
   applyFont(theme.font);
   applyFontSize(theme.size);
   persistTheme({ themeName, ...theme });
@@ -441,7 +441,7 @@ function openCustomTheme() {
 }
 
 function applyFont(font) {
-  document.documentElement.style.setProperty('--font-family', font);
+  workspace.style.setProperty('--font-family', font);
   inputArea.style.fontFamily = font;
   outputArea.style.fontFamily = font;
   localStorage.setItem(STORAGE_KEYS.fontFamily, font);
@@ -449,7 +449,7 @@ function applyFont(font) {
 }
 
 function applyFontSize(size) {
-  document.documentElement.style.setProperty('--font-size', `${size}px`);
+  workspace.style.setProperty('--font-size', `${size}px`);
   inputArea.style.fontSize = `${size}px`;
   outputArea.style.fontSize = `${size}px`;
   localStorage.setItem(STORAGE_KEYS.fontSize, size);

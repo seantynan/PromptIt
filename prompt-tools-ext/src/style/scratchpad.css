@@ -1,4 +1,5 @@
 :root {
+  /* Workspace theme tokens */
   --bg: #111217;
   --panel-bg: #1a1b20;
   --panel-border: #2b2d38;
@@ -11,6 +12,17 @@
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   --font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-size: 16px;
+
+  /* Fixed UI tokens (not affected by workspace theming) */
+  --ui-bg: #161722;
+  --ui-border: #2b2d38;
+  --ui-text: #e5e5e5;
+  --ui-muted: #8a8ea5;
+  --ui-accent: #53d38a;
+  --ui-btn-bg: #2a2c38;
+  --ui-btn-hover: #353848;
+  --ui-btn-disabled: #3a3c4a;
+  --ui-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
 @media (prefers-color-scheme: light) {
@@ -48,12 +60,13 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 18px;
-  border-bottom: 1px solid var(--panel-border);
-  background: linear-gradient(90deg, rgba(83, 211, 138, 0.08), transparent);
+  border-bottom: 1px solid var(--ui-border);
+  background: linear-gradient(90deg, rgba(83, 211, 138, 0.12), transparent) var(--ui-bg);
   position: sticky;
   top: 0;
   z-index: 10;
   gap: 12px;
+  color: var(--ui-text);
 }
 
 .top-title {
@@ -77,7 +90,7 @@ body {
   align-items: center;
   gap: 8px;
   padding-right: 10px;
-  border-right: 1px solid var(--panel-border);
+  border-right: 1px solid var(--ui-border);
 }
 
 .button-group:last-child {
@@ -86,27 +99,27 @@ body {
 }
 
 .btn {
-  background: var(--btn-bg);
-  color: var(--text);
-  border: 1px solid var(--panel-border);
+  background: var(--ui-btn-bg);
+  color: var(--ui-text);
+  border: 1px solid var(--ui-border);
   border-radius: 8px;
   padding: 8px 12px;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
-  box-shadow: var(--shadow);
+  box-shadow: var(--ui-shadow);
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
 .btn:hover:not(:disabled) {
-  background: var(--btn-hover);
+  background: var(--ui-btn-hover);
   transform: translateY(-1px);
 }
 
 .btn:disabled {
-  background: var(--btn-disabled);
-  color: var(--muted);
+  background: var(--ui-btn-disabled);
+  color: var(--ui-muted);
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -126,6 +139,8 @@ body {
   display: grid;
   grid-template-columns: 1fr 280px;
   height: calc(100vh - 64px);
+  background: var(--bg);
+  color: var(--text);
 }
 
 .panels {
@@ -266,10 +281,10 @@ textarea#inputArea {
   position: absolute;
   top: calc(100% + 8px);
   min-width: 180px;
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-border);
   border-radius: 10px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--ui-shadow);
   padding: 6px;
   display: none;
   flex-direction: column;
@@ -284,7 +299,7 @@ textarea#inputArea {
 .dropdown-menu .menu-item {
   background: transparent;
   border: none;
-  color: var(--text);
+  color: var(--ui-text);
   text-align: left;
   padding: 8px;
   border-radius: 8px;
@@ -294,7 +309,7 @@ textarea#inputArea {
 
 .dropdown-menu button:hover,
 .dropdown-menu .menu-item:hover {
-  background: var(--btn-hover);
+  background: var(--ui-btn-hover);
 }
 
 .custom-theme {
