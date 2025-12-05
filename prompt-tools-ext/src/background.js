@@ -123,14 +123,14 @@ async function callOpenAI(
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            model,
-            system: systemPrompt,
-            input: prompt,
-            temperature,
-            max_output_tokens: maxTokens,
+            model: model,
+            input: [
+                ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
+                { role: "user", content: prompt }
+            ],
+            temperature: temperature,
             top_p: topP,
-            frequency_penalty: frequencyPenalty,
-            presence_penalty: presencePenalty
+            max_output_tokens: maxTokens
         })
     });
 
@@ -144,8 +144,62 @@ async function callOpenAI(
 
     const data = await response.json();
 
-    // Responses API returns unified text output here:
-    return data.output_text?.trim() ?? "";
+    console.log("[RAW RESPONSE DATA]", JSON.stringify(data, null, 2));
+
+    //console.log("[API RESPONSE DATA EXTRACTED]", extractOutput(data));
+
+    // Extract output safely
+    return extractOutput(data);
+}
+
+function extractOutput(data) {
+    // 1. Simple case
+    if (data.output_text && data.output_text.trim()) {
+        return data.output_text.trim();
+    }
+
+    let text = "";
+
+    // 2. Structured output
+    if (Array.isArray(data.output)) {
+
+        for (const block of data.output) {
+
+            // REASONING BLOCKS (GPT-5-mini etc)
+            if (block.type === "reasoning" && block.summary) {
+                // Optional: include reasoning text if present
+                continue; // usually empty and not useful
+            }
+
+            // MESSAGE BLOCKS (REAL OUTPUT HERE)
+            if (block.type === "message" && Array.isArray(block.content)) {
+                for (const item of block.content) {
+
+                    // Standard helper text
+                    if (item.text) {
+                        text += item.text;
+                    }
+
+                    // output_text wrapper
+                    if (item.type === "output_text" && item.text) {
+                        text += item.text;
+                    }
+
+                    // token-based chunks
+                    if (item.token?.text) {
+                        text += item.token.text;
+                    }
+
+                    // reasoning traces
+                    if (item.reasoning?.text) {
+                        text += item.reasoning.text;
+                    }
+                }
+            }
+        }
+    }
+
+    return text.trim();
 }
 
 // -------------------------
