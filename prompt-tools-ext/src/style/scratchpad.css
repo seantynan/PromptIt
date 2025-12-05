@@ -23,6 +23,8 @@
   --ui-btn-hover: #353848;
   --ui-btn-disabled: #3a3c4a;
   --ui-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  --ui-font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --ui-font-size: 15px;
 }
 
 @media (prefers-color-scheme: light) {
@@ -226,17 +228,15 @@ textarea#inputArea {
 
 .sidebar {
   width: 280px;
-  border-left: 1px solid var(--panel-border);
+  border-left: 1px solid var(--ui-border);
   padding: 16px;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--ui-bg);
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.sidebar-header {
-  font-weight: 700;
-  letter-spacing: 0.6px;
+  color: var(--ui-text);
+  font-family: var(--ui-font-family);
+  font-size: var(--ui-font-size);
 }
 
 .promptlet-list {
@@ -248,11 +248,11 @@ textarea#inputArea {
 }
 
 .promptlet-btn {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
+  background: var(--ui-btn-bg);
+  border: 1px solid var(--ui-border);
   border-radius: 10px;
   padding: 10px 12px;
-  color: var(--text);
+  color: var(--ui-text);
   cursor: pointer;
   text-align: left;
   display: flex;
@@ -262,13 +262,13 @@ textarea#inputArea {
 }
 
 .promptlet-btn:hover {
-  background: var(--btn-hover);
-  border-color: var(--accent);
+  background: var(--ui-btn-hover);
+  border-color: var(--ui-accent);
   transform: translateY(-1px);
 }
 
 .promptlet-empty {
-  color: var(--muted);
+  color: var(--ui-muted);
   font-style: italic;
   padding: 8px 4px;
 }
@@ -370,7 +370,7 @@ textarea#inputArea {
   .sidebar {
     width: 100%;
     border-left: none;
-    border-top: 1px solid var(--panel-border);
-    background: transparent;
+    border-top: 1px solid var(--ui-border);
+    background: var(--ui-bg);
   }
 }
