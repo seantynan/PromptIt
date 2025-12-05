@@ -50,6 +50,55 @@ const FONT_OPTIONS = [
 
 const FONT_SIZES = [12, 14, 16, 18, 20, 22, 24, 26, 28];
 
+function hasChromeStorage() {
+  return typeof chrome !== 'undefined' && !!chrome.storage?.local;
+}
+
+function saveToStorage(key, value) {
+  if (hasChromeStorage()) {
+    return new Promise((resolve) => chrome.storage.local.set({ [key]: value }, resolve));
+  }
+
+  const serialized = typeof value === 'object' ? JSON.stringify(value) : value;
+  localStorage.setItem(key, serialized);
+  return Promise.resolve();
+}
+
+function getFromStorage(key, defaultValue) {
+  return new Promise((resolve) => {
+    if (hasChromeStorage()) {
+      chrome.storage.local.get({ [key]: defaultValue }, (data) => {
+        resolve(data[key] ?? defaultValue);
+      });
+      return;
+    }
+
+    const stored = localStorage.getItem(key);
+    if (stored === null || stored === undefined) {
+      resolve(defaultValue);
+      return;
+    }
+
+    if (typeof defaultValue === 'object') {
+      try {
+        resolve(JSON.parse(stored));
+        return;
+      } catch (err) {
+        resolve(defaultValue);
+        return;
+      }
+    }
+
+    if (typeof defaultValue === 'number') {
+      const num = Number(stored);
+      resolve(Number.isNaN(num) ? defaultValue : num);
+      return;
+    }
+
+    resolve(stored);
+  });
+}
+
 let undoBuffer = '';
 let availablePromptlets = [];
 let copyTimeout = null;
@@ -67,7 +116,7 @@ async function init() {
   buildChainMenu();
   buildThemeMenu();
   buildFontMenus();
-  applyStoredAppearance();
+  await applyStoredAppearance();
   updateOverlays();
 }
 
@@ -432,7 +481,7 @@ function applyTheme(theme, themeName = 'custom') {
   closeAllMenus();
 }
 
-function openCustomTheme() {
+async function openCustomTheme() {
   themeMenu.classList.add('open');
   const existing = themeMenu.querySelector('.custom-theme');
   if (existing) return;
@@ -451,7 +500,7 @@ function openCustomTheme() {
     fontSelect.appendChild(opt);
   });
 
-  const storedTheme = getStoredTheme();
+  const storedTheme = await getStoredTheme();
   fontSelect.value = storedTheme.font || FONT_OPTIONS[0];
   fontSize.value = storedTheme.size || 16;
   fontSizeValue.textContent = `${fontSize.value}px`;
@@ -483,7 +532,7 @@ function applyFont(font) {
   workspace.style.setProperty('--font-family', font);
   inputArea.style.fontFamily = font;
   outputArea.style.fontFamily = font;
-  localStorage.setItem(STORAGE_KEYS.fontFamily, font);
+  saveToStorage(STORAGE_KEYS.fontFamily, font);
   closeAllMenus();
 }
 
@@ -491,28 +540,23 @@ function applyFontSize(size) {
   workspace.style.setProperty('--font-size', `${size}px`);
   inputArea.style.fontSize = `${size}px`;
   outputArea.style.fontSize = `${size}px`;
-  localStorage.setItem(STORAGE_KEYS.fontSize, size);
+  saveToStorage(STORAGE_KEYS.fontSize, size);
   closeAllMenus();
 }
 
 function persistTheme(theme) {
-  localStorage.setItem(STORAGE_KEYS.theme, JSON.stringify(theme));
+  saveToStorage(STORAGE_KEYS.theme, theme);
 }
 
 function getStoredTheme() {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEYS.theme);
-    return stored ? JSON.parse(stored) : PRESET_THEMES.Dark;
-  } catch (err) {
-    return PRESET_THEMES.Dark;
-  }
+  return getFromStorage(STORAGE_KEYS.theme, PRESET_THEMES.Dark);
 }
 
-function applyStoredAppearance() {
-  const storedTheme = getStoredTheme();
+async function applyStoredAppearance() {
+  const storedTheme = await getStoredTheme();
   applyTheme(storedTheme, storedTheme.themeName || 'Dark');
-  const storedFont = localStorage.getItem(STORAGE_KEYS.fontFamily);
+  const storedFont = await getFromStorage(STORAGE_KEYS.fontFamily, '');
   if (storedFont) applyFont(storedFont);
-  const storedSize = localStorage.getItem(STORAGE_KEYS.fontSize);
+  const storedSize = await getFromStorage(STORAGE_KEYS.fontSize, 0);
   if (storedSize) applyFontSize(Number(storedSize));
 }
