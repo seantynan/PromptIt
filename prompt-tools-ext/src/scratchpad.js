@@ -45,7 +45,7 @@ const FONT_OPTIONS = [
   'Inter'
 ];
 
-const FONT_SIZES = [12, 14, 16, 18, 20, 22];
+const FONT_SIZES = [12, 14, 16, 18, 20, 22, 24, 26, 28];
 
 let undoBuffer = '';
 let availablePromptlets = [];
