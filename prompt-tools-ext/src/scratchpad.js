@@ -15,6 +15,7 @@ const fontTypeBtn = document.getElementById('fontTypeBtn');
 const fontTypeMenu = document.getElementById('fontTypeMenu');
 const fontSizeBtn = document.getElementById('fontSizeBtn');
 const fontSizeMenu = document.getElementById('fontSizeMenu');
+const customThemeContainer = document.createElement('div');
 
 const STORAGE_KEYS = {
   input: 'scratchpad-input',
@@ -34,7 +35,11 @@ const PRESET_THEMES = {
   'Hacker Night': { font: '"Fira Code", monospace', size: 15, bg: '#0b0f0c', fg: '#5ce38a' },
   'Ocean Breeze': { font: 'Inter, sans-serif', size: 16, bg: '#0e1f2f', fg: '#b3e5fc' },
   'Midnight Plum': { font: '"IBM Plex Sans", sans-serif', size: 16, bg: '#1b1026', fg: '#e0c3ff' },
-  'Forest Trail': { font: '"Source Serif Pro", serif', size: 17, bg: '#0f1a14', fg: '#d7e7c1' }
+  'Forest Trail': { font: '"Source Serif Pro", serif', size: 17, bg: '#0f1a14', fg: '#d7e7c1' },
+  'Slate Mono': { font: '"JetBrains Mono", monospace', size: 15, bg: '#1c1f26', fg: '#d6deff' },
+  'Vintage Paper': { font: '"Book Antiqua", serif', size: 17, bg: '#fbf2d5', fg: '#3c2f1b' },
+  'Pastel Dream': { font: '"Nunito", sans-serif', size: 16, bg: '#22212c', fg: '#f2d5cf' },
+  'Ocean Foam': { font: '"Montserrat", sans-serif', size: 16, bg: '#0d1b2a', fg: '#e0fbfc' }
 };
 
 const FONT_OPTIONS = [
@@ -45,10 +50,16 @@ const FONT_OPTIONS = [
   'Times New Roman',
   'Courier New',
   'Fira Code',
-  'Inter'
+  'Inter',
+  'JetBrains Mono',
+  'Book Antiqua',
+  'Nunito',
+  'Montserrat'
 ];
 
 const FONT_SIZES = [12, 14, 16, 18, 20, 22, 24, 26, 28];
+
+let currentThemeName = 'Dark';
 
 function hasChromeStorage() {
   return typeof chrome !== 'undefined' && !!chrome.storage?.local;
@@ -259,6 +270,9 @@ function toggleMenu(menu, btn) {
   const isOpen = menu.classList.contains('open');
   closeAllMenus();
   if (!isOpen) {
+    if (menu === themeMenu) {
+      collapseCustomTheme();
+    }
     menu.classList.add('open');
     btn?.setAttribute('aria-expanded', 'true');
   } else {
@@ -438,17 +452,26 @@ function buildLayoutFromStorage() {
 
 function buildThemeMenu() {
   themeMenu.innerHTML = '';
+  customThemeContainer.className = 'custom-theme-container';
+  customThemeContainer.setAttribute('aria-hidden', 'true');
+
   Object.entries(PRESET_THEMES).forEach(([name, cfg]) => {
     const btn = document.createElement('button');
-    btn.textContent = name;
+    btn.dataset.themeName = name;
+    btn.textContent = formatThemeLabel(name);
     btn.addEventListener('click', () => applyTheme(cfg, name));
     themeMenu.appendChild(btn);
   });
 
   const customBtn = document.createElement('button');
-  customBtn.textContent = 'Custom...';
-  customBtn.addEventListener('click', () => openCustomTheme());
+  customBtn.className = 'custom-theme-toggle';
+  customBtn.dataset.themeName = 'custom';
+  customBtn.textContent = formatThemeLabel('Custom...', 'custom');
+  customBtn.addEventListener('click', () => openCustomTheme(customBtn));
+  customBtn.setAttribute('aria-expanded', 'false');
+
   themeMenu.appendChild(customBtn);
+  themeMenu.appendChild(customThemeContainer);
 }
 
 function buildFontMenus() {
@@ -477,14 +500,20 @@ function applyTheme(theme, themeName = 'custom') {
   themeTarget.style.setProperty('--text', theme.fg);
   applyFont(theme.font);
   applyFontSize(theme.size);
+  currentThemeName = themeName;
+  updateThemeSelections();
   persistTheme({ themeName, ...theme });
   closeAllMenus();
 }
 
-async function openCustomTheme() {
-  themeMenu.classList.add('open');
-  const existing = themeMenu.querySelector('.custom-theme');
-  if (existing) return;
+async function openCustomTheme(toggleBtn) {
+  const isOpen = customThemeContainer.classList.contains('open');
+  if (isOpen) {
+    collapseCustomTheme(toggleBtn);
+    return;
+  }
+
+  customThemeContainer.innerHTML = '';
   const tpl = document.getElementById('customThemeTemplate');
   const node = tpl.content.cloneNode(true);
   const fontSelect = node.querySelector('#customFontSelect');
@@ -525,7 +554,11 @@ async function openCustomTheme() {
     applyTheme(PRESET_THEMES.Dark, 'Dark');
   });
 
-  themeMenu.appendChild(node);
+  customThemeContainer.appendChild(node);
+  customThemeContainer.classList.add('open');
+  customThemeContainer.setAttribute('aria-hidden', 'false');
+  toggleBtn?.setAttribute('aria-expanded', 'true');
+  customThemeContainer.scrollIntoView({ block: 'nearest' });
 }
 
 function applyFont(font) {
@@ -559,4 +592,27 @@ async function applyStoredAppearance() {
   if (storedFont) applyFont(storedFont);
   const storedSize = await getFromStorage(STORAGE_KEYS.fontSize, 0);
   if (storedSize) applyFontSize(Number(storedSize));
+}
+
+function collapseCustomTheme(toggleBtn = themeMenu.querySelector('.custom-theme-toggle')) {
+  customThemeContainer.classList.remove('open');
+  customThemeContainer.setAttribute('aria-hidden', 'true');
+  toggleBtn?.setAttribute('aria-expanded', 'false');
+}
+
+function formatThemeLabel(name, key = name) {
+  const mark = key === currentThemeName ? '✓ ' : '';
+  return `${mark}${name}`;
+}
+
+function updateThemeSelections() {
+  themeMenu.querySelectorAll('button[data-theme-name]').forEach((btn) => {
+    const { themeName } = btn.dataset;
+    const label = themeName === 'custom' ? 'Custom...' : themeName;
+    btn.textContent = formatThemeLabel(label, themeName);
+  });
+  const customToggle = themeMenu.querySelector('.custom-theme-toggle');
+  if (customToggle) {
+    customToggle.textContent = formatThemeLabel('Custom...', 'custom');
+  }
 }
