@@ -188,6 +188,9 @@ body {
   display: flex;
   height: var(--panel-body-height);
   max-height: var(--panel-body-height);
+  border-radius: 0 0 12px 12px;
+  background: var(--panel-bg);
+  overflow: hidden;
 }
 
 textarea#inputArea {

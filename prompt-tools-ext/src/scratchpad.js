@@ -419,9 +419,10 @@ function buildFontMenus() {
 }
 
 function applyTheme(theme, themeName = 'custom') {
-  workspace.style.setProperty('--panel-bg', theme.bg);
-  workspace.style.setProperty('--bg', theme.bg);
-  workspace.style.setProperty('--text', theme.fg);
+  const themeTarget = document.documentElement;
+  themeTarget.style.setProperty('--panel-bg', theme.bg);
+  themeTarget.style.setProperty('--bg', theme.bg);
+  themeTarget.style.setProperty('--text', theme.fg);
   applyFont(theme.font);
   applyFontSize(theme.size);
   persistTheme({ themeName, ...theme });
