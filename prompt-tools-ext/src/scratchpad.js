@@ -18,6 +18,7 @@ const fontSizeMenu = document.getElementById('fontSizeMenu');
 
 const STORAGE_KEYS = {
   input: 'scratchpad-input',
+  output: 'scratchpad-output',
   layout: 'scratchpad-layout',
   theme: 'scratchpad-theme',
   fontFamily: 'scratchpad-font-family',
@@ -53,8 +54,9 @@ let saveTimeout = null;
 
 init();
 
-function init() {
+async function init() {
   restoreInput();
+  await restoreOutput();
   buildLayoutFromStorage();
   attachInputHandlers();
   attachButtons();
@@ -107,6 +109,37 @@ function restoreInput() {
 
 function saveInput() {
   localStorage.setItem(STORAGE_KEYS.input, inputArea.value);
+}
+
+async function restoreOutput() {
+  const saved = await getStoredOutput();
+  if (saved) {
+    renderOutput(saved);
+  } else {
+    updateOverlays();
+  }
+}
+
+function saveOutput(content) {
+  if (typeof chrome === 'undefined' || !chrome.storage?.local) {
+    localStorage.setItem(STORAGE_KEYS.output, content);
+    return;
+  }
+
+  chrome.storage.local.set({ [STORAGE_KEYS.output]: content });
+}
+
+function getStoredOutput() {
+  return new Promise((resolve) => {
+    if (typeof chrome === 'undefined' || !chrome.storage?.local) {
+      resolve(localStorage.getItem(STORAGE_KEYS.output) || '');
+      return;
+    }
+
+    chrome.storage.local.get({ [STORAGE_KEYS.output]: '' }, (data) => {
+      resolve(data[STORAGE_KEYS.output] || '');
+    });
+  });
 }
 
 function queueSave() {
@@ -302,6 +335,7 @@ async function executePromptlet(text, promptlet) {
     renderOutput(response.result);
   } catch (err) {
     outputArea.textContent = `Error: ${err.message}`;
+    saveOutput(outputArea.textContent);
   } finally {
     updateOverlays();
   }
@@ -317,6 +351,7 @@ function renderOutput(text) {
   outputArea.classList.add('markdown');
   const html = basicMarkdown(text);
   outputArea.innerHTML = html;
+  saveOutput(text);
   copyBtn.disabled = !text.trim();
   updateOverlays();
 }
