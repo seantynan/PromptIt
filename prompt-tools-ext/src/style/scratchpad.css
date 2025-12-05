@@ -316,6 +316,8 @@ textarea#inputArea {
   display: none;
   flex-direction: column;
   z-index: 20;
+  max-height: min(440px, 70vh);
+  overflow-y: auto;
 }
 
 .dropdown-menu.open {
@@ -344,6 +346,17 @@ textarea#inputArea {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.custom-theme-container {
+  display: none;
+  margin-top: 6px;
+  border-top: 1px solid var(--ui-border);
+  padding-top: 6px;
+}
+
+.custom-theme-container.open {
+  display: block;
 }
 
 .custom-row {
