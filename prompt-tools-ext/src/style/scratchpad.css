@@ -165,8 +165,8 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 14px;
   padding: 16px;
-  height: 100%;
-  align-items: stretch;
+  height: auto;
+  align-items: start;
 }
 
 .workspace.vertical .panels {
@@ -190,6 +190,7 @@ body {
   flex-direction: column;
   overflow: hidden;
   box-shadow: var(--shadow);
+  align-self: start;
 }
 
 .panel-header {
@@ -200,18 +201,20 @@ body {
 
 .panel-body {
   position: relative;
-  flex: 1;
   min-height: 0;
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
   border-radius: 0 0 12px 12px;
   background: var(--panel-bg);
-  overflow: hidden;
+  overflow: visible;
 }
 
 textarea#inputArea {
-  flex: 1;
+  flex: 0 0 auto;
   width: 100%;
-  height: 100%;
+  height: auto;
+  min-height: calc(var(--font-size) * 3);
   resize: none;
   background: transparent;
   color: var(--text);
@@ -221,17 +224,15 @@ textarea#inputArea {
   font-size: var(--font-size);
   line-height: 1.6;
   outline: none;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .output-content {
-  flex: 1;
-  min-height: 0;
+  flex: 0 0 auto;
+  min-height: calc(var(--font-size) * 3);
   width: 100%;
   padding: 14px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 100%;
+  overflow: visible;
   white-space: pre-wrap;
   background: transparent;
   color: var(--text);
@@ -244,13 +245,14 @@ textarea#inputArea {
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 14px;
   color: var(--muted);
   font-size: 18px;
   pointer-events: none;
   opacity: 0.4;
-  text-align: center;
+  text-align: left;
 }
 
 .sidebar {
