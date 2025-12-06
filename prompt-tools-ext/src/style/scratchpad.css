@@ -154,7 +154,7 @@ body {
 
 .workspace {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 240px;
   height: calc(100vh - 64px);
   background: var(--bg);
   color: var(--text);
@@ -246,6 +246,14 @@ textarea#inputArea {
   line-height: 1.6;
 }
 
+.output-content p {
+  margin: 0 0 0.75em;
+}
+
+.output-content p:last-child {
+  margin-bottom: 0;
+}
+
 .overlay {
   position: absolute;
   inset: 0;
@@ -261,7 +269,7 @@ textarea#inputArea {
 }
 
 .sidebar {
-  width: 280px;
+  width: 240px;
   border-left: 1px solid var(--ui-border);
   padding: 16px;
   background: var(--ui-bg);
@@ -279,6 +287,8 @@ textarea#inputArea {
   gap: 8px;
   flex: 1;
   overflow-y: auto;
+  max-width: 210px;
+  margin: 0 auto;
 }
 
 .promptlet-btn {
