@@ -118,7 +118,7 @@ let saveTimeout = null;
 init();
 
 async function init() {
-  restoreInput();
+  await restoreInput();
   await restoreOutput();
   buildLayoutFromStorage();
   attachInputHandlers();
@@ -162,16 +162,14 @@ function handleDocumentClick(event) {
   });
 }
 
-function restoreInput() {
-  const saved = localStorage.getItem(STORAGE_KEYS.input);
-  if (saved) {
-    inputArea.value = saved;
-  }
+async function restoreInput() {
+  const saved = await getFromStorage(STORAGE_KEYS.input, '');
+  inputArea.value = saved || '';
   setClearState();
 }
 
 function saveInput() {
-  localStorage.setItem(STORAGE_KEYS.input, inputArea.value);
+  saveToStorage(STORAGE_KEYS.input, inputArea.value);
 }
 
 async function restoreOutput() {
