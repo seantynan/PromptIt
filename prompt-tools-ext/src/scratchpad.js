@@ -409,7 +409,7 @@ async function executePromptlet(text, promptlet) {
   outputOverlay.style.display = 'none';
   outputArea.classList.remove('markdown');
   copyBtn.disabled = true;
-  outputArea.textContent = 'Processing...';
+  outputArea.textContent = `Processing with ${promptlet.name}...`;
 
   try {
     if (typeof chrome === 'undefined' || !chrome.runtime) {
