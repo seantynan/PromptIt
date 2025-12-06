@@ -7,6 +7,34 @@ const statusDiv = document.getElementById("status");
 const outputDiv = document.getElementById("output");
 let allPromptlets = []; // Store all promptlets here
 
+function combineStoredPromptlets(data) {
+  const storedDefaults = Array.isArray(data.defaultPromptlets) ? data.defaultPromptlets : null;
+  const storedCustoms = Array.isArray(data.customPromptlets) ? data.customPromptlets : null;
+
+  if (storedDefaults || storedCustoms) {
+    const defaults = (storedDefaults || []).map((p, index) => ({
+      ...p,
+      isDefault: true,
+      isActive: p.isActive !== false,
+      defaultIndex: p.defaultIndex ?? index
+    }));
+
+    const customs = (storedCustoms || []).map((p) => ({
+      ...p,
+      isDefault: false,
+      isActive: p.isActive !== false
+    }));
+
+    return [...defaults, ...customs];
+  }
+
+  return (data.promptlets || []).map((p, index) => ({
+    ...p,
+    isActive: p.isActive !== false,
+    defaultIndex: p.defaultIndex ?? index
+  }));
+}
+
 // -------------------------
 // Initialize - Check for pending promptlet data
 // -------------------------
@@ -52,8 +80,8 @@ async function checkForPendingPromptlet() {
 // -------------------------
 async function loadAndRenderChainMenu() {
   try {
-    const data = await chrome.storage.local.get({ promptlets: [] });
-    allPromptlets = data.promptlets || [];
+    const data = await chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] });
+    allPromptlets = combineStoredPromptlets(data);
     console.log(`Loaded ${allPromptlets.length} promptlets for chaining menu.`);
     // The menu is actually built/populated inside addCopyButton now, but we need
     // to ensure allPromptlets is ready before any output appears.

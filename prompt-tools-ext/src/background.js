@@ -21,7 +21,7 @@ let pendingPromptletData = null;
 let isRebuildingMenus = false;
 
 // ------------------------
-// Helper to apply default flag
+// Helpers for promptlet storage
 // ------------------------
 function getPromptletsWithDefaultsFlag() {
   return DEFAULT_PROMPTLETS.map((p, index) => ({
@@ -30,6 +30,52 @@ function getPromptletsWithDefaultsFlag() {
     isActive: true,   // Default promptlets start active
     defaultIndex: index // Stable index for ordering
   }));
+}
+
+function combineStoredPromptlets(data) {
+  const storedDefaults = Array.isArray(data.defaultPromptlets) ? data.defaultPromptlets : null;
+  const storedCustoms = Array.isArray(data.customPromptlets) ? data.customPromptlets : null;
+
+  if (storedDefaults || storedCustoms) {
+    const defaults = (storedDefaults || []).map((p, index) => ({
+      ...p,
+      isDefault: true,
+      isActive: p.isActive !== false,
+      defaultIndex: p.defaultIndex ?? index
+    }));
+
+    const customs = (storedCustoms || []).map((p) => ({
+      ...p,
+      isDefault: false,
+      isActive: p.isActive !== false
+    }));
+
+    return { allPromptlets: [...defaults, ...customs], defaults, customs };
+  }
+
+  const legacyPromptlets = data.promptlets || [];
+  const defaults = legacyPromptlets.filter(p => p.isDefault).map((p, index) => ({
+    ...p,
+    isDefault: true,
+    isActive: p.isActive !== false,
+    defaultIndex: p.defaultIndex ?? index
+  }));
+  const customs = legacyPromptlets.filter(p => !p.isDefault).map((p) => ({
+    ...p,
+    isDefault: false,
+    isActive: p.isActive !== false
+  }));
+
+  return { allPromptlets: [...defaults, ...customs], defaults, customs };
+}
+
+function savePromptletBuckets(defaults, customs, callback) {
+  const combined = [...defaults, ...customs];
+  chrome.storage.local.set({
+    defaultPromptlets: defaults,
+    customPromptlets: customs,
+    promptlets: combined
+  }, callback);
 }
 
 // -------------------------
@@ -83,19 +129,19 @@ chrome.action.onClicked.addListener(() => {
 // Ensure default promptlets exist on first install
 // -------------------------
 function initializeDefaults() {
-  chrome.storage.local.get({ promptlets: [], apiKey: "", hasInitialized: false }, (data) => {
+  chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [], apiKey: "", hasInitialized: false }, (data) => {
     // Only initialize if this is truly the first run
     if (!data.hasInitialized) {
       const initialPromptlets = getPromptletsWithDefaultsFlag();
-      chrome.storage.local.set({ 
-        promptlets: initialPromptlets,
-        hasInitialized: true 
-      }, () => {
-        console.log(`Initialized with ${initialPromptlets.length} default promptlets`);
-        buildContextMenus();
+      savePromptletBuckets(initialPromptlets, [], () => {
+        chrome.storage.local.set({ hasInitialized: true }, () => {
+          console.log(`Initialized with ${initialPromptlets.length} default promptlets`);
+          buildContextMenus();
+        });
       });
     } else {
-      console.log(`Using ${data.promptlets.length} stored promptlets`);
+      const { allPromptlets } = combineStoredPromptlets(data);
+      console.log(`Using ${allPromptlets.length} stored promptlets`);
     }
   });
 }
@@ -222,14 +268,15 @@ function buildContextMenus() {
       return;
     }
     
-    chrome.storage.local.get({ promptlets: [] }, (data) => {
-      // Fallback if empty
-      const allPromptlets = (data.promptlets && data.promptlets.length > 0)
-        ? data.promptlets
+    chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] }, (data) => {
+      const { allPromptlets } = combineStoredPromptlets(data);
+
+      const promptletsWithDefaults = allPromptlets.length > 0
+        ? allPromptlets
         : getPromptletsWithDefaultsFlag();
 
         // Composite Sort Logic
-        const sortedPromptlets = [...allPromptlets].sort((a, b) => {
+        const sortedPromptlets = [...promptletsWithDefaults].sort((a, b) => {
         // 1. Grouping: Defaults always come before Customs (Defaults = 0, Customs = 1)
         const aGroup = a.isDefault ? 0 : 1;
         const bGroup = b.isDefault ? 0 : 1;
@@ -248,7 +295,7 @@ function buildContextMenus() {
 
       // FILTER: Only show active promptlets in the right-click menu
       // Treats undefined as true (legacy support)
-      const activePromptlets = allPromptlets.filter(p => p.isActive !== false);
+      const activePromptlets = sortedPromptlets.filter(p => p.isActive !== false);
 
       // Create root menu
       chrome.contextMenus.create({
@@ -347,9 +394,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 // Helper: Handle execution when selecting text INSIDE the side panel
 // -------------------------
 function handleSidePanelSelection(promptletName, text) {
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
-    const allPromptlets = data.promptlets || getPromptletsWithDefaultsFlag();
-    const promptlet = allPromptlets.find(p => p.name === promptletName);
+  chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] }, (data) => {
+    const { allPromptlets } = combineStoredPromptlets(data);
+    const promptletsWithDefaults = allPromptlets.length > 0 ? allPromptlets : getPromptletsWithDefaultsFlag();
+    const promptlet = promptletsWithDefaults.find(p => p.name === promptletName);
     
     if (!promptlet) return;
     
@@ -381,10 +429,11 @@ function handleSidePanelSelection(promptletName, text) {
 // Run promptlet by Name (Robust lookup)
 // -------------------------
 function runPromptletByName(tabId, promptletName, selectionText) {
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
-    const allPromptlets = data.promptlets || getPromptletsWithDefaultsFlag();
+  chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] }, (data) => {
+    const { allPromptlets } = combineStoredPromptlets(data);
+    const promptletsWithDefaults = allPromptlets.length > 0 ? allPromptlets : getPromptletsWithDefaultsFlag();
 
-    const promptlet = allPromptlets.find(p => p.name === promptletName);
+    const promptlet = promptletsWithDefaults.find(p => p.name === promptletName);
     if (!promptlet) {
       console.error(`Promptlet "${promptletName}" not found`);
       return;
@@ -492,13 +541,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
     case "resetToDefaults":
       // Reset default promptlets while preserving any custom promptlets
-      chrome.storage.local.get({ promptlets: [] }, (data) => {
-        const customPromptlets = (data.promptlets || []).filter(p => !p.isDefault);
-        const resetPromptlets = [...getPromptletsWithDefaultsFlag(), ...customPromptlets];
+      chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] }, (data) => {
+        const { customs } = combineStoredPromptlets(data);
+        const resetDefaults = getPromptletsWithDefaultsFlag();
 
-        chrome.storage.local.set({ promptlets: resetPromptlets }, () => {
+        savePromptletBuckets(resetDefaults, customs, () => {
           buildContextMenus();
-          sendResponse({ success: true, count: resetPromptlets.length });
+          sendResponse({ success: true, count: resetDefaults.length + customs.length });
         });
       });
       return true;
