@@ -71,6 +71,8 @@ const FONT_OPTIONS = [
 const FONT_SIZES = [12, 14, 16, 18, 20, 22, 24, 26, 28];
 
 let currentThemeName = 'Dark';
+let currentFontFamily = PRESET_THEMES.Dark.font;
+let currentFontSize = PRESET_THEMES.Dark.size;
 
 function hasChromeStorage() {
   return typeof chrome !== 'undefined' && !!chrome.storage?.local;
@@ -541,6 +543,7 @@ function buildFontMenus() {
   fontTypeMenu.innerHTML = '';
   FONT_OPTIONS.forEach((font) => {
     const item = document.createElement('button');
+    item.dataset.fontType = font;
     item.textContent = font;
     item.style.fontFamily = font;
     item.addEventListener('click', () => applyFont(font));
@@ -550,10 +553,13 @@ function buildFontMenus() {
   fontSizeMenu.innerHTML = '';
   FONT_SIZES.forEach((size) => {
     const item = document.createElement('button');
+    item.dataset.fontSize = size;
     item.textContent = `${size}px`;
     item.addEventListener('click', () => applyFontSize(size));
     fontSizeMenu.appendChild(item);
   });
+
+  updateFontSelections();
 }
 
 function applyTheme(theme, themeName = 'custom') {
@@ -634,6 +640,8 @@ function applyFont(font) {
   outputArea.style.fontFamily = font;
   resizeInputToContent();
   resizeOutputToContent();
+  currentFontFamily = font;
+  updateFontSelections();
   saveToStorage(STORAGE_KEYS.fontFamily, font);
   closeAllMenus();
 }
@@ -644,6 +652,8 @@ function applyFontSize(size) {
   outputArea.style.fontSize = `${size}px`;
   resizeInputToContent();
   resizeOutputToContent();
+  currentFontSize = size;
+  updateFontSelections();
   saveToStorage(STORAGE_KEYS.fontSize, size);
   closeAllMenus();
 }
@@ -681,6 +691,23 @@ function collapseCustomTheme(toggleBtn = themeMenu.querySelector('.custom-theme-
 function formatThemeLabel(name, key = name) {
   const mark = key === currentThemeName ? '✓ ' : '';
   return `${mark}${name}`;
+}
+
+function formatFontLabel(label, isSelected) {
+  return `${isSelected ? '✓ ' : ''}${label}`;
+}
+
+function updateFontSelections() {
+  fontTypeMenu.querySelectorAll('button[data-font-type]').forEach((btn) => {
+    const font = btn.dataset.fontType;
+    btn.textContent = formatFontLabel(font, font === currentFontFamily);
+    btn.style.fontFamily = font;
+  });
+
+  fontSizeMenu.querySelectorAll('button[data-font-size]').forEach((btn) => {
+    const size = Number(btn.dataset.fontSize);
+    btn.textContent = formatFontLabel(`${size}px`, size === currentFontSize);
+  });
 }
 
 function updateThemeSelections() {
