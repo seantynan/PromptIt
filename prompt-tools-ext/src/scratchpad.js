@@ -226,7 +226,7 @@ function updateOverlays() {
 
 function setClearState() {
   if (inputArea.value.trim()) {
-    clearBtn.textContent = '🧹 Clear';
+    clearBtn.textContent = '🧹 Clear Input';
     clearBtn.setAttribute('aria-label', 'Clear Input');
   } else if (undoBuffer) {
     clearBtn.textContent = '↩️ Undo';
