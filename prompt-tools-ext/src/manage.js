@@ -7,6 +7,60 @@ let allPromptlets = [];
 let editingPromptletName = null; // Track which promptlet we're editing
 const model = "gpt-4o"; // New recommended default for speed and cost-efficiency
 
+function combineStoredPromptlets(data) {
+  const storedDefaults = Array.isArray(data.defaultPromptlets) ? data.defaultPromptlets : null;
+  const storedCustoms = Array.isArray(data.customPromptlets) ? data.customPromptlets : null;
+
+  if (storedDefaults || storedCustoms) {
+    const defaults = (storedDefaults || []).map((p, index) => ({
+      ...p,
+      isDefault: true,
+      isActive: p.isActive !== false,
+      defaultIndex: p.defaultIndex ?? index,
+      createdAt: p.createdAt || 0
+    }));
+
+    const customs = (storedCustoms || []).map((p) => ({
+      ...p,
+      isDefault: false,
+      isActive: p.isActive !== false,
+      createdAt: p.createdAt || Date.now()
+    }));
+
+    return { allPromptlets: [...defaults, ...customs], defaults, customs };
+  }
+
+  const legacyPromptlets = data.promptlets || [];
+  const defaults = legacyPromptlets.filter(p => p.isDefault).map((p, index) => ({
+    ...p,
+    isDefault: true,
+    isActive: p.isActive !== false,
+    defaultIndex: p.defaultIndex ?? index,
+    createdAt: p.createdAt || 0
+  }));
+  const customs = legacyPromptlets.filter(p => !p.isDefault).map((p) => ({
+    ...p,
+    isDefault: false,
+    isActive: p.isActive !== false,
+    createdAt: p.createdAt || Date.now()
+  }));
+
+  return { allPromptlets: [...defaults, ...customs], defaults, customs };
+}
+
+function savePromptletBuckets(defaults, customs, callback = null) {
+  const combined = [...defaults, ...customs];
+  chrome.storage.local.set({
+    defaultPromptlets: defaults,
+    customPromptlets: customs,
+    promptlets: combined
+  }, () => {
+    if (typeof callback === 'function') {
+      callback();
+    }
+  });
+}
+
 function formatModelLabel(promptlet) {
   const modelValue = promptlet.model || model;
   return modelValue ? modelValue.toUpperCase() : '';
@@ -52,16 +106,17 @@ function setupEventListeners() {
 // Load promptlets
 // -------------------------
 function loadPromptlets() {
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
-// Ensure every promptlet has necessary properties (defaulting to safe values)
-    allPromptlets = (data.promptlets || []).map(p => ({
+  chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] }, (data) => {
+    const { allPromptlets: combined, defaults, customs } = combineStoredPromptlets(data);
+
+    allPromptlets = combined.map(p => ({
       ...p,
-      // Default to true if the property is missing
       isActive: p.isActive === undefined ? true : p.isActive,
-      // Default createdAt to 0 for old/defaults so they appear first if custom sort fails
-      createdAt: p.createdAt || 0 
+      createdAt: p.createdAt || 0
     }));
-    renderPromptlets();
+
+    // Persist separated buckets so reset operations cannot drop customs
+    savePromptletBuckets(defaults, customs, renderPromptlets);
   });
 }
 
@@ -244,7 +299,18 @@ function savePromptlet() {
 // Save All to Storage
 // -------------------------
 function saveAllPromptlets(callback = null) {
-  chrome.storage.local.set({ promptlets: allPromptlets }, () => {
+  const defaults = allPromptlets.filter(p => p.isDefault).map((p, index) => ({
+    ...p,
+    isDefault: true,
+    defaultIndex: p.defaultIndex ?? index
+  }));
+
+  const customs = allPromptlets.filter(p => !p.isDefault).map((p) => ({
+    ...p,
+    isDefault: false
+  }));
+
+  savePromptletBuckets(defaults, customs, () => {
     // Re-render UI to reflect changes (e.g. toggle switch state / ordering)
     renderPromptlets();
     if (typeof callback === 'function') {
