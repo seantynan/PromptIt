@@ -122,6 +122,7 @@ let undoBuffer = '';
 let availablePromptlets = [];
 let copyTimeout = null;
 let saveTimeout = null;
+let isRunningPromptlet = false;
 
 init();
 
@@ -371,8 +372,11 @@ async function runPromptletOnOutput(promptlet) {
 }
 
 async function executePromptlet(text, promptlet) {
+  if (isRunningPromptlet) return;
+
   if (!text || !text.trim()) return;
 
+  isRunningPromptlet = true;
   outputArea.textContent = '';
   outputOverlay.style.display = 'none';
   outputArea.classList.remove('markdown');
@@ -414,6 +418,7 @@ async function executePromptlet(text, promptlet) {
     resizeOutputToContent();
     saveOutput(outputArea.textContent);
   } finally {
+    isRunningPromptlet = false;
     updateOverlays();
   }
 }
