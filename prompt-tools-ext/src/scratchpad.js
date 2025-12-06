@@ -561,8 +561,12 @@ function applyTheme(theme, themeName = 'custom') {
   themeTarget.style.setProperty('--panel-bg', theme.bg);
   themeTarget.style.setProperty('--bg', theme.bg);
   themeTarget.style.setProperty('--text', theme.fg);
-  applyFont(theme.font);
-  applyFontSize(theme.size);
+  if (theme.font) {
+    applyFont(theme.font);
+  }
+  if (theme.size) {
+    applyFontSize(theme.size);
+  }
   currentThemeName = themeName;
   updateThemeSelections();
   persistTheme({ themeName, ...theme });
@@ -653,12 +657,19 @@ function getStoredTheme() {
 }
 
 async function applyStoredAppearance() {
-  const storedTheme = await getStoredTheme();
-  applyTheme(storedTheme, storedTheme.themeName || 'Dark');
-  const storedFont = await getFromStorage(STORAGE_KEYS.fontFamily, '');
-  if (storedFont) applyFont(storedFont);
-  const storedSize = await getFromStorage(STORAGE_KEYS.fontSize, 0);
-  if (storedSize) applyFontSize(Number(storedSize));
+  const [storedTheme, storedFont, storedSize] = await Promise.all([
+    getStoredTheme(),
+    getFromStorage(STORAGE_KEYS.fontFamily, ''),
+    getFromStorage(STORAGE_KEYS.fontSize, 0)
+  ]);
+
+  const resolvedTheme = {
+    ...storedTheme,
+    font: storedFont || storedTheme.font,
+    size: storedSize || storedTheme.size
+  };
+
+  applyTheme(resolvedTheme, storedTheme.themeName || 'Dark');
 }
 
 function collapseCustomTheme(toggleBtn = themeMenu.querySelector('.custom-theme-toggle')) {
