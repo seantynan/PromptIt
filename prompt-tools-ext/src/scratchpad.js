@@ -8,6 +8,8 @@ const chainBtn = document.getElementById('chainBtn');
 const chainMenu = document.getElementById('chainMenu');
 const layoutBtn = document.getElementById('layoutBtn');
 const workspace = document.getElementById('workspace');
+const panels = document.getElementById('panels');
+const panelResizer = document.getElementById('panelResizer');
 const promptletList = document.getElementById('promptletList');
 const themeBtn = document.getElementById('themeBtn');
 const themeMenu = document.getElementById('themeMenu');
@@ -29,6 +31,8 @@ const STORAGE_KEYS = {
   input: 'scratchpad-input',
   output: 'scratchpad-output',
   layout: 'scratchpad-layout',
+  verticalSplit: 'scratchpad-vertical-split',
+  horizontalSplit: 'scratchpad-horizontal-split',
   theme: 'scratchpad-theme',
   fontFamily: 'scratchpad-font-family',
   fontSize: 'scratchpad-font-size'
@@ -122,15 +126,20 @@ let undoBuffer = '';
 let availablePromptlets = [];
 let copyTimeout = null;
 let saveTimeout = null;
+let verticalSplit = 0.5;
+let horizontalSplit = 0.5;
+let isResizing = false;
+let activePointerId = null;
 
 init();
 
 async function init() {
   await restoreInput();
   await restoreOutput();
-  buildLayoutFromStorage();
+  await buildLayoutFromStorage();
   attachInputHandlers();
   attachButtons();
+  attachResizer();
   buildPromptletSidebar();
   buildChainMenu();
   buildThemeMenu();
@@ -157,6 +166,12 @@ function attachButtons() {
   fontTypeBtn.addEventListener('click', () => toggleMenu(fontTypeMenu, fontTypeBtn));
   fontSizeBtn.addEventListener('click', () => toggleMenu(fontSizeMenu, fontSizeBtn));
   document.addEventListener('click', (e) => handleDocumentClick(e));
+}
+
+function attachResizer() {
+  panelResizer.addEventListener('pointerdown', startResize);
+  window.addEventListener('pointermove', handleResize);
+  window.addEventListener('pointerup', stopResize);
 }
 
 function handleDocumentClick(event) {
@@ -446,20 +461,82 @@ function basicMarkdown(text) {
   return `<p>${safe}</p>`;
 }
 
-function toggleLayout() {
-  const isVertical = workspace.classList.contains('vertical');
-  workspace.classList.toggle('vertical', !isVertical);
-  workspace.classList.toggle('horizontal', isVertical);
-    layoutBtn.textContent = isVertical ? '↔️' : '↕️';
-  localStorage.setItem(STORAGE_KEYS.layout, isVertical ? 'horizontal' : 'vertical');
+function clampSplit(value) {
+  return Math.min(0.8, Math.max(0.2, value));
 }
 
-function buildLayoutFromStorage() {
+function applyLayoutSizes() {
+  const isVertical = workspace.classList.contains('vertical');
+  const orientation = isVertical ? 'vertical' : 'horizontal';
+  const ratio = isVertical ? clampSplit(verticalSplit) : clampSplit(horizontalSplit);
+  const primary = `${(ratio * 100).toFixed(2)}%`;
+  const secondary = `${((1 - ratio) * 100).toFixed(2)}%`;
+
+  workspace.style.setProperty('--input-width', isVertical ? primary : '1fr');
+  workspace.style.setProperty('--output-width', isVertical ? secondary : '1fr');
+  workspace.style.setProperty('--input-height', isVertical ? '1fr' : primary);
+  workspace.style.setProperty('--output-height', isVertical ? '1fr' : secondary);
+  panelResizer.setAttribute('aria-orientation', orientation);
+}
+
+function toggleLayout() {
+  const wasVertical = workspace.classList.contains('vertical');
+  const nextVertical = !wasVertical;
+  workspace.classList.toggle('vertical', nextVertical);
+  workspace.classList.toggle('horizontal', !nextVertical);
+  layoutBtn.textContent = nextVertical ? '↔️' : '↕️';
+  localStorage.setItem(STORAGE_KEYS.layout, nextVertical ? 'vertical' : 'horizontal');
+  applyLayoutSizes();
+}
+
+async function buildLayoutFromStorage() {
   const stored = localStorage.getItem(STORAGE_KEYS.layout) || 'horizontal';
+  verticalSplit = await getFromStorage(STORAGE_KEYS.verticalSplit, 0.5);
+  horizontalSplit = await getFromStorage(STORAGE_KEYS.horizontalSplit, 0.5);
   const isVertical = stored === 'vertical';
   workspace.classList.toggle('vertical', isVertical);
   workspace.classList.toggle('horizontal', !isVertical);
-    layoutBtn.textContent = isVertical ? '↔️' : '↕️';
+  layoutBtn.textContent = isVertical ? '↔️' : '↕️';
+  applyLayoutSizes();
+}
+
+function startResize(event) {
+  isResizing = true;
+  activePointerId = event.pointerId;
+  panelResizer.setPointerCapture(activePointerId);
+  event.preventDefault();
+}
+
+function stopResize() {
+  if (!isResizing) return;
+
+  if (activePointerId !== null && panelResizer.hasPointerCapture(activePointerId)) {
+    panelResizer.releasePointerCapture(activePointerId);
+  }
+
+  isResizing = false;
+  activePointerId = null;
+}
+
+function handleResize(event) {
+  if (!isResizing) return;
+
+  const rect = panels.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  if (workspace.classList.contains('vertical')) {
+    const offsetX = event.clientX - rect.left;
+    const ratio = clampSplit(offsetX / rect.width);
+    verticalSplit = ratio;
+    applyLayoutSizes();
+    saveToStorage(STORAGE_KEYS.verticalSplit, ratio);
+  } else {
+    const offsetY = event.clientY - rect.top;
+    const ratio = clampSplit(offsetY / rect.height);
+    horizontalSplit = ratio;
+    applyLayoutSizes();
+    saveToStorage(STORAGE_KEYS.horizontalSplit, ratio);
+  }
 }
 
 function buildThemeMenu() {

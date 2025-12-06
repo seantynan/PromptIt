@@ -26,6 +26,10 @@
   --ui-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   --ui-font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   --ui-font-size: 15px;
+  --input-width: 1fr;
+  --output-width: 1fr;
+  --input-height: 1fr;
+  --output-height: 1fr;
 }
 
 @media (prefers-color-scheme: light) {
@@ -162,8 +166,9 @@ body {
 
 .panels {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  grid-template-columns: var(--input-width) 10px var(--output-width);
+  grid-template-rows: 1fr;
+  gap: 12px;
   padding: 16px;
   height: 100%;
   min-height: 0;
@@ -172,15 +177,20 @@ body {
 }
 
 .workspace.vertical .panels {
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: var(--input-width) 10px var(--output-width);
+  grid-template-rows: 1fr;
 }
 
-.workspace.vertical .output-panel {
-  border-top: 1px solid var(--panel-border);
+.workspace.horizontal .panels {
+  grid-template-columns: 1fr;
+  grid-template-rows: var(--input-height) 10px var(--output-height);
 }
 
 .workspace.horizontal .output-panel {
+  border-top: 1px solid var(--panel-border);
+}
+
+.workspace.vertical .output-panel {
   border-left: 1px solid var(--panel-border);
 }
 
@@ -212,6 +222,32 @@ body {
   border-radius: 0 0 12px 12px;
   background: var(--panel-bg);
   overflow: visible;
+}
+
+.panel-resizer {
+  background: var(--panel-border);
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.panel-resizer:hover,
+.panel-resizer:focus-visible {
+  background: var(--accent);
+  outline: none;
+}
+
+.workspace.vertical .panel-resizer {
+  cursor: col-resize;
+  width: 10px;
+  height: 100%;
+  justify-self: stretch;
+}
+
+.workspace.horizontal .panel-resizer {
+  cursor: row-resize;
+  height: 10px;
+  width: 100%;
+  align-self: stretch;
 }
 
 textarea#inputArea {
@@ -279,13 +315,14 @@ textarea#inputArea {
   gap: 8px;
   flex: 1;
   overflow-y: auto;
+  align-items: center;
 }
 
 .promptlet-btn {
   background: var(--ui-btn-bg);
   border: 1px solid var(--ui-border);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   color: var(--ui-text);
   cursor: pointer;
   text-align: left;
@@ -293,6 +330,8 @@ textarea#inputArea {
   align-items: center;
   gap: 10px;
   transition: background 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
+  width: 100%;
+  max-width: 240px;
 }
 
 .promptlet-btn:hover {
