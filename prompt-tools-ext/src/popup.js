@@ -17,8 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (scratchpadBtn) {
         scratchpadBtn.addEventListener('click', () => {
             const scratchpadUrl = chrome.runtime.getURL('src/scratchpad.html');
-            chrome.tabs.create({ url: scratchpadUrl });
-            window.close();
+            chrome.tabs.query({ url: scratchpadUrl }, (tabs) => {
+                if (tabs && tabs.length > 0) {
+                    const [scratchpadTab] = tabs;
+                    chrome.tabs.update(scratchpadTab.id, { active: true });
+                    chrome.windows.update(scratchpadTab.windowId, { focused: true });
+                } else {
+                    chrome.tabs.create({ url: scratchpadUrl });
+                }
+                window.close();
+            });
         });
     }
 
