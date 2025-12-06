@@ -158,7 +158,7 @@ body {
 
 .workspace {
   display: grid;
-  grid-template-columns: 1fr 240px;
+  grid-template-columns: 1fr auto;
   height: calc(100vh - 64px);
   background: var(--bg);
   color: var(--text);
@@ -273,9 +273,11 @@ textarea#inputArea {
 }
 
 .sidebar {
-  width: 240px;
+  width: fit-content;
+  min-width: 200px;
+  max-width: 220px;
   border-left: 1px solid var(--ui-border);
-  padding: 16px;
+  padding: 14px 12px;
   background: var(--ui-bg);
   display: flex;
   flex-direction: column;
@@ -305,8 +307,9 @@ textarea#inputArea {
   text-align: left;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
+  max-width: 200px;
   align-self: center;
   transition: background 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
 }
@@ -422,7 +425,7 @@ textarea#inputArea {
 
 @media (max-width: 1200px) {
   .workspace {
-    grid-template-columns: 1fr 250px;
+    grid-template-columns: 1fr 220px;
   }
 }
 
