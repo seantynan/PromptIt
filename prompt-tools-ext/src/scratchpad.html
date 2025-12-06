@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio - PromptIt</title>
+  <link rel="stylesheet" href="style/scratchpad.css">
+</head>
+<body>
+  <header class="top-bar">
+    <div class="top-title" aria-label="Prompt It Scratchpad heading">
+      <span class="logo" aria-hidden="true" title="Prompt It! - AI in your right-click">PI</span>
+      <span class="title-text">Studio</span>
+    </div>
+    <div class="top-controls" role="toolbar" aria-label="Scratchpad actions">
+      <div class="button-group" aria-label="Primary actions">
+        <button id="clearBtn" class="btn" aria-label="Clear Input">🧹 Clear Input</button>
+      </div>
+      <div class="button-group" aria-label="Copy and chain actions">
+        <button id="copyBtn" class="btn" aria-label="Copy Output" disabled>📋 Copy Output</button>
+        <div class="dropdown">
+          <button id="chainBtn" class="btn" aria-haspopup="true" aria-expanded="false">🔗 Chain ▼</button>
+          <div id="chainMenu" class="dropdown-menu" role="menu" aria-label="Chain promptlets"></div>
+        </div>
+      </div>
+      <div class="button-group" aria-label="Formatting actions">
+        <div class="dropdown">
+          <button id="themeBtn" class="btn" aria-haspopup="true" aria-expanded="false">🎨 Theme</button>
+          <div id="themeMenu" class="dropdown-menu" role="menu" aria-label="Theme presets"></div>
+        </div>
+        <div class="dropdown">
+          <button id="fontTypeBtn" class="btn" aria-haspopup="true" aria-expanded="false">🔤 Font Type</button>
+          <div id="fontTypeMenu" class="dropdown-menu" role="menu" aria-label="Font choices"></div>
+        </div>
+        <div class="dropdown">
+          <button id="fontSizeBtn" class="btn" aria-haspopup="true" aria-expanded="false">🔎 Font Size</button>
+          <div id="fontSizeMenu" class="dropdown-menu" role="menu" aria-label="Font sizes"></div>
+        </div>
+      </div>
+      <div class="button-group" aria-label="Layout actions">
+          <button id="layoutBtn" class="btn icon-btn" aria-label="Switch Layout" title="Toggle layout">↔️</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="workspace horizontal" id="workspace">
+    <section class="panels" id="panels">
+      <div class="panel input-panel">
+        <div class="panel-header">Input</div>
+        <div class="panel-body">
+          <textarea id="inputArea" aria-label="Scratchpad input" placeholder="" spellcheck="true"></textarea>
+          <div id="inputOverlay" class="overlay" aria-hidden="true">✏️ Enter text here...</div>
+        </div>
+      </div>
+      <div class="panel output-panel">
+        <div class="panel-header">Output</div>
+        <div class="panel-body">
+          <div id="outputArea" class="output-content" aria-label="Scratchpad output" tabindex="0"></div>
+          <div id="outputOverlay" class="overlay" aria-hidden="true">✨ Output goes here...</div>
+        </div>
+      </div>
+    </section>
+    <aside class="sidebar" aria-label="Promptlets">
+      <div id="promptletList" class="promptlet-list"></div>
+    </aside>
+  </main>
+
+  <template id="customThemeTemplate">
+    <div class="custom-theme">
+      <div class="custom-row">
+        <label for="customFontSelect">Font</label>
+        <select id="customFontSelect"></select>
+      </div>
+      <div class="custom-row">
+        <label for="customFontSize">Font Size</label>
+        <input id="customFontSize" type="range" min="12" max="28" step="1">
+        <span id="customFontSizeValue" class="value">16px</span>
+      </div>
+      <div class="custom-row">
+        <label for="customBg">Background</label>
+        <input id="customBg" type="color" value="#1e1e1e">
+      </div>
+      <div class="custom-row">
+        <label for="customFg">Foreground</label>
+        <input id="customFg" type="color" value="#e5e5e5">
+      </div>
+      <div class="custom-actions">
+        <button class="btn" id="applyCustomTheme">Apply</button>
+        <button class="btn btn-secondary" id="resetCustomTheme">Reset</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="defaultPromptlets.js"></script>
+  <script src="scratchpad.js"></script>
+</body>
+</html>

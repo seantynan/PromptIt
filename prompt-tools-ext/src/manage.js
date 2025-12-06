@@ -7,6 +7,11 @@ let allPromptlets = [];
 let editingPromptletName = null; // Track which promptlet we're editing
 const model = "gpt-4o"; // New recommended default for speed and cost-efficiency
 
+function formatModelLabel(promptlet) {
+  const modelValue = promptlet.model || model;
+  return modelValue ? modelValue.toUpperCase() : '';
+}
+
 // -------------------------
 // Initialize
 // -------------------------
@@ -111,6 +116,8 @@ function createPromptletElement(promptlet) {
     // 1. Determine active state (default to true if undefined)
     const isActive = promptlet.isActive !== false;
 
+    const modelLabel = formatModelLabel(promptlet);
+
     // 2. Apply 'disabled' class only if inactive
     item.className = `promptlet-card ${!isActive ? 'disabled' : ''}`;
 
@@ -128,18 +135,19 @@ function createPromptletElement(promptlet) {
         <span class="toggle-slider"></span>
       </label>
 
-      <span class="promptlet-emoji">${promptlet.emoji || '📝'}</span>
-      <span class="promptlet-name">${promptlet.name}</span>
-      
-      <div class="promptlet-actions">
-        ${promptlet.isDefault
-            ? '<span style="font-size:11px; color:#888; margin-right:5px;">LOCKED</span>'
-            : `<button class="btn btn-small btn-secondary edit-btn">Edit</button>
-             <button class="btn btn-small btn-danger delete-btn">Delete</button>`
-        }
-        <button class="btn btn-small btn-secondary clone-btn">Clone</button>
+        <span class="promptlet-emoji">${promptlet.emoji || '📝'}</span>
+        <span class="promptlet-name">${promptlet.name}</span>
+
+        <div class="promptlet-actions">
+          ${modelLabel ? `<span class="promptlet-badge">${modelLabel}</span>` : ''}
+          ${promptlet.isDefault
+              ? '<span class="promptlet-badge">LOCKED</span>'
+              : `<button class="btn btn-small btn-secondary edit-btn">Edit</button>
+               <button class="btn btn-small btn-danger delete-btn">Delete</button>`
+          }
+          <button class="btn btn-small btn-secondary clone-btn">Clone</button>
+        </div>
       </div>
-    </div>
     
     ${promptlet.isDefault
             ? ''

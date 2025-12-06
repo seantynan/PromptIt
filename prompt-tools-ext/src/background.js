@@ -123,14 +123,14 @@ async function callOpenAI(
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            model,
-            system: systemPrompt,
-            input: prompt,
-            temperature,
-            max_output_tokens: maxTokens,
+            model: model,
+            input: [
+                ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
+                { role: "user", content: prompt }
+            ],
+            temperature: temperature,
             top_p: topP,
-            frequency_penalty: frequencyPenalty,
-            presence_penalty: presencePenalty
+            max_output_tokens: maxTokens
         })
     });
 
@@ -144,8 +144,63 @@ async function callOpenAI(
 
     const data = await response.json();
 
-    // Responses API returns unified text output here:
-    return data.output_text?.trim() ?? "";
+    console.log("[RAW RESPONSE DATA]", JSON.stringify(data, null, 2));
+
+    //console.log("[API RESPONSE DATA EXTRACTED]", extractOutput(data));
+
+    // Extract output safely
+    return extractOutput(data);
+}
+
+function extractOutput(data) {
+    // 1. Simple case
+    if (data.output_text && data.output_text.trim()) {
+        return data.output_text.trim();
+    }
+
+    let text = "";
+
+    // 2. Structured output
+    if (Array.isArray(data.output)) {
+
+        for (const block of data.output) {
+
+            // REASONING BLOCKS (GPT-5-mini etc)
+            if (block.type === "reasoning" && block.summary) {
+                // Optional: include reasoning text if present
+                continue; // usually empty and not useful
+            }
+
+            // MESSAGE BLOCKS (REAL OUTPUT HERE)
+            if (block.type === "message" && Array.isArray(block.content)) {
+                for (const item of block.content) {
+
+                    // output_text wrapper (avoid double-appending when text also exists)
+                    if (item.type === "output_text" && item.text) {
+                        text += item.text;
+                        continue;
+                    }
+
+                    // Standard helper text
+                    if (item.text) {
+                        text += item.text;
+                    }
+
+                    // token-based chunks
+                    if (item.token?.text) {
+                        text += item.token.text;
+                    }
+
+                    // reasoning traces
+                    if (item.reasoning?.text) {
+                        text += item.reasoning.text;
+                    }
+                }
+            }
+        }
+    }
+
+    return text.trim();
 }
 
 // -------------------------
@@ -156,29 +211,6 @@ function buildContextMenus() {
     console.log("Menu rebuild already in progress, skipping...");
     return;
   }
-
-  // ... (Code to clear old menus)
-
-  chrome.storage.local.get({ promptlets: [] }, (data) => {
-    const promptlets = data.promptlets || [];
-
-    promptlets.forEach((promptlet) => {
-      // Check the logic here. Does it only use fields that existed before?
-      // For example, if it's using a `for...in` loop, you might need checks:
-
-      if (promptlet.name) { // Ensures it's a valid promptlet object
-          // Create the context menu item here.
-          // Your context menu logic should not rely on maxTokens, 
-          // but if it uses object iteration, ensure it's safe.
-          
-          chrome.contextMenus.create({
-              id: promptlet.name, // Use the promptlet name
-              title: `${promptlet.emoji} ${promptlet.name}`, // Use emoji and name
-              // ... and so on
-          });
-      }
-    });
-  });
   
   isRebuildingMenus = true;
   console.log("Building context menus...");
