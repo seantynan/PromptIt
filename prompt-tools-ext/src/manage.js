@@ -141,10 +141,10 @@ function createPromptletElement(promptlet) {
         <div class="promptlet-actions">
           ${modelLabel ? `<span class="promptlet-badge">${modelLabel}</span>` : ''}
           ${promptlet.isDefault
-              ? '<span class="promptlet-badge">LOCKED</span>'
-              : `<button class="btn btn-small btn-secondary edit-btn">Edit</button>
-               <button class="btn btn-small btn-danger delete-btn">Delete</button>`
+              ? '<span class="promptlet-badge">DEFAULT</span>'
+              : `<button class="btn btn-small btn-secondary edit-btn">Edit</button>`
           }
+          <button class="btn btn-small btn-danger delete-btn">Delete</button>
           <button class="btn btn-small btn-secondary clone-btn">Clone</button>
         </div>
       </div>
@@ -169,10 +169,14 @@ function createPromptletElement(promptlet) {
         clonePromptlet(promptlet);
     });
 
-    // 3. Edit/Delete (Only for custom)
+    // 3. Edit/Delete
     if (!promptlet.isDefault) {
         item.querySelector('.edit-btn').addEventListener('click', () => editPromptlet(promptlet));
-        item.querySelector('.delete-btn').addEventListener('click', () => deletePromptlet(promptlet.name));
+    }
+
+    const deleteButton = item.querySelector('.delete-btn');
+    if (deleteButton) {
+        deleteButton.addEventListener('click', () => deletePromptlet(promptlet));
     }
 
     return item;
@@ -239,10 +243,13 @@ function savePromptlet() {
 // -------------------------
 // Save All to Storage
 // -------------------------
-function saveAllPromptlets() {
+function saveAllPromptlets(callback = null) {
   chrome.storage.local.set({ promptlets: allPromptlets }, () => {
     // Re-render UI to reflect changes (e.g. toggle switch state / ordering)
     renderPromptlets();
+    if (typeof callback === 'function') {
+      callback();
+    }
   });
 }
 
@@ -271,17 +278,27 @@ function editPromptlet(promptlet) {
 // -------------------------
 // Delete
 // -------------------------
-function deletePromptlet(name) {
-  if (!confirm(`Delete "${name}"?`)) return;
-  allPromptlets = allPromptlets.filter(p => p.name !== name);
-  saveAllPromptlets();
+function deletePromptlet(promptlet) {
+  const warningMessage = promptlet.isDefault
+    ? `⚠️ "${promptlet.name}" is a default promptlet. Deleting it will remove it from your defaults. Continue?`
+    : `Delete "${promptlet.name}"?`;
+
+  if (!confirm(warningMessage)) return;
+
+  allPromptlets = allPromptlets.filter(p => p.name !== promptlet.name);
+  saveAllPromptlets(() => {
+    // Ensure the latest data is reflected after deleting defaults
+    if (promptlet.isDefault) {
+      loadPromptlets();
+    }
+  });
 }
 
 // -------------------------
 // Reset Defaults
 // -------------------------
 function handleResetDefaults() {
-  if (!confirm("Are you sure you want to reset? Custom promptlets will be deleted.")) {
+  if (!confirm("Reload default promptlets? Your custom promptlets will be kept.")) {
     return;
   }
   chrome.runtime.sendMessage({ action: 'resetToDefaults' }, (response) => {

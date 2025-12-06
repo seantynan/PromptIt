@@ -491,11 +491,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       break;
 
     case "resetToDefaults":
-      // Reset to default promptlets (Uses helper to ensure flags)
-      const resetPromptlets = getPromptletsWithDefaultsFlag();
-      chrome.storage.local.set({ promptlets: resetPromptlets }, () => {
-        buildContextMenus();
-        sendResponse({ success: true, count: resetPromptlets.length });
+      // Reset default promptlets while preserving any custom promptlets
+      chrome.storage.local.get({ promptlets: [] }, (data) => {
+        const customPromptlets = (data.promptlets || []).filter(p => !p.isDefault);
+        const resetPromptlets = [...getPromptletsWithDefaultsFlag(), ...customPromptlets];
+
+        chrome.storage.local.set({ promptlets: resetPromptlets }, () => {
+          buildContextMenus();
+          sendResponse({ success: true, count: resetPromptlets.length });
+        });
       });
       return true;
 
