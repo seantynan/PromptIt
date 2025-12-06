@@ -267,12 +267,14 @@ function addCopyButton(text) {
   const copyBtn = document.createElement("button");
   copyBtn.id = "copyBtn";
   copyBtn.textContent = "📋 Copy Output";
-  
+
   copyBtn.addEventListener("click", () => {
     navigator.clipboard.writeText(text).then(() => {
       copyBtn.textContent = "✓ Copied!";
+      copyBtn.classList.add("copied");
       setTimeout(() => {
         copyBtn.textContent = "📋 Copy Output";
+        copyBtn.classList.remove("copied");
       }, 2000);
     });
   });

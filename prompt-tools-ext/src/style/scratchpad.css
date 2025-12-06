@@ -129,6 +129,10 @@ body {
   gap: 6px;
 }
 
+.btn.copied {
+  justify-content: center;
+}
+
 .btn:hover:not(:disabled) {
   background: var(--ui-btn-hover);
   transform: translateY(-1px);
