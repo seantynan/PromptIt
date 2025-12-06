@@ -414,9 +414,9 @@ async function runPromptletOnInput(promptlet) {
 }
 
 async function runPromptletOnOutput(promptlet) {
+  closeAllMenus();
   const text = getOutputSelectionOrAll();
   await executePromptlet(text, promptlet);
-  closeAllMenus();
 }
 
 async function executePromptlet(text, promptlet) {
