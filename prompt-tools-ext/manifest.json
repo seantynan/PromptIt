@@ -3,7 +3,7 @@
   "name": "Prompt It!",
   "version": "1.0",
   "description": "Run custom AI promptlets on selected text.",
-  "permissions": ["contextMenus", "sidePanel", "storage", "activeTab", "scripting"],
+  "permissions": ["contextMenus", "sidePanel", "storage", "activeTab", "scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_title": "Prompt It! - AI in your right-click",
