@@ -18,13 +18,11 @@ const fontSizeMenu = document.getElementById('fontSizeMenu');
 const customThemeContainer = document.createElement('div');
 
 function resizeInputToContent() {
-  inputArea.style.height = 'auto';
-  inputArea.style.height = `${inputArea.scrollHeight}px`;
+  inputArea.style.height = '100%';
 }
 
 function resizeOutputToContent() {
-  outputArea.style.height = 'auto';
-  outputArea.style.height = `${outputArea.scrollHeight || outputArea.clientHeight}px`;
+  outputArea.style.height = '100%';
 }
 
 const STORAGE_KEYS = {
