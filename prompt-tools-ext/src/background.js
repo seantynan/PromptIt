@@ -175,13 +175,14 @@ function extractOutput(data) {
             if (block.type === "message" && Array.isArray(block.content)) {
                 for (const item of block.content) {
 
-                    // Standard helper text
-                    if (item.text) {
+                    // output_text wrapper (avoid double-appending when text also exists)
+                    if (item.type === "output_text" && item.text) {
                         text += item.text;
+                        continue;
                     }
 
-                    // output_text wrapper
-                    if (item.type === "output_text" && item.text) {
+                    // Standard helper text
+                    if (item.text) {
                         text += item.text;
                     }
 
