@@ -301,7 +301,7 @@ function handleCopy() {
 
   navigator.clipboard.writeText(textToCopy).then(() => {
     clearTimeout(copyTimeout);
-    copyBtn.textContent = 'Copied!';
+    copyBtn.textContent = '✓ Copied!';
     copyBtn.classList.add('copied');
     copyTimeout = setTimeout(() => {
       copyBtn.textContent = copyBtnDefaultLabel;
