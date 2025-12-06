@@ -16,6 +16,9 @@ const fontTypeMenu = document.getElementById('fontTypeMenu');
 const fontSizeBtn = document.getElementById('fontSizeBtn');
 const fontSizeMenu = document.getElementById('fontSizeMenu');
 const customThemeContainer = document.createElement('div');
+const copyBtnDefaultLabel = copyBtn.textContent;
+const copyBtnMinWidth = copyBtn.offsetWidth;
+copyBtn.style.minWidth = `${copyBtnMinWidth}px`;
 
 function resizeInputToContent() {
   inputArea.style.height = '100%';
@@ -291,13 +294,15 @@ function handleClear() {
 
 function handleCopy() {
   if (!outputArea.textContent.trim()) return;
-  navigator.clipboard.writeText(outputArea.textContent).then(() => {
-    const feedback = document.createElement('span');
-    feedback.className = 'copy-feedback';
-    feedback.textContent = 'Copied!';
-    copyBtn.after(feedback);
+  const selectedText = getSelectedOutputText();
+  const textToCopy = selectedText.trim() ? selectedText : outputArea.textContent;
+
+  navigator.clipboard.writeText(textToCopy).then(() => {
     clearTimeout(copyTimeout);
-    copyTimeout = setTimeout(() => feedback.remove(), 2000);
+    copyBtn.textContent = 'Copied!';
+    copyTimeout = setTimeout(() => {
+      copyBtn.textContent = copyBtnDefaultLabel;
+    }, 2000);
   });
 }
 
@@ -384,8 +389,19 @@ function getInputSelectionOrAll() {
 }
 
 function getOutputSelectionOrAll() {
-  const selection = window.getSelection().toString();
+  const selection = getSelectedOutputText();
   return selection.trim() ? selection : outputArea.textContent;
+}
+
+function getSelectedOutputText() {
+  const selection = window.getSelection();
+  if (!selection || !selection.rangeCount) return '';
+
+  const range = selection.getRangeAt(0);
+  const anchorNode = range.commonAncestorContainer;
+  if (!outputArea.contains(anchorNode)) return '';
+
+  return selection.toString();
 }
 
 async function runPromptletOnInput(promptlet) {
