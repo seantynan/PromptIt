@@ -118,11 +118,12 @@ function getFromStorage(key, defaultValue) {
   });
 }
 
-let undoBuffer = '';
+let undoBuffer = null;
 let availablePromptlets = [];
 let copyTimeout = null;
 let saveTimeout = null;
 let isRunningPromptlet = false;
+let lastOutputValue = '';
 
 init();
 
@@ -188,8 +189,10 @@ async function restoreOutput() {
   if (saved) {
     renderOutput(saved);
   } else {
+    lastOutputValue = '';
     updateOverlays();
   }
+  setClearState();
 }
 
 function saveOutput(content) {
@@ -225,10 +228,14 @@ function updateOverlays() {
   copyBtn.disabled = !outputArea.textContent.trim();
 }
 
+function hasScratchpadContent() {
+  return inputArea.value.trim() || outputArea.textContent.trim();
+}
+
 function setClearState() {
-  if (inputArea.value.trim()) {
-    clearBtn.textContent = '🧹 Clear Input';
-    clearBtn.setAttribute('aria-label', 'Clear Input');
+  if (hasScratchpadContent()) {
+    clearBtn.textContent = '🧹 Clear';
+    clearBtn.setAttribute('aria-label', 'Clear Input and Output');
   } else if (undoBuffer) {
     clearBtn.textContent = '↩️ Undo';
     clearBtn.setAttribute('aria-label', 'Undo clear');
@@ -239,25 +246,46 @@ function setClearState() {
 }
 
 function handleClear() {
-  const hasInput = !!inputArea.value.trim();
-  if (hasInput) {
-    undoBuffer = inputArea.value;
+  const hasContent = !!hasScratchpadContent();
+  if (hasContent) {
+    undoBuffer = {
+      input: inputArea.value,
+      output: lastOutputValue || outputArea.textContent
+    };
+
     inputArea.value = '';
+    outputArea.textContent = '';
+    outputArea.classList.remove('markdown');
+    lastOutputValue = '';
     saveInput();
+    saveOutput('');
     setClearState();
     resizeInputToContent();
+    resizeOutputToContent();
     updateOverlays();
     return;
   }
 
-  if (!hasInput && undoBuffer) {
-    inputArea.value = undoBuffer;
-    undoBuffer = '';
+  if (!hasContent && undoBuffer) {
+    inputArea.value = undoBuffer.input || '';
     saveInput();
+
+    const outputToRestore = undoBuffer.output || '';
+    lastOutputValue = outputToRestore;
+    if (outputToRestore) {
+      renderOutput(outputToRestore);
+    } else {
+      outputArea.textContent = '';
+      outputArea.classList.remove('markdown');
+      saveOutput('');
+      resizeOutputToContent();
+      updateOverlays();
+    }
+
+    undoBuffer = null;
     setClearState();
     resizeInputToContent();
     updateOverlays();
-    return;
   }
 }
 
@@ -415,6 +443,7 @@ async function executePromptlet(text, promptlet) {
     renderOutput(response.result);
   } catch (err) {
     outputArea.textContent = `Error: ${err.message}`;
+    lastOutputValue = outputArea.textContent;
     resizeOutputToContent();
     saveOutput(outputArea.textContent);
   } finally {
@@ -429,6 +458,7 @@ function simulateResult(promptlet, text) {
 }
 
 function renderOutput(text) {
+  lastOutputValue = text;
   outputArea.innerHTML = '';
   outputArea.classList.add('markdown');
   const html = basicMarkdown(text);
