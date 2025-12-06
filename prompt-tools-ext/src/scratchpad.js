@@ -17,6 +17,16 @@ const fontSizeBtn = document.getElementById('fontSizeBtn');
 const fontSizeMenu = document.getElementById('fontSizeMenu');
 const customThemeContainer = document.createElement('div');
 
+function resizeInputToContent() {
+  inputArea.style.height = 'auto';
+  inputArea.style.height = `${inputArea.scrollHeight}px`;
+}
+
+function resizeOutputToContent() {
+  outputArea.style.height = 'auto';
+  outputArea.style.height = `${outputArea.scrollHeight || outputArea.clientHeight}px`;
+}
+
 const STORAGE_KEYS = {
   input: 'scratchpad-input',
   output: 'scratchpad-output',
@@ -136,6 +146,7 @@ function attachInputHandlers() {
     queueSave();
     updateOverlays();
     setClearState();
+    resizeInputToContent();
   });
 }
 
@@ -166,6 +177,7 @@ async function restoreInput() {
   const saved = await getFromStorage(STORAGE_KEYS.input, '');
   inputArea.value = saved || '';
   setClearState();
+  resizeInputToContent();
 }
 
 function saveInput() {
@@ -234,6 +246,7 @@ function handleClear() {
     inputArea.value = '';
     saveInput();
     setClearState();
+    resizeInputToContent();
     updateOverlays();
     return;
   }
@@ -243,6 +256,7 @@ function handleClear() {
     undoBuffer = '';
     saveInput();
     setClearState();
+    resizeInputToContent();
     updateOverlays();
     return;
   }
@@ -399,6 +413,7 @@ async function executePromptlet(text, promptlet) {
     renderOutput(response.result);
   } catch (err) {
     outputArea.textContent = `Error: ${err.message}`;
+    resizeOutputToContent();
     saveOutput(outputArea.textContent);
   } finally {
     updateOverlays();
@@ -415,6 +430,7 @@ function renderOutput(text) {
   outputArea.classList.add('markdown');
   const html = basicMarkdown(text);
   outputArea.innerHTML = html;
+  resizeOutputToContent();
   saveOutput(text);
   copyBtn.disabled = !text.trim();
   updateOverlays();
@@ -563,6 +579,8 @@ function applyFont(font) {
   workspace.style.setProperty('--font-family', font);
   inputArea.style.fontFamily = font;
   outputArea.style.fontFamily = font;
+  resizeInputToContent();
+  resizeOutputToContent();
   saveToStorage(STORAGE_KEYS.fontFamily, font);
   closeAllMenus();
 }
@@ -571,6 +589,8 @@ function applyFontSize(size) {
   workspace.style.setProperty('--font-size', `${size}px`);
   inputArea.style.fontSize = `${size}px`;
   outputArea.style.fontSize = `${size}px`;
+  resizeInputToContent();
+  resizeOutputToContent();
   saveToStorage(STORAGE_KEYS.fontSize, size);
   closeAllMenus();
 }
