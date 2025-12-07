@@ -533,8 +533,8 @@ function toggleLayout() {
   const isVertical = workspace.classList.contains('vertical');
   workspace.classList.toggle('vertical', !isVertical);
   workspace.classList.toggle('horizontal', isVertical);
-    layoutBtn.textContent = isVertical ? '↔️' : '↕️';
-  localStorage.setItem(STORAGE_KEYS.layout, isVertical ? 'horizontal' : 'vertical');
+  layoutBtn.textContent = isVertical ? '↔️' : '↕️';
+  localStorage.setItem(STORAGE_KEYS.layout, !isVertical ? 'horizontal' : 'vertical');
 }
 
 function buildLayoutFromStorage() {
