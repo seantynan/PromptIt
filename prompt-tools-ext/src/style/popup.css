@@ -59,9 +59,10 @@ body {
     background-color: rgba(60, 60, 60, 0.9); 
 }
 
-/* --- Emoji Spacing --- */
-.emoji {
-    margin-right: 8px; 
-    font-size: 16px; 
-    line-height: 1;
+/* --- Icon Spacing --- */
+.menu-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    object-fit: contain;
 }

@@ -16,7 +16,32 @@ const fontTypeMenu = document.getElementById('fontTypeMenu');
 const fontSizeBtn = document.getElementById('fontSizeBtn');
 const fontSizeMenu = document.getElementById('fontSizeMenu');
 const customThemeContainer = document.createElement('div');
-const copyBtnDefaultLabel = copyBtn.textContent;
+const ICON_SRC = '../assets/icons/promptit-badge.svg';
+const copyBtnDefaultLabel = 'Copy Output';
+const clearBtnDefaultLabel = 'Clear Input';
+const chainBtnDefaultLabel = 'Chain ▼';
+const themeBtnDefaultLabel = 'Theme';
+const fontTypeDefaultLabel = 'Font Type';
+const fontSizeDefaultLabel = 'Font Size';
+
+function renderIcon(iconClass = 'btn-icon') {
+  return `<img src="${ICON_SRC}" class="${iconClass}" alt="" aria-hidden="true">`;
+}
+
+function setIconButton(button, label, options = {}) {
+  const { iconClass = 'btn-icon', hideLabel = false } = options;
+  const text = label && !hideLabel ? ` ${label}` : '';
+  button.innerHTML = `${renderIcon(iconClass)}${text}`;
+}
+
+setIconButton(copyBtn, copyBtnDefaultLabel);
+setIconButton(clearBtn, clearBtnDefaultLabel);
+setIconButton(chainBtn, chainBtnDefaultLabel);
+setIconButton(themeBtn, themeBtnDefaultLabel);
+setIconButton(fontTypeBtn, fontTypeDefaultLabel);
+setIconButton(fontSizeBtn, fontSizeDefaultLabel);
+setIconButton(layoutBtn, '', { hideLabel: true });
+
 const copyBtnMinWidth = copyBtn.offsetWidth;
 copyBtn.style.minWidth = `${copyBtnMinWidth}px`;
 
@@ -239,13 +264,13 @@ function hasScratchpadContent() {
 
 function setClearState() {
   if (hasScratchpadContent()) {
-    clearBtn.textContent = '🧹 Clear';
+    setIconButton(clearBtn, 'Clear');
     clearBtn.setAttribute('aria-label', 'Clear Input and Output');
   } else if (undoBuffer) {
-    clearBtn.textContent = '↩️ Undo';
+    setIconButton(clearBtn, 'Undo');
     clearBtn.setAttribute('aria-label', 'Undo clear');
   } else {
-    clearBtn.textContent = '📄 New';
+    setIconButton(clearBtn, 'New');
     clearBtn.setAttribute('aria-label', 'New scratchpad');
   }
 }
@@ -301,10 +326,10 @@ function handleCopy() {
 
   navigator.clipboard.writeText(textToCopy).then(() => {
     clearTimeout(copyTimeout);
-    copyBtn.textContent = '✓ Copied!';
+    setIconButton(copyBtn, 'Copied!');
     copyBtn.classList.add('copied');
     copyTimeout = setTimeout(() => {
-      copyBtn.textContent = copyBtnDefaultLabel;
+      setIconButton(copyBtn, copyBtnDefaultLabel);
       copyBtn.classList.remove('copied');
     }, 2000);
   });
@@ -533,7 +558,7 @@ function toggleLayout() {
   const isVertical = workspace.classList.contains('vertical');
   workspace.classList.toggle('vertical', !isVertical);
   workspace.classList.toggle('horizontal', isVertical);
-    layoutBtn.textContent = isVertical ? '↔️' : '↕️';
+  setIconButton(layoutBtn, '', { hideLabel: true });
   localStorage.setItem(STORAGE_KEYS.layout, isVertical ? 'horizontal' : 'vertical');
 }
 
@@ -542,7 +567,7 @@ function buildLayoutFromStorage() {
   const isVertical = stored === 'vertical';
   workspace.classList.toggle('vertical', isVertical);
   workspace.classList.toggle('horizontal', !isVertical);
-    layoutBtn.textContent = isVertical ? '↔️' : '↕️';
+  setIconButton(layoutBtn, '', { hideLabel: true });
 }
 
 function buildThemeMenu() {
