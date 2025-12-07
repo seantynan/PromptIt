@@ -13,6 +13,8 @@
   --font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-size: 16px;
   --panel-body-height: 360px;
+  --divider-size: 10px;
+  --panel-gap: 10px;
 
   /* Fixed UI tokens (not affected by workspace theming) */
   --ui-bg: #161722;
@@ -166,8 +168,9 @@ body {
 
 .panels {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  grid-template-columns: 1fr var(--divider-size) 1fr;
+  grid-template-rows: 1fr;
+  gap: var(--panel-gap);
   padding: 16px;
   height: 100%;
   min-height: 0;
@@ -177,7 +180,7 @@ body {
 
 .workspace.vertical .panels {
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 1fr var(--divider-size) 1fr;
 }
 
 .workspace.vertical .output-panel {
@@ -186,6 +189,32 @@ body {
 
 .workspace.horizontal .output-panel {
   border-left: 1px solid var(--panel-border);
+}
+
+.resize-handle {
+  background: var(--panel-border);
+  border-radius: 8px;
+  align-self: stretch;
+  justify-self: stretch;
+  opacity: 0.8;
+  transition: background 0.2s ease, opacity 0.2s ease;
+  touch-action: none;
+}
+
+.workspace.horizontal .resize-handle {
+  cursor: col-resize;
+  width: 100%;
+}
+
+.workspace.vertical .resize-handle {
+  cursor: row-resize;
+  height: 100%;
+}
+
+.resize-handle:hover,
+.resize-handle.dragging {
+  background: var(--accent);
+  opacity: 1;
 }
 
 .panel {
