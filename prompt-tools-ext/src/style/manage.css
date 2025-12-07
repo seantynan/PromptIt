@@ -321,6 +321,8 @@ textarea.form-input {
 .validation-message {
     font-size: 13px;
     margin-top: 4px;
+    min-height: 18px;
+    line-height: 18px;
 }
 
 .validation-error {
@@ -329,6 +331,12 @@ textarea.form-input {
 
 .validation-success {
     color: var(--accent-green);
+}
+
+/* Keep space reserved to avoid layout shifts when messages appear */
+.validation-message.hidden {
+    display: block;
+    visibility: hidden;
 }
 
 .editor-actions {
