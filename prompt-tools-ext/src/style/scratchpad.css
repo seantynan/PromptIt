@@ -82,16 +82,24 @@ body {
 }
 
 .logo {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.18));
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  display: inline-flex;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.icon-btn .btn-icon {
+  margin-right: 0;
 }
 
 .top-controls {
@@ -270,6 +278,13 @@ textarea#inputArea {
   pointer-events: none;
   opacity: 0.4;
   text-align: left;
+}
+
+.overlay-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  object-fit: contain;
 }
 
 .sidebar {
