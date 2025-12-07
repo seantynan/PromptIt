@@ -314,7 +314,7 @@
 .form-row {
     display: flex;
     gap: 12px;
-    align-items: flex-end;
+    align-items: flex-start;
 }
 
 textarea.form-input {
