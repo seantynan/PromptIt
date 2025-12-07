@@ -12,11 +12,9 @@ Built with Manifest V3, it is fast, secure, and fully customizable. It comes wit
 
 📑 Side Panel Results: AI responses appear in a clean, resizeable side panel that doesn't block your view of the webpage.
 
-⚙️ Fully Customizable: Create your own "Promptlets" with custom system prompts. Use the placeholder [SELECTED_TEXT] to inject your selection dynamically.
+⚙️ Fully Customizable: Create your own "Promptlets" with custom system prompts.
 
-🌑 Dark Mode UI: A sleek, modern dark-themed interface for the Side Panel, Manager, and Help pages.
-
-🔄 Sync Storage: Your custom promptlets sync across all Chrome browsers where you are logged in.
+🌑 Dark Mode UI: A sleek, modern dark-themed interface for the Side Panel, Manager, and Help pages. Light and Dark mode are automatically driven by your browser or OS settings.
 
 🚀 Pre-loaded Promptlets: Comes ready to use with tools for summarization, fact-checking, language learning, and more.
 
