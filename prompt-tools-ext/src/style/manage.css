@@ -279,6 +279,11 @@
     margin-bottom: 20px;
 }
 
+.form-group.validation-group {
+    position: relative;
+    padding-bottom: 24px;
+}
+
 .form-label {
     display: block;
     font-weight: 600;
@@ -309,7 +314,7 @@
 .form-row {
     display: flex;
     gap: 12px;
-    align-items: flex-end;
+    align-items: flex-start;
 }
 
 textarea.form-input {
@@ -320,7 +325,11 @@ textarea.form-input {
 
 .validation-message {
     font-size: 13px;
-    margin-top: 4px;
+    min-height: 18px;
+    line-height: 18px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
 }
 
 .validation-error {
@@ -329,6 +338,12 @@ textarea.form-input {
 
 .validation-success {
     color: var(--accent-green);
+}
+
+/* Keep space reserved to avoid layout shifts when messages appear */
+.validation-message.hidden {
+    display: block;
+    visibility: hidden;
 }
 
 .editor-actions {
