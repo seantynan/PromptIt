@@ -529,20 +529,22 @@ function basicMarkdown(text) {
   return `<p>${safe}</p>`;
 }
 
+function applyLayout(isVertical) {
+  workspace.classList.toggle('vertical', isVertical);
+  workspace.classList.toggle('horizontal', !isVertical);
+  layoutBtn.textContent = isVertical ? '↕️' : '↔️';
+  localStorage.setItem(STORAGE_KEYS.layout, isVertical ? 'vertical' : 'horizontal');
+}
+
 function toggleLayout() {
-  const isVertical = workspace.classList.contains('vertical');
-  workspace.classList.toggle('vertical', !isVertical);
-  workspace.classList.toggle('horizontal', isVertical);
-    layoutBtn.textContent = isVertical ? '↔️' : '↕️';
-  localStorage.setItem(STORAGE_KEYS.layout, isVertical ? 'horizontal' : 'vertical');
+  const isCurrentlyVertical = workspace.classList.contains('vertical');
+  applyLayout(!isCurrentlyVertical);
 }
 
 function buildLayoutFromStorage() {
-  const stored = localStorage.getItem(STORAGE_KEYS.layout) || 'horizontal';
+  const stored = localStorage.getItem(STORAGE_KEYS.layout) || 'vertical';
   const isVertical = stored === 'vertical';
-  workspace.classList.toggle('vertical', isVertical);
-  workspace.classList.toggle('horizontal', !isVertical);
-    layoutBtn.textContent = isVertical ? '↔️' : '↕️';
+  applyLayout(isVertical);
 }
 
 function buildThemeMenu() {
