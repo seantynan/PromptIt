@@ -11,6 +11,7 @@ const workspace = document.getElementById('workspace');
 const panels = document.getElementById('panels');
 const panelResizeHandle = document.getElementById('panelResizeHandle');
 const promptletList = document.getElementById('promptletList');
+const tokenUsage = document.getElementById('tokenUsage');
 const themeBtn = document.getElementById('themeBtn');
 const themeMenu = document.getElementById('themeMenu');
 const fontTypeBtn = document.getElementById('fontTypeBtn');
@@ -176,6 +177,7 @@ async function init() {
   buildThemeMenu();
   buildFontMenus();
   await applyStoredAppearance();
+  updateTokenUsage(null);
   updateOverlays();
 }
 
@@ -448,6 +450,39 @@ function renderPromptletSidebar() {
   });
 }
 
+function updateTokenUsage(usage) {
+  if (!tokenUsage) return;
+
+  const hasUsage = !!usage && [usage.totalTokens, usage.inputTokens, usage.outputTokens]
+    .some((value) => value !== null && value !== undefined);
+
+  if (!hasUsage) {
+    tokenUsage.textContent = '';
+    tokenUsage.classList.add('hidden');
+    return;
+  }
+
+  const segments = [];
+  if (usage.totalTokens !== null && usage.totalTokens !== undefined) {
+    segments.push(`Tokens: ${usage.totalTokens}`);
+  }
+
+  const subSegments = [];
+  if (usage.inputTokens !== null && usage.inputTokens !== undefined) {
+    subSegments.push(`In: ${usage.inputTokens}`);
+  }
+  if (usage.outputTokens !== null && usage.outputTokens !== undefined) {
+    subSegments.push(`Out: ${usage.outputTokens}`);
+  }
+
+  if (subSegments.length) {
+    segments.push(`(${subSegments.join(' | ')})`);
+  }
+
+  tokenUsage.textContent = segments.join(' ');
+  tokenUsage.classList.remove('hidden');
+}
+
 function getInputSelectionOrAll() {
   const selection = inputArea.value.substring(inputArea.selectionStart, inputArea.selectionEnd);
   return selection.trim() ? selection : inputArea.value;
@@ -485,6 +520,7 @@ async function executePromptlet(text, promptlet) {
 
   if (!text || !text.trim()) return;
 
+  updateTokenUsage(null);
   isRunningPromptlet = true;
   outputArea.textContent = '';
   outputOverlay.style.display = 'none';
@@ -522,11 +558,13 @@ async function executePromptlet(text, promptlet) {
     }
 
     renderOutput(response.result);
+    updateTokenUsage(response.usage);
   } catch (err) {
     outputArea.textContent = `Error: ${err.message}`;
     lastOutputValue = outputArea.textContent;
     resizeOutputToContent();
     saveOutput(outputArea.textContent);
+    updateTokenUsage(null);
   } finally {
     isRunningPromptlet = false;
     updateOverlays();

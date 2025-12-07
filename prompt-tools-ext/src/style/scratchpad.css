@@ -357,6 +357,22 @@ textarea#inputArea::-webkit-scrollbar-thumb:hover,
   margin: 0 auto;
 }
 
+.usage-badge {
+  display: inline-block;
+  padding: 6px 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #888;
+  text-align: center;
+  width: 100%;
+}
+
+.hidden {
+  display: none !important;
+}
+
 .promptlet-btn {
   background: var(--ui-btn-bg);
   border: 1px solid var(--ui-border);
