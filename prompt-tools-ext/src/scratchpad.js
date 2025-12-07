@@ -700,6 +700,7 @@ function applyTheme(theme, themeName = 'custom') {
   themeTarget.style.setProperty('--panel-bg', theme.bg);
   themeTarget.style.setProperty('--bg', theme.bg);
   themeTarget.style.setProperty('--text', theme.fg);
+  themeTarget.style.setProperty('--accent', theme.accent || theme.fg);
   if (theme.font) {
     applyFont(theme.font);
   }
