@@ -16,32 +16,7 @@ const fontTypeMenu = document.getElementById('fontTypeMenu');
 const fontSizeBtn = document.getElementById('fontSizeBtn');
 const fontSizeMenu = document.getElementById('fontSizeMenu');
 const customThemeContainer = document.createElement('div');
-const ICON_SRC = '../assets/icons/promptit-badge.svg';
-const copyBtnDefaultLabel = 'Copy Output';
-const clearBtnDefaultLabel = 'Clear Input';
-const chainBtnDefaultLabel = 'Chain ▼';
-const themeBtnDefaultLabel = 'Theme';
-const fontTypeDefaultLabel = 'Font Type';
-const fontSizeDefaultLabel = 'Font Size';
-
-function renderIcon(iconClass = 'btn-icon') {
-  return `<img src="${ICON_SRC}" class="${iconClass}" alt="" aria-hidden="true">`;
-}
-
-function setIconButton(button, label, options = {}) {
-  const { iconClass = 'btn-icon', hideLabel = false } = options;
-  const text = label && !hideLabel ? ` ${label}` : '';
-  button.innerHTML = `${renderIcon(iconClass)}${text}`;
-}
-
-setIconButton(copyBtn, copyBtnDefaultLabel);
-setIconButton(clearBtn, clearBtnDefaultLabel);
-setIconButton(chainBtn, chainBtnDefaultLabel);
-setIconButton(themeBtn, themeBtnDefaultLabel);
-setIconButton(fontTypeBtn, fontTypeDefaultLabel);
-setIconButton(fontSizeBtn, fontSizeDefaultLabel);
-setIconButton(layoutBtn, '', { hideLabel: true });
-
+const copyBtnDefaultLabel = copyBtn.textContent;
 const copyBtnMinWidth = copyBtn.offsetWidth;
 copyBtn.style.minWidth = `${copyBtnMinWidth}px`;
 
@@ -264,13 +239,13 @@ function hasScratchpadContent() {
 
 function setClearState() {
   if (hasScratchpadContent()) {
-    setIconButton(clearBtn, 'Clear');
+    clearBtn.textContent = '🧹 Clear';
     clearBtn.setAttribute('aria-label', 'Clear Input and Output');
   } else if (undoBuffer) {
-    setIconButton(clearBtn, 'Undo');
+    clearBtn.textContent = '↩️ Undo';
     clearBtn.setAttribute('aria-label', 'Undo clear');
   } else {
-    setIconButton(clearBtn, 'New');
+    clearBtn.textContent = '📄 New';
     clearBtn.setAttribute('aria-label', 'New scratchpad');
   }
 }
@@ -326,10 +301,10 @@ function handleCopy() {
 
   navigator.clipboard.writeText(textToCopy).then(() => {
     clearTimeout(copyTimeout);
-    setIconButton(copyBtn, 'Copied!');
+    copyBtn.textContent = '✓ Copied!';
     copyBtn.classList.add('copied');
     copyTimeout = setTimeout(() => {
-      setIconButton(copyBtn, copyBtnDefaultLabel);
+      copyBtn.textContent = copyBtnDefaultLabel;
       copyBtn.classList.remove('copied');
     }, 2000);
   });
@@ -556,30 +531,18 @@ function basicMarkdown(text) {
 
 function toggleLayout() {
   const isVertical = workspace.classList.contains('vertical');
-<<<<<<< HEAD
   workspace.classList.toggle('vertical', !isVertical);
   workspace.classList.toggle('horizontal', isVertical);
-  layoutBtn.textContent = isVertical ? '↔️' : '↕️';
-  setIconButton(layoutBtn, '', { hideLabel: true });
+    layoutBtn.textContent = isVertical ? '↔️' : '↕️';
   localStorage.setItem(STORAGE_KEYS.layout, isVertical ? 'horizontal' : 'vertical');
-=======
-  const newIsVertical = !isVertical;
-  setLayoutState(newIsVertical);
-  localStorage.setItem(STORAGE_KEYS.layout, newIsVertical ? 'vertical' : 'horizontal');
->>>>>>> feature-scratchpad
 }
 
 function buildLayoutFromStorage() {
-  const stored = localStorage.getItem(STORAGE_KEYS.layout) || 'vertical';
+  const stored = localStorage.getItem(STORAGE_KEYS.layout) || 'horizontal';
   const isVertical = stored === 'vertical';
-  setLayoutState(isVertical);
-}
-
-function setLayoutState(isVertical) {
   workspace.classList.toggle('vertical', isVertical);
   workspace.classList.toggle('horizontal', !isVertical);
-  setIconButton(layoutBtn, '', { hideLabel: true });
-  layoutBtn.textContent = isVertical ? '↕️' : '↔️';
+    layoutBtn.textContent = isVertical ? '↔️' : '↕️';
 }
 
 function buildThemeMenu() {
