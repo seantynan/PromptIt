@@ -32,11 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 2. Help/User Guide Button Logic (NEW) ---
     helpBtn.addEventListener('click', () => {
-        // Open the help page in a new tab
-        // Note: The path is relative to the extension's root directory
-        chrome.tabs.create({
-            url: 'src/help.html'
+        const helpUrl = chrome.runtime.getURL('src/help.html');
+        chrome.tabs.query({ url: helpUrl }, (tabs) => {
+            if (tabs && tabs.length > 0) {
+                const [helpTab] = tabs;
+                chrome.tabs.update(helpTab.id, { active: true });
+                chrome.windows.update(helpTab.windowId, { focused: true });
+            } else {
+                chrome.tabs.create({ url: helpUrl });
+            }
+            window.close();
         });
-        window.close(); // Close the popup window after clicking
     });
 });
