@@ -220,7 +220,6 @@ function generateSystemPrompt(userLocale) {
 3. **OUTPUT DIRECTIVE:** Be **succinct**. Your response **MUST be the final answer**; **DO NOT** ask follow-up or clarifying questions.
 4. **EXECUTION:** Execute the request based **ONLY** on the provided **CONTEXT** and **USER INPUT**.`;
 
-    console.log("Generated system prompt:", systemPrompt);
     return systemPrompt;
 }
 
