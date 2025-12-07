@@ -531,10 +531,11 @@ function basicMarkdown(text) {
 
 function toggleLayout() {
   const isVertical = workspace.classList.contains('vertical');
-  workspace.classList.toggle('vertical', !isVertical);
-  workspace.classList.toggle('horizontal', isVertical);
-  layoutBtn.textContent = isVertical ? '↕️' : '↔️';
-  localStorage.setItem(STORAGE_KEYS.layout, isVertical ? 'horizontal' : 'vertical');
+  const nextIsVertical = !isVertical;
+  workspace.classList.toggle('vertical', nextIsVertical);
+  workspace.classList.toggle('horizontal', !nextIsVertical);
+  layoutBtn.textContent = nextIsVertical ? '↕️' : '↔️';
+  localStorage.setItem(STORAGE_KEYS.layout, nextIsVertical ? 'vertical' : 'horizontal');
 }
 
 function buildLayoutFromStorage() {
