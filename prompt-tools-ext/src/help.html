@@ -3,32 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <title>Prompt It! User Guide & Help</title>
-    <link rel="stylesheet" href="style/main.css"> 
+    <link rel="stylesheet" href="style/main.css">
     <link rel="stylesheet" href="style/help.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="top">
         <header class="page-header">
             <h1>📚 Prompt It! User Guide</h1>
             <p>Your comprehensive reference for using Prompt It! to run custom AI promptlets on any selected text.</p>
         </header>
 
-        <section id="getting-started">
-            <h2>Getting Started</h2>
-            </section>
+        <nav class="toc">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#installation">Install &amp; Set Up</a></li>
+                <li><a href="#quickstart">Quick Start</a></li>
+                <li><a href="#running-promptlets">Running Promptlets</a></li>
+                <li><a href="#side-panel">Reading &amp; Reusing Output</a></li>
+                <li><a href="#managing-promptlets">Managing Promptlets</a></li>
+                <li><a href="#advanced-settings">Advanced Promptlet Settings</a></li>
+                <li><a href="#studio">Scratchpad / Studio</a></li>
+                <li><a href="#privacy-security">Privacy &amp; Security</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ol>
+        </nav>
 
-        <section id="creating-promptlets">
-            <h2>Managing & Creating Promptlets</h2>
-            </section>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p><strong>Prompt It!</strong> is a browser extension that lets you run reusable AI “promptlets” on any text you select. Highlight text anywhere on the web, choose a promptlet (e.g., Summarise, Rephrase, Verify), and the result appears in a dedicated side panel. You can build your own promptlets, adjust model settings, and chain multiple promptlets together without leaving the page.</p>
+            <ul>
+                <li>Works from the right-click context menu and the extension icon menu.</li>
+                <li>Stores your OpenAI API key locally only; it is used solely to call the OpenAI Responses API.</li>
+                <li>Ships with sensible defaults and lets you create, clone, and fine-tune your own promptlets.</li>
+            </ul>
+            <p class="screenshot-note">[Screenshot placeholder: Prompt It! side panel showing an example response]</p>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="installation">
+            <h2>Install &amp; Set Up</h2>
+            <ol>
+                <li><strong>Install the extension.</strong> Load the unpacked extension from the <code>prompt-tools-ext</code> folder via your browser’s extensions page.</li>
+                <li><strong>Open the management page.</strong> Click the Prompt It! toolbar icon and choose <em>Manage Promptlets</em> (or click the icon itself). This opens <code>manage.html</code>.</li>
+                <li><strong>Add your OpenAI API key.</strong>
+                    <ul>
+                        <li>Scroll to the <em>OpenAI API Key</em> section, paste your key (format <code>sk-...</code>), and click <em>Save API Key</em>.</li>
+                        <li>Your key stays in local extension storage; it is never shared beyond calls to OpenAI.</li>
+                    </ul>
+                </li>
+                <li><strong>Confirm default promptlets.</strong> The built-in set (Summarise, Rephrase, Verify, Max Reasoning, Learn a Language, Recipe Creator, Nutrition Analyser, Crossword Solver) installs automatically on first run.</li>
+                <li><strong>Optional:</strong> Pin the extension icon so the popup menu (Manage, Studio, User Guide) is always one click away.</li>
+            </ol>
+            <p class="screenshot-note">[Screenshot placeholder: Manage Promptlets page with API key field]</p>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="quickstart">
+            <h2>Quick Start</h2>
+            <ol>
+                <li>Select text on any web page.</li>
+                <li>Right-click and hover over <strong>Prompt It!</strong> in the context menu.</li>
+                <li>Choose a promptlet (e.g., <em>Summarise</em>). The side panel opens and processes the selection.</li>
+                <li>Read the output in the side panel. Use <em>Copy Output</em> or chain another promptlet directly.</li>
+            </ol>
+            <p class="screenshot-note">[Screenshot placeholder: Browser context menu showing Prompt It! options]</p>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
 
         <section id="running-promptlets">
             <h2>Running Promptlets</h2>
-            </section>
+            <h3>Context Menu</h3>
+            <ul>
+                <li>Highlight text, right-click, choose <strong>Prompt It!</strong>, then pick a promptlet.</li>
+                <li>If no promptlets appear, ensure they are active in <em>Manage Promptlets</em> and rebuild the context menu by toggling their active status.</li>
+            </ul>
+
+            <h3>Extension Icon Popup</h3>
+            <ul>
+                <li>Click the toolbar icon → <em>Manage Promptlets</em> opens the editor; <em>Studio</em> opens the themed scratchpad; <em>User Guide</em> opens this page.</li>
+                <li>The popup is a launcher; promptlets still run from the context menu or side panel.</li>
+            </ul>
+
+            <h3>Pending Promptlets</h3>
+            <ul>
+                <li>If the side panel opens slowly, Prompt It! remembers the last request for a few seconds and runs it when the panel is ready.</li>
+            </ul>
+
+            <p class="screenshot-note">[Screenshot placeholder: Side panel loading state]</p>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="side-panel">
+            <h2>Reading &amp; Reusing Output</h2>
+            <ul>
+                <li><strong>Status banner</strong> shows progress or errors (e.g., missing API key).</li>
+                <li><strong>Structured sections</strong>: Prompts that emit headings like “Main Output”, “Notes”, or “Warnings” are split into styled blocks for easier reading.</li>
+                <li><strong>Copy Output</strong>: Copies the full response to your clipboard.</li>
+                <li><strong>Chaining</strong>: Click <em>🔗 Chain</em> to run another promptlet on the current output. If you select part of the output first, chaining runs only on the selection.</li>
+                <li><strong>Close</strong>: <em>✕ Close</em> closes the side panel window.</li>
+                <li><strong>Accessibility</strong>: Buttons are keyboard-focusable; the chain menu supports click and tap.</li>
+            </ul>
+            <p class="screenshot-note">[Screenshot placeholder: Side panel with Copy and Chain buttons]</p>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="managing-promptlets">
+            <h2>Managing Promptlets</h2>
+            <p>Use <strong>Manage Promptlets</strong> to enable, clone, create, or reset promptlets.</p>
+            <h3>Default Promptlets</h3>
+            <ul>
+                <li>View-only set installed on first use. Click the clone icon to duplicate and edit.</li>
+                <li>Use <em>Reset Default Promptlets</em> to restore the factory set if you removed or edited them.</li>
+            </ul>
+            <h3>Your Promptlets</h3>
+            <ul>
+                <li><strong>Add New Promptlet</strong>: Opens the editor with emoji, name, prompt body, and advanced settings.</li>
+                <li><strong>Edit</strong>: Update any field; the name is required. Prompts support up to 7000 characters.</li>
+                <li><strong>Activate/Deactivate</strong>: Toggle to control whether a promptlet appears in the context menu and chaining menu.</li>
+                <li><strong>Delete</strong>: Remove a custom promptlet permanently (defaults can be reset instead).</li>
+            </ul>
+            <p class="screenshot-note">[Screenshot placeholder: Promptlet editor with advanced settings collapsed]</p>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="advanced-settings">
+            <h2>Advanced Promptlet Settings</h2>
+            <p>Expand <strong>Advanced Settings</strong> in the editor to fine-tune API parameters for each promptlet.</p>
+            <ul>
+                <li><strong>Model</strong>: Choose GPT-5.1 (deep reasoning), GPT-4o (balanced), GPT-5 Mini (fast), or GPT-5 Nano (fastest/lightweight).</li>
+                <li><strong>Temperature</strong>: 0–2. Lower is more deterministic; higher is more creative.</li>
+                <li><strong>Max Tokens</strong>: 100–16000. Higher values allow longer responses but consume more quota.</li>
+            </ul>
+            <p class="screenshot-note">[Screenshot placeholder: Advanced Settings expanded showing sliders and model dropdown]</p>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="studio">
+            <h2>Scratchpad / Studio</h2>
+            <p>The Studio is a themed scratchpad for drafting prompts, notes, or intermediate text.</p>
+            <ul>
+                <li>Open via the extension popup → <em>📝 Studio</em>.</li>
+                <li>Choose a theme from the dropdown (Midnight Neon, Daylight, Sepia Notebook, Twilight Focus, and more).</li>
+                <li>Type or paste freely; the content stays local to the page (no auto-save or cloud sync).</li>
+            </ul>
+            <p class="screenshot-note">[Screenshot placeholder: Studio scratchpad with theme selector]</p>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="privacy-security">
+            <h2>Privacy &amp; Security</h2>
+            <ul>
+                <li><strong>Local storage</strong>: API keys and promptlets are stored in <code>chrome.storage.local</code> only.</li>
+                <li><strong>Network usage</strong>: Selected text and prompts are sent only to OpenAI’s API endpoint for processing.</li>
+                <li><strong>Context menu scope</strong>: Promptlets appear only when text is selected, reducing accidental sends.</li>
+                <li><strong>Reset</strong>: Use <em>Reset Default Promptlets</em> to restore defaults without touching your customs or API key.</li>
+            </ul>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
 
         <section id="troubleshooting">
             <h2>Troubleshooting</h2>
-            </section>
-        
+            <ul>
+                <li><strong>No output / Missing API key</strong>: Open <em>Manage Promptlets</em> and ensure your key is saved. Errors display in the side panel with a link to the manager.</li>
+                <li><strong>Context menu missing promptlets</strong>: Toggle a promptlet’s active status in the manager to rebuild menus; reinstall defaults if needed.</li>
+                <li><strong>Output is cut off</strong>: Increase <em>Max Tokens</em> in the promptlet’s advanced settings.</li>
+                <li><strong>Slow responses</strong>: Use GPT-5 Mini or GPT-5 Nano for faster, cheaper runs; shorten input text.</li>
+                <li><strong>Chaining runs on wrong text</strong>: Highlight the specific section in the side panel before clicking <em>🔗 Chain</em>.</li>
+                <li><strong>Permissions errors</strong>: Reload the extension from the extensions page to refresh service workers.</li>
+            </ul>
+            <p class="screenshot-note">[Screenshot placeholder: Error message in side panel pointing to Manage Promptlets]</p>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="faq">
+            <h2>FAQ</h2>
+            <dl>
+                <dt>Where do I edit or create promptlets?</dt>
+                <dd>Go to <strong>Manage Promptlets</strong>. Clone a default promptlet to start quickly or click <em>Add New Promptlet</em>.</dd>
+                <dt>How do I chain promptlets?</dt>
+                <dd>After a promptlet finishes, click <em>🔗 Chain</em> in the side panel and pick the next promptlet. Select specific text first to chain only that snippet.</dd>
+                <dt>Can I restore the defaults?</dt>
+                <dd>Yes. In <strong>Manage Promptlets</strong>, click <em>Reset Default Promptlets</em>. Your custom promptlets remain untouched.</dd>
+                <dt>What models are available?</dt>
+                <dd>Promptlets can target GPT-5.1, GPT-4o, GPT-5 Mini, or GPT-5 Nano. Choose per promptlet in advanced settings.</dd>
+                <dt>Does the scratchpad save my text?</dt>
+                <dd>No. The Studio scratchpad is local to the page and does not auto-save; copy content you need before closing.</dd>
+            </dl>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
         <footer class="page-footer">
             <p>&copy; Prompt It! Extension - Version 0.2</p>
         </footer>
