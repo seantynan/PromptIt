@@ -8,6 +8,8 @@ const chainBtn = document.getElementById('chainBtn');
 const chainMenu = document.getElementById('chainMenu');
 const layoutBtn = document.getElementById('layoutBtn');
 const workspace = document.getElementById('workspace');
+const panels = document.getElementById('panels');
+const panelResizeHandle = document.getElementById('panelResizeHandle');
 const promptletList = document.getElementById('promptletList');
 const themeBtn = document.getElementById('themeBtn');
 const themeMenu = document.getElementById('themeMenu');
@@ -34,8 +36,14 @@ const STORAGE_KEYS = {
   layout: 'scratchpad-layout',
   theme: 'scratchpad-theme',
   fontFamily: 'scratchpad-font-family',
-  fontSize: 'scratchpad-font-size'
+  fontSize: 'scratchpad-font-size',
+  splitHorizontal: 'scratchpad-split-horizontal',
+  splitVertical: 'scratchpad-split-vertical'
 };
+
+const PANEL_RATIO_DEFAULT = 0.5;
+const PANEL_RATIO_MIN = 0.2;
+const PANEL_RATIO_MAX = 0.8;
 
 const PRESET_THEMES = {
   Dark: { font: 'Segoe UI', size: 16, bg: '#111217', fg: '#e5e5e5' },
@@ -123,12 +131,36 @@ function getFromStorage(key, defaultValue) {
   });
 }
 
+function clampPanelRatio(value) {
+  return Math.min(Math.max(value, PANEL_RATIO_MIN), PANEL_RATIO_MAX);
+}
+
+function loadPanelRatio(layout) {
+  const key = layout === 'horizontal' ? STORAGE_KEYS.splitHorizontal : STORAGE_KEYS.splitVertical;
+  const stored = Number(localStorage.getItem(key));
+  if (Number.isFinite(stored)) {
+    return clampPanelRatio(stored);
+  }
+  return PANEL_RATIO_DEFAULT;
+}
+
+function persistPanelRatio(layout, value) {
+  const key = layout === 'horizontal' ? STORAGE_KEYS.splitHorizontal : STORAGE_KEYS.splitVertical;
+  localStorage.setItem(key, value);
+}
+
 let undoBuffer = null;
 let availablePromptlets = [];
 let copyTimeout = null;
 let saveTimeout = null;
 let isRunningPromptlet = false;
 let lastOutputValue = '';
+let isDraggingHandle = false;
+
+const panelRatios = {
+  horizontal: loadPanelRatio('horizontal'),
+  vertical: loadPanelRatio('vertical')
+};
 
 init();
 
@@ -136,6 +168,7 @@ async function init() {
   await restoreInput();
   await restoreOutput();
   buildLayoutFromStorage();
+  attachResizeHandle();
   attachInputHandlers();
   attachButtons();
   buildPromptletSidebar();
@@ -529,6 +562,73 @@ function basicMarkdown(text) {
   return `<p>${safe}</p>`;
 }
 
+function applyPanelRatios() {
+  if (!panels || !panelResizeHandle) return;
+
+  const isVerticalLayout = workspace.classList.contains('vertical');
+  const layoutKey = isVerticalLayout ? 'vertical' : 'horizontal';
+  const ratio = clampPanelRatio(panelRatios[layoutKey] ?? PANEL_RATIO_DEFAULT);
+  panelRatios[layoutKey] = ratio;
+  const inverse = 1 - ratio;
+
+  if (isVerticalLayout) {
+    panels.style.gridTemplateColumns = '1fr';
+    panels.style.gridTemplateRows = `${ratio}fr var(--divider-size) ${inverse}fr`;
+    panelResizeHandle.setAttribute('aria-orientation', 'horizontal');
+  } else {
+    panels.style.gridTemplateColumns = `${ratio}fr var(--divider-size) ${inverse}fr`;
+    panels.style.gridTemplateRows = '1fr';
+    panelResizeHandle.setAttribute('aria-orientation', 'vertical');
+  }
+}
+
+function attachResizeHandle() {
+  if (!panelResizeHandle) return;
+  panelResizeHandle.addEventListener('pointerdown', startDraggingPanels);
+}
+
+function startDraggingPanels(event) {
+  event.preventDefault();
+  isDraggingHandle = true;
+  panelResizeHandle.classList.add('dragging');
+  panelResizeHandle.setPointerCapture(event.pointerId);
+  window.addEventListener('pointermove', handlePanelDrag);
+  window.addEventListener('pointerup', stopDraggingPanels);
+}
+
+function handlePanelDrag(event) {
+  if (!isDraggingHandle || !panels) return;
+
+  const isVerticalLayout = workspace.classList.contains('vertical');
+  const rect = panels.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  if (isVerticalLayout) {
+    const relativeY = (event.clientY - rect.top) / rect.height;
+    const ratio = clampPanelRatio(relativeY);
+    panelRatios.vertical = ratio;
+    persistPanelRatio('vertical', ratio);
+  } else {
+    const relativeX = (event.clientX - rect.left) / rect.width;
+    const ratio = clampPanelRatio(relativeX);
+    panelRatios.horizontal = ratio;
+    persistPanelRatio('horizontal', ratio);
+  }
+
+  applyPanelRatios();
+}
+
+function stopDraggingPanels(event) {
+  if (!isDraggingHandle) return;
+  isDraggingHandle = false;
+  panelResizeHandle.classList.remove('dragging');
+  if (panelResizeHandle.hasPointerCapture(event.pointerId)) {
+    panelResizeHandle.releasePointerCapture(event.pointerId);
+  }
+  window.removeEventListener('pointermove', handlePanelDrag);
+  window.removeEventListener('pointerup', stopDraggingPanels);
+}
+
 function toggleLayout() {
   const isVertical = workspace.classList.contains('vertical');
   const nextIsVertical = !isVertical;
@@ -536,6 +636,7 @@ function toggleLayout() {
   workspace.classList.toggle('horizontal', !nextIsVertical);
   layoutBtn.textContent = nextIsVertical ? '↕️' : '↔️';
   localStorage.setItem(STORAGE_KEYS.layout, nextIsVertical ? 'vertical' : 'horizontal');
+  applyPanelRatios();
 }
 
 function buildLayoutFromStorage() {
@@ -544,6 +645,7 @@ function buildLayoutFromStorage() {
   workspace.classList.toggle('vertical', isVertical);
   workspace.classList.toggle('horizontal', !isVertical);
   layoutBtn.textContent = isVertical ? '↕️' : '↔️';
+  applyPanelRatios();
 }
 
 function buildThemeMenu() {
