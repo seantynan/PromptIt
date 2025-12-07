@@ -556,19 +556,30 @@ function basicMarkdown(text) {
 
 function toggleLayout() {
   const isVertical = workspace.classList.contains('vertical');
+<<<<<<< HEAD
   workspace.classList.toggle('vertical', !isVertical);
   workspace.classList.toggle('horizontal', isVertical);
   layoutBtn.textContent = isVertical ? '↔️' : '↕️';
   setIconButton(layoutBtn, '', { hideLabel: true });
   localStorage.setItem(STORAGE_KEYS.layout, isVertical ? 'horizontal' : 'vertical');
+=======
+  const newIsVertical = !isVertical;
+  setLayoutState(newIsVertical);
+  localStorage.setItem(STORAGE_KEYS.layout, newIsVertical ? 'vertical' : 'horizontal');
+>>>>>>> feature-scratchpad
 }
 
 function buildLayoutFromStorage() {
-  const stored = localStorage.getItem(STORAGE_KEYS.layout) || 'horizontal';
+  const stored = localStorage.getItem(STORAGE_KEYS.layout) || 'vertical';
   const isVertical = stored === 'vertical';
+  setLayoutState(isVertical);
+}
+
+function setLayoutState(isVertical) {
   workspace.classList.toggle('vertical', isVertical);
   workspace.classList.toggle('horizontal', !isVertical);
   setIconButton(layoutBtn, '', { hideLabel: true });
+  layoutBtn.textContent = isVertical ? '↕️' : '↔️';
 }
 
 function buildThemeMenu() {
