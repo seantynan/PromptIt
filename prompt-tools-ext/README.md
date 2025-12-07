@@ -2,10 +2,8 @@
 
 AI in your right-click. Run custom AI "Promptlets" on any selected text, instantly.
 
-(Note: Upload your generated logo to your repo and link it here)
-
 📖 Overview
-Prompt It! is a powerful Chrome Extension that integrates AI directly into your browsing workflow. Instead of copying text, switching tabs to an AI chatbot, and pasting context, simply select text, right-click, and choose a Promptlet. The results appear instantly in a dedicated browser Side Panel.
+Prompt It! is a powerful Chrome/Brave/Edge/Opera browser extension that integrates AI directly into your browsing workflow. Instead of copying text, switching tabs to an AI chatbot, and pasting context, simply select text, right-click, and choose a Promptlet. The results appear instantly in a dedicated browser Side Panel.
 
 Built with Manifest V3, it is fast, secure, and fully customizable. It comes with a suite of useful default promptlets (Summarise, Verify, Translate, etc.), but its true power lies in the Manage Promptlets page, where you can create, edit, and delete your own custom AI commands.
 
