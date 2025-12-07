@@ -230,7 +230,10 @@ function generateSystemPrompt(userLocale) {
 function extractOutput(data) {
     // 1. Simple case
     if (data.output_text && data.output_text.trim()) {
-        return data.output_text.trim();
+        return {
+            text: data.output_text.trim(),
+            usage: extractUsage(data)
+        };
     }
 
     let text = "";
@@ -275,7 +278,30 @@ function extractOutput(data) {
         }
     }
 
-    return text.trim();
+    return {
+        text: text.trim(),
+        usage: extractUsage(data)
+    };
+}
+
+function extractUsage(data) {
+    const usage = data?.usage || {};
+
+    const inputTokens = usage.input_tokens ?? usage.prompt_tokens ?? usage.promptTokens ?? usage.input ?? null;
+    const outputTokens = usage.output_tokens ?? usage.completion_tokens ?? usage.completionTokens ?? usage.output ?? null;
+    const totalTokens = usage.total_tokens ?? usage.total ?? (Number.isFinite(inputTokens) && Number.isFinite(outputTokens)
+        ? inputTokens + outputTokens
+        : null);
+
+    if ([inputTokens, outputTokens, totalTokens].every((value) => value === null)) {
+        return null;
+    }
+
+    return {
+        inputTokens,
+        outputTokens,
+        totalTokens
+    };
 }
 
 // -------------------------
@@ -545,8 +571,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             msg.promptlet.frequencyPenalty ?? 0,
             msg.promptlet.presencePenalty ?? 0
           );
-          
-          sendResponse({ success: true, result: result });
+
+          sendResponse({ success: true, result: result.text, usage: result.usage });
 
         } catch (err) {
           console.error("[BG] API Execution Error:", err.message);
