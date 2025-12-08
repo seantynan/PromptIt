@@ -4,15 +4,22 @@
 // =========================================================================
 
 function normalizePromptlet(promptlet, index, { isDefault, fillCreatedAt }) {
-  return {
+  const base = {
     ...promptlet,
     isDefault,
     isActive: promptlet.isActive !== false,
-    defaultIndex: promptlet.defaultIndex ?? index,
     createdAt: fillCreatedAt
       ? (promptlet.createdAt || (isDefault ? 0 : Date.now()))
       : promptlet.createdAt,
   };
+
+  if (isDefault) {
+    base.defaultIndex = promptlet.defaultIndex ?? index;
+  } else {
+    base.customIndex = promptlet.customIndex ?? index;
+  }
+
+  return base;
 }
 
 /**

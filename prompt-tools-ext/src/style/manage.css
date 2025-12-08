@@ -116,6 +116,17 @@
       transition: box-shadow 0.2s;
     }
 
+    .promptlet-card.dragging {
+      opacity: 0.8;
+      box-shadow: 0 4px 12px var(--shadow);
+      border-style: dashed;
+    }
+
+    .promptlet-list.drag-over {
+      outline: 2px dashed var(--accent-blue);
+      border-radius: 8px;
+    }
+
 
     /* ========================================= */
     /* DISABLED STATE (Selectively Greyed Out)   */

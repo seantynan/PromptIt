@@ -6,6 +6,7 @@
 let allPromptlets = [];
 let editingPromptletName = null; // Track which promptlet we're editing
 const model = "gpt-4o"; // New recommended default for speed and cost-efficiency
+let dragState = null;
 
 function savePromptletBuckets(defaults, customs, callback = null) {
   const combined = [...defaults, ...customs];
@@ -29,6 +30,7 @@ function formatModelLabel(promptlet) {
 // Initialize
 // -------------------------
 document.addEventListener('DOMContentLoaded', () => {
+  initializeDragAndDrop();
   loadPromptlets();
   loadApiKey();
   setupEventListeners();
@@ -97,11 +99,10 @@ function renderPromptlets() {
 
   // 2. Sort Promptlets (Matching background.js logic for consistency)
   // Defaults: Sort by defaultIndex (set in background.js helper)
-  defaults.sort((a, b) => (a.defaultIndex || 0) - (b.defaultIndex || 0));
+  defaults.sort((a, b) => (a.defaultIndex ?? 0) - (b.defaultIndex ?? 0));
 
-  // Customs: Sort by creation date (oldest first)
-  // If createdAt is missing, treat it as very old (0)
-  customs.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+  // Customs: Sort by explicit customIndex (user-controlled order)
+  customs.sort((a, b) => (a.customIndex ?? 0) - (b.customIndex ?? 0));
 
   // Toggle empty state visibility
   if (emptyState) {
@@ -169,6 +170,23 @@ function createPromptletElement(promptlet) {
         }
    `;
 
+    // Enable drag & drop ordering within the same bucket
+    item.setAttribute('draggable', 'true');
+    item.dataset.bucket = promptlet.isDefault ? 'default' : 'custom';
+
+    item.addEventListener('dragstart', (event) => {
+      dragState = { name: promptlet.name, bucket: item.dataset.bucket };
+      item.classList.add('dragging');
+      event.dataTransfer.effectAllowed = 'move';
+    });
+
+    item.addEventListener('dragend', () => {
+      dragState = null;
+      item.classList.remove('dragging');
+      clearDragOverStates();
+      renderPromptlets();
+    });
+
     // --- Attach Event Listeners ---
 
     // 1. Toggle Switch
@@ -196,6 +214,110 @@ function createPromptletElement(promptlet) {
     return item;
 }
 
+function initializeDragAndDrop() {
+  const defaultList = document.getElementById('defaultPromptlets');
+  const userList = document.getElementById('userPromptlets');
+
+  if (defaultList) {
+    setupDragAndDrop(defaultList, 'default');
+  }
+
+  if (userList) {
+    setupDragAndDrop(userList, 'custom');
+  }
+}
+
+function setupDragAndDrop(listElement, bucket) {
+  listElement.dataset.bucket = bucket;
+
+  listElement.addEventListener('dragover', (event) => {
+    if (!dragState || dragState.bucket !== bucket) return;
+    event.preventDefault();
+    const draggingCard = document.querySelector('.promptlet-card.dragging');
+    if (!draggingCard) return;
+
+    const afterElement = getDragAfterElement(listElement, event.clientY);
+    if (afterElement == null) {
+      listElement.appendChild(draggingCard);
+    } else {
+      listElement.insertBefore(draggingCard, afterElement);
+    }
+
+    listElement.classList.add('drag-over');
+  });
+
+  listElement.addEventListener('dragleave', () => {
+    listElement.classList.remove('drag-over');
+  });
+
+  listElement.addEventListener('drop', (event) => {
+    if (!dragState || dragState.bucket !== bucket) return;
+    event.preventDefault();
+    listElement.classList.remove('drag-over');
+
+    const orderedNames = Array.from(listElement.querySelectorAll('.promptlet-card'))
+      .map(card => card.dataset.name);
+
+    updatePromptletOrder(orderedNames, bucket);
+    saveAllPromptlets();
+  });
+}
+
+function clearDragOverStates() {
+  document.querySelectorAll('.promptlet-list').forEach((list) => list.classList.remove('drag-over'));
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll('.promptlet-card:not(.dragging)')];
+
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+
+    if (offset < 0 && offset > closest.offset) {
+      return { offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+}
+
+function updatePromptletOrder(names, bucket) {
+  const isDefaultBucket = bucket === 'default';
+
+  const bucketPromptlets = allPromptlets.filter(p => p.isDefault === isDefaultBucket);
+  const otherPromptlets = allPromptlets.filter(p => p.isDefault !== isDefaultBucket);
+
+  const orderedPromptlets = names.map((name, index) => {
+    const promptlet = bucketPromptlets.find(p => p.name === name);
+    if (!promptlet) return null;
+
+    if (promptlet.isDefault) {
+      promptlet.defaultIndex = index;
+    } else {
+      promptlet.customIndex = index;
+    }
+    return promptlet;
+  }).filter(Boolean);
+
+  // Add any promptlets that might be missing from the DOM (fallback safety)
+  bucketPromptlets
+    .filter(p => !names.includes(p.name))
+    .forEach((promptlet) => {
+      const index = orderedPromptlets.length;
+      if (promptlet.isDefault) {
+        promptlet.defaultIndex = index;
+      } else {
+        promptlet.customIndex = index;
+      }
+      orderedPromptlets.push(promptlet);
+    });
+
+  allPromptlets = isDefaultBucket
+    ? [...orderedPromptlets, ...otherPromptlets]
+    : [...otherPromptlets, ...orderedPromptlets];
+}
+
 // -------------------------
 // Toggle Active State
 // -------------------------
@@ -208,6 +330,13 @@ function togglePromptletActive(name) {
     // Save immediately
     saveAllPromptlets();
   }
+}
+
+function getNextCustomIndex() {
+  const customs = allPromptlets.filter(p => !p.isDefault);
+  if (!customs.length) return 0;
+  const maxIndex = Math.max(...customs.map(p => p.customIndex ?? 0));
+  return maxIndex + 1;
 }
 
 // -------------------------
@@ -224,6 +353,14 @@ function savePromptlet() {
   
   if (!validateName()) return;
 
+  const existingPromptlet = editingPromptletName
+    ? allPromptlets.find(p => p.name === editingPromptletName)
+    : null;
+
+  const customIndex = existingPromptlet && !existingPromptlet.isDefault
+    ? existingPromptlet.customIndex ?? getNextCustomIndex()
+    : getNextCustomIndex();
+
   const newPromptletData = {
     name: name,
     emoji: document.getElementById('emojiInput').value.trim() || '📝',
@@ -234,6 +371,7 @@ function savePromptlet() {
     outputStructure: ["main"],
     isActive: true, // New/Edited are active by default
     isDefault: false,
+    customIndex,
     lastModified: Date.now()
   };
 
@@ -266,7 +404,8 @@ function saveAllPromptlets(callback = null) {
 
   const customs = allPromptlets.filter(p => !p.isDefault).map((p) => ({
     ...p,
-    isDefault: false
+    isDefault: false,
+    customIndex: p.customIndex ?? 0
   }));
 
   savePromptletBuckets(defaults, customs, () => {
@@ -283,12 +422,13 @@ function saveAllPromptlets(callback = null) {
 // -------------------------
 function clonePromptlet(promptlet) {
   const clonedName = promptlet.name + ' (Copy)';
-  const clone = { 
-    ...promptlet, 
-    name: clonedName, 
-    isDefault: false, 
+  const clone = {
+    ...promptlet,
+    name: clonedName,
+    isDefault: false,
     isActive: true, // Clones start active
-    createdAt: Date.now() 
+    createdAt: Date.now(),
+    customIndex: getNextCustomIndex()
   };
   showEditor(clone, true);
 }
