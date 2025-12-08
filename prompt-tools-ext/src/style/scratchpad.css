@@ -86,14 +86,11 @@ body {
 .logo {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
+  box-shadow: 0 0 0 1px var(--ui-border);
 }
 
 .top-controls {
