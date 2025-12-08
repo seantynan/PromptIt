@@ -7,47 +7,6 @@ let allPromptlets = [];
 let editingPromptletName = null; // Track which promptlet we're editing
 const model = "gpt-4o"; // New recommended default for speed and cost-efficiency
 
-function combineStoredPromptlets(data) {
-  const storedDefaults = Array.isArray(data.defaultPromptlets) ? data.defaultPromptlets : null;
-  const storedCustoms = Array.isArray(data.customPromptlets) ? data.customPromptlets : null;
-
-  if (storedDefaults || storedCustoms) {
-    const defaults = (storedDefaults || []).map((p, index) => ({
-      ...p,
-      isDefault: true,
-      isActive: p.isActive !== false,
-      defaultIndex: p.defaultIndex ?? index,
-      createdAt: p.createdAt || 0
-    }));
-
-    const customs = (storedCustoms || []).map((p) => ({
-      ...p,
-      isDefault: false,
-      isActive: p.isActive !== false,
-      createdAt: p.createdAt || Date.now()
-    }));
-
-    return { allPromptlets: [...defaults, ...customs], defaults, customs };
-  }
-
-  const legacyPromptlets = data.promptlets || [];
-  const defaults = legacyPromptlets.filter(p => p.isDefault).map((p, index) => ({
-    ...p,
-    isDefault: true,
-    isActive: p.isActive !== false,
-    defaultIndex: p.defaultIndex ?? index,
-    createdAt: p.createdAt || 0
-  }));
-  const customs = legacyPromptlets.filter(p => !p.isDefault).map((p) => ({
-    ...p,
-    isDefault: false,
-    isActive: p.isActive !== false,
-    createdAt: p.createdAt || Date.now()
-  }));
-
-  return { allPromptlets: [...defaults, ...customs], defaults, customs };
-}
-
 function savePromptletBuckets(defaults, customs, callback = null) {
   const combined = [...defaults, ...customs];
   chrome.storage.local.set({
@@ -107,7 +66,7 @@ function setupEventListeners() {
 // -------------------------
 function loadPromptlets() {
   chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] }, (data) => {
-    const { allPromptlets: combined, defaults, customs } = combineStoredPromptlets(data);
+    const { allPromptlets: combined, defaults, customs } = combineStoredPromptlets(data, { fillCreatedAt: true });
 
     allPromptlets = combined.map(p => ({
       ...p,

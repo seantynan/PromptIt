@@ -3,8 +3,8 @@
 // Handles context menus, message routing, and promptlet execution
 // =========================================================================
 
-// Import default promptlets
-importScripts('defaultPromptlets.js');
+// Import default promptlets and shared utilities
+importScripts('defaultPromptlets.js', 'promptletUtils.js');
 
 // -------------------------
 // Constants
@@ -32,43 +32,6 @@ function getPromptletsWithDefaultsFlag() {
     isActive: true,   // Default promptlets start active
     defaultIndex: index // Stable index for ordering
   }));
-}
-
-function combineStoredPromptlets(data) {
-  const storedDefaults = Array.isArray(data.defaultPromptlets) ? data.defaultPromptlets : null;
-  const storedCustoms = Array.isArray(data.customPromptlets) ? data.customPromptlets : null;
-
-  if (storedDefaults || storedCustoms) {
-    const defaults = (storedDefaults || []).map((p, index) => ({
-      ...p,
-      isDefault: true,
-      isActive: p.isActive !== false,
-      defaultIndex: p.defaultIndex ?? index
-    }));
-
-    const customs = (storedCustoms || []).map((p) => ({
-      ...p,
-      isDefault: false,
-      isActive: p.isActive !== false
-    }));
-
-    return { allPromptlets: [...defaults, ...customs], defaults, customs };
-  }
-
-  const legacyPromptlets = data.promptlets || [];
-  const defaults = legacyPromptlets.filter(p => p.isDefault).map((p, index) => ({
-    ...p,
-    isDefault: true,
-    isActive: p.isActive !== false,
-    defaultIndex: p.defaultIndex ?? index
-  }));
-  const customs = legacyPromptlets.filter(p => !p.isDefault).map((p) => ({
-    ...p,
-    isDefault: false,
-    isActive: p.isActive !== false
-  }));
-
-  return { allPromptlets: [...defaults, ...customs], defaults, customs };
 }
 
 function savePromptletBuckets(defaults, customs, callback) {
@@ -119,13 +82,6 @@ function openManagePage() {
     }
   });
 }
-
-// Add the listener for the browser action (icon) click
-chrome.action.onClicked.addListener(() => {
-  // Ensure the side panel is closed (or ignored)
-  // And the Manage page is opened instead.
-  openManagePage();
-});
 
 // -------------------------
 // Ensure default promptlets exist on first install
@@ -621,11 +577,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 // Handle toolbar icon click
 // -------------------------
 chrome.action.onClicked.addListener((tab) => {
-  if (chrome.sidePanel && chrome.sidePanel.open) {
-    chrome.sidePanel.open({ tabId: tab.id });
-  } else {
-    chrome.runtime.openOptionsPage();
+  if (chrome.sidePanel && chrome.sidePanel.open && tab && tab.id !== -1) {
+    chrome.sidePanel.open({ tabId: tab.id }).catch((error) => {
+      console.error("Error opening side panel from action:", error);
+      openManagePage();
+    });
+    return;
   }
+
+  openManagePage();
 });
 
 // -------------------------
