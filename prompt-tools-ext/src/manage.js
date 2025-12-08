@@ -163,6 +163,9 @@ function createPromptletElement(promptlet) {
           <button class="btn btn-small btn-danger delete-btn">Delete</button>
           <button class="btn btn-small btn-secondary clone-btn">Clone</button>
         </div>
+        <div class="drag-handle" draggable="true" title="Drag to reorder" aria-label="Drag to reorder">
+          <span class="drag-grip" aria-hidden="true"></span>
+        </div>
       </div>
     
     ${promptlet.isDefault
@@ -171,17 +174,12 @@ function createPromptletElement(promptlet) {
         }
    `;
 
-    // Enable drag & drop ordering within the same bucket
+    // Enable drag & drop ordering within the same bucket (handle-only)
     const bucket = promptlet.isDefault ? 'default' : 'custom';
-    item.setAttribute('draggable', 'true');
     item.dataset.bucket = bucket;
 
-    item.addEventListener('dragstart', (event) => {
-      if (event.target.closest('button, input, textarea, select, label')) {
-        event.preventDefault();
-        return;
-      }
-
+    const dragHandle = item.querySelector('.drag-handle');
+    dragHandle.addEventListener('dragstart', (event) => {
       dragState = { name: promptlet.name, bucket };
       item.classList.add('dragging');
       event.dataTransfer.effectAllowed = 'move';
@@ -189,7 +187,7 @@ function createPromptletElement(promptlet) {
       event.dataTransfer.setData('text/plain', promptlet.name);
     });
 
-    item.addEventListener('dragend', () => {
+    dragHandle.addEventListener('dragend', () => {
       dragState = null;
       item.classList.remove('dragging');
       clearDragOverStates();
@@ -244,6 +242,12 @@ function createBucketSortable(listElement, bucket) {
   listElement.dataset.bucket = bucket;
   listElement.dataset.sortableInitialized = 'true';
 
+  const dropIndicator = listElement.querySelector('.drop-indicator') || document.createElement('div');
+  dropIndicator.className = 'drop-indicator hidden';
+  if (!dropIndicator.parentElement) {
+    listElement.appendChild(dropIndicator);
+  }
+
   listElement.addEventListener('dragover', (event) => {
     if (!dragState || dragState.bucket !== bucket) return;
     event.preventDefault();
@@ -251,10 +255,15 @@ function createBucketSortable(listElement, bucket) {
     if (!draggingCard) return;
 
     const afterElement = getDragAfterElement(listElement, event.clientY);
+    dropIndicator.classList.remove('hidden');
     if (afterElement == null) {
-      listElement.appendChild(draggingCard);
+      listElement.appendChild(dropIndicator);
     } else {
-      listElement.insertBefore(draggingCard, afterElement);
+      listElement.insertBefore(dropIndicator, afterElement);
+    }
+
+    if (draggingCard !== dropIndicator.previousElementSibling) {
+      listElement.insertBefore(draggingCard, dropIndicator);
     }
 
     listElement.classList.add('drag-over');
@@ -267,12 +276,20 @@ function createBucketSortable(listElement, bucket) {
 
   listElement.addEventListener('dragleave', () => {
     listElement.classList.remove('drag-over');
+    dropIndicator.classList.add('hidden');
   });
 
   listElement.addEventListener('drop', (event) => {
     if (!dragState || dragState.bucket !== bucket) return;
     event.preventDefault();
     listElement.classList.remove('drag-over');
+    const draggingCard = document.querySelector('.promptlet-card.dragging');
+    if (draggingCard) {
+      listElement.insertBefore(draggingCard, dropIndicator);
+      draggingCard.classList.add('sorted-flash');
+      setTimeout(() => draggingCard.classList.remove('sorted-flash'), 600);
+    }
+    dropIndicator.classList.add('hidden');
 
     const orderedNames = Array.from(listElement.querySelectorAll('.promptlet-card'))
       .map(card => card.dataset.name);
@@ -284,6 +301,7 @@ function createBucketSortable(listElement, bucket) {
 
 function clearDragOverStates() {
   document.querySelectorAll('.promptlet-list').forEach((list) => list.classList.remove('drag-over'));
+  document.querySelectorAll('.drop-indicator').forEach((indicator) => indicator.classList.add('hidden'));
 }
 
 function getDragAfterElement(container, y) {
