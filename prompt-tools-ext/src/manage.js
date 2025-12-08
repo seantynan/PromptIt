@@ -30,7 +30,6 @@ function formatModelLabel(promptlet) {
 // Initialize
 // -------------------------
 document.addEventListener('DOMContentLoaded', () => {
-  initializeDragAndDrop();
   loadPromptlets();
   loadApiKey();
   setupEventListeners();
@@ -118,6 +117,8 @@ function renderPromptlets() {
   customs.forEach(p => {
     userList.appendChild(createPromptletElement(p));
   });
+
+  setupSortableLists();
 }
 
 // -------------------------
@@ -171,20 +172,27 @@ function createPromptletElement(promptlet) {
    `;
 
     // Enable drag & drop ordering within the same bucket
+    const bucket = promptlet.isDefault ? 'default' : 'custom';
     item.setAttribute('draggable', 'true');
-    item.dataset.bucket = promptlet.isDefault ? 'default' : 'custom';
+    item.dataset.bucket = bucket;
 
     item.addEventListener('dragstart', (event) => {
-      dragState = { name: promptlet.name, bucket: item.dataset.bucket };
+      if (event.target.closest('button, input, textarea, select, label')) {
+        event.preventDefault();
+        return;
+      }
+
+      dragState = { name: promptlet.name, bucket };
       item.classList.add('dragging');
       event.dataTransfer.effectAllowed = 'move';
+      // Required for some browsers to initiate drag events
+      event.dataTransfer.setData('text/plain', promptlet.name);
     });
 
     item.addEventListener('dragend', () => {
       dragState = null;
       item.classList.remove('dragging');
       clearDragOverStates();
-      renderPromptlets();
     });
 
     // --- Attach Event Listeners ---
@@ -214,21 +222,27 @@ function createPromptletElement(promptlet) {
     return item;
 }
 
-function initializeDragAndDrop() {
+function setupSortableLists() {
   const defaultList = document.getElementById('defaultPromptlets');
   const userList = document.getElementById('userPromptlets');
 
   if (defaultList) {
-    setupDragAndDrop(defaultList, 'default');
+    createBucketSortable(defaultList, 'default');
   }
 
   if (userList) {
-    setupDragAndDrop(userList, 'custom');
+    createBucketSortable(userList, 'custom');
   }
 }
 
-function setupDragAndDrop(listElement, bucket) {
+function createBucketSortable(listElement, bucket) {
+  if (listElement.dataset.sortableInitialized === 'true') {
+    listElement.dataset.bucket = bucket;
+    return;
+  }
+
   listElement.dataset.bucket = bucket;
+  listElement.dataset.sortableInitialized = 'true';
 
   listElement.addEventListener('dragover', (event) => {
     if (!dragState || dragState.bucket !== bucket) return;
@@ -244,6 +258,11 @@ function setupDragAndDrop(listElement, bucket) {
     }
 
     listElement.classList.add('drag-over');
+  });
+
+  listElement.addEventListener('dragenter', (event) => {
+    if (!dragState || dragState.bucket !== bucket) return;
+    event.preventDefault();
   });
 
   listElement.addEventListener('dragleave', () => {
