@@ -107,6 +107,25 @@
       margin-bottom: 24px;
     }
 
+    .section-hint {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin: -8px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-hint::before {
+      content: "";
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      border: 2px dashed var(--accent-blue);
+      opacity: 0.6;
+      display: inline-block;
+    }
+
     .promptlet-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -134,19 +153,20 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding-left: 10px;
+      padding: 0 12px;
       margin-left: 8px;
       border-left: 1px dashed var(--border);
       color: var(--text-secondary);
       cursor: grab;
       user-select: none;
       flex-shrink: 0;
-      transition: color 0.2s, opacity 0.2s;
+      transition: color 0.2s, opacity 0.2s, transform 0.15s ease;
     }
 
     .drag-handle:hover {
       color: var(--accent-blue);
-      opacity: 0.9;
+      opacity: 0.95;
+      transform: translateY(-1px);
     }
 
     .drag-handle:active {
@@ -154,34 +174,60 @@
     }
 
     .drag-grip {
-      width: 12px;
-      height: 28px;
-      background-image: radial-gradient(currentColor 20%, transparent 20%);
-      background-size: 4px 6px;
-      background-repeat: repeat;
+      width: 14px;
+      height: 32px;
       display: block;
+      background-image:
+        radial-gradient(circle at 2px 2px, currentColor 42%, transparent 42%),
+        radial-gradient(circle at 2px 8px, currentColor 42%, transparent 42%),
+        radial-gradient(circle at 2px 14px, currentColor 42%, transparent 42%),
+        radial-gradient(circle at 2px 20px, currentColor 42%, transparent 42%),
+        radial-gradient(circle at 2px 26px, currentColor 42%, transparent 42%),
+        radial-gradient(circle at 8px 2px, currentColor 42%, transparent 42%),
+        radial-gradient(circle at 8px 8px, currentColor 42%, transparent 42%),
+        radial-gradient(circle at 8px 14px, currentColor 42%, transparent 42%),
+        radial-gradient(circle at 8px 20px, currentColor 42%, transparent 42%),
+        radial-gradient(circle at 8px 26px, currentColor 42%, transparent 42%);
+      background-repeat: no-repeat;
+      filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.12));
     }
 
     .drop-indicator {
-      height: 0;
-      border-top: 2px dashed var(--accent-blue);
-      margin: 6px 4px;
-      border-radius: 999px;
-      box-shadow: 0 0 0 4px rgba(100, 181, 246, 0.08);
+      height: 10px;
+      margin: 6px 2px;
+      border-radius: 10px;
+      border: 2px dashed var(--accent-blue);
+      background: rgba(100, 181, 246, 0.08);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+      transition: height 120ms ease, margin 120ms ease;
+    }
+
+    .drop-indicator.active {
+      height: 72px;
+      margin: 4px 0;
+      border-style: solid;
+      border-color: rgba(100, 181, 246, 0.9);
+      background: linear-gradient(180deg, rgba(100, 181, 246, 0.12) 0%, rgba(100, 181, 246, 0.05) 100%);
+      outline: 2px dashed rgba(100, 181, 246, 0.5);
+      outline-offset: 2px;
     }
 
     .promptlet-card.sorted-flash {
-      animation: sortedFlash 0.6s ease-out;
+      animation: sortedFlash 1.3s ease-out;
     }
 
     @keyframes sortedFlash {
       0% {
-        background-color: rgba(76, 175, 80, 0.18);
-        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+        background-color: rgba(76, 175, 80, 0.28);
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.55);
       }
-      70% {
-        background-color: rgba(76, 175, 80, 0.12);
-        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+      45% {
+        background-color: rgba(76, 175, 80, 0.2);
+        box-shadow: 0 0 0 12px rgba(76, 175, 80, 0.2);
+      }
+      80% {
+        background-color: rgba(76, 175, 80, 0.08);
+        box-shadow: 0 0 0 18px rgba(76, 175, 80, 0.04);
       }
       100% {
         background-color: transparent;
