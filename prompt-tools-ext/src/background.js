@@ -298,9 +298,14 @@ function buildContextMenus() {
           // Defaults: Sort by explicit defaultIndex
           return (a.defaultIndex || 0) - (b.defaultIndex || 0);
         } else {
-          // Customs: Sort by createdAt (oldest/first created should be first)
-          // If createdAt is missing, treat as latest (highest timestamp)
-          return (a.createdAt || Infinity) - (b.createdAt || Infinity);
+          // Customs: Sort by user-defined customIndex, fall back to createdAt for legacy data
+          const aIndex = (a.customIndex !== undefined && a.customIndex !== null)
+            ? a.customIndex
+            : (a.createdAt || Infinity);
+          const bIndex = (b.customIndex !== undefined && b.customIndex !== null)
+            ? b.customIndex
+            : (b.createdAt || Infinity);
+          return aIndex - bIndex;
         }
       });
 
