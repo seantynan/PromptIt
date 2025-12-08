@@ -114,6 +114,8 @@
       padding: 16px;
       box-shadow: 0 1px 3px var(--shadow);
       transition: box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
     }
 
     .promptlet-card.dragging {
@@ -125,6 +127,66 @@
     .promptlet-list.drag-over {
       outline: 2px dashed var(--accent-blue);
       border-radius: 8px;
+    }
+
+    .drag-handle {
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-left: 10px;
+      margin-left: 8px;
+      border-left: 1px dashed var(--border);
+      color: var(--text-secondary);
+      cursor: grab;
+      user-select: none;
+      flex-shrink: 0;
+      transition: color 0.2s, opacity 0.2s;
+    }
+
+    .drag-handle:hover {
+      color: var(--accent-blue);
+      opacity: 0.9;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .drag-grip {
+      width: 12px;
+      height: 28px;
+      background-image: radial-gradient(currentColor 20%, transparent 20%);
+      background-size: 4px 6px;
+      background-repeat: repeat;
+      display: block;
+    }
+
+    .drop-indicator {
+      height: 0;
+      border-top: 2px dashed var(--accent-blue);
+      margin: 6px 4px;
+      border-radius: 999px;
+      box-shadow: 0 0 0 4px rgba(100, 181, 246, 0.08);
+    }
+
+    .promptlet-card.sorted-flash {
+      animation: sortedFlash 0.6s ease-out;
+    }
+
+    @keyframes sortedFlash {
+      0% {
+        background-color: rgba(76, 175, 80, 0.18);
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+      }
+      70% {
+        background-color: rgba(76, 175, 80, 0.12);
+        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+      }
+      100% {
+        background-color: transparent;
+        box-shadow: none;
+      }
     }
 
 
