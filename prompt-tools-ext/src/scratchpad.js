@@ -395,9 +395,14 @@ async function fetchPromptlets() {
       resolve(DEFAULT_PROMPTLETS || []);
       return;
     }
+
     chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] }, (data) => {
       const { allPromptlets } = combineStoredPromptlets(data);
-      resolve(allPromptlets.length ? allPromptlets : DEFAULT_PROMPTLETS || []);
+
+      // Match the context menu behaviour: hide promptlets explicitly toggled off.
+      const activePromptlets = allPromptlets.filter((promptlet) => promptlet.isActive !== false);
+
+      resolve(activePromptlets.length ? activePromptlets : DEFAULT_PROMPTLETS || []);
     });
   });
 }
