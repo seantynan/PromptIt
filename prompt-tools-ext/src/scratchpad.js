@@ -396,38 +396,10 @@ async function fetchPromptlets() {
       return;
     }
     chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] }, (data) => {
-      const list = combineStoredPromptlets(data);
-      resolve(list.length ? list : DEFAULT_PROMPTLETS || []);
+      const { allPromptlets } = combineStoredPromptlets(data);
+      resolve(allPromptlets.length ? allPromptlets : DEFAULT_PROMPTLETS || []);
     });
   });
-}
-
-function combineStoredPromptlets(data) {
-  const storedDefaults = Array.isArray(data.defaultPromptlets) ? data.defaultPromptlets : null;
-  const storedCustoms = Array.isArray(data.customPromptlets) ? data.customPromptlets : null;
-
-  if (storedDefaults || storedCustoms) {
-    const defaults = (storedDefaults || []).map((p, index) => ({
-      ...p,
-      isDefault: true,
-      isActive: p.isActive !== false,
-      defaultIndex: p.defaultIndex ?? index
-    }));
-
-    const customs = (storedCustoms || []).map((p) => ({
-      ...p,
-      isDefault: false,
-      isActive: p.isActive !== false
-    }));
-
-    return [...defaults, ...customs];
-  }
-
-  return (data.promptlets || []).map((p, index) => ({
-    ...p,
-    isActive: p.isActive !== false,
-    defaultIndex: p.defaultIndex ?? index
-  }));
 }
 
 function renderPromptletSidebar() {
