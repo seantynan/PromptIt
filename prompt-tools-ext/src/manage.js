@@ -182,6 +182,10 @@ function createPromptletElement(promptlet) {
     dragHandle.addEventListener('dragstart', (event) => {
       dragState = { name: promptlet.name, bucket };
       item.classList.add('dragging');
+      const parentList = item.closest('.promptlet-list');
+      if (parentList) {
+        parentList.classList.add('reordering');
+      }
       event.dataTransfer.effectAllowed = 'move';
       // Required for some browsers to initiate drag events
       event.dataTransfer.setData('text/plain', promptlet.name);
@@ -243,7 +247,7 @@ function createBucketSortable(listElement, bucket) {
   listElement.dataset.sortableInitialized = 'true';
 
   const dropIndicator = listElement.querySelector('.drop-indicator') || document.createElement('div');
-  dropIndicator.className = 'drop-indicator hidden';
+  dropIndicator.className = 'drop-indicator';
   if (!dropIndicator.parentElement) {
     listElement.appendChild(dropIndicator);
   }
@@ -255,11 +259,10 @@ function createBucketSortable(listElement, bucket) {
     if (!draggingCard) return;
 
     const placeholderHeight = draggingCard.offsetHeight;
-    dropIndicator.style.height = `${placeholderHeight}px`;
+    dropIndicator.style.setProperty('--indicator-height', `${placeholderHeight}px`);
     dropIndicator.classList.add('active');
 
     const afterElement = getDragAfterElement(listElement, event.clientY);
-    dropIndicator.classList.remove('hidden');
     if (afterElement == null) {
       listElement.appendChild(dropIndicator);
     } else {
@@ -276,24 +279,23 @@ function createBucketSortable(listElement, bucket) {
 
   listElement.addEventListener('dragleave', () => {
     listElement.classList.remove('drag-over');
-    dropIndicator.classList.add('hidden');
     dropIndicator.classList.remove('active');
-    dropIndicator.style.height = '';
+    dropIndicator.style.removeProperty('--indicator-height');
   });
 
   listElement.addEventListener('drop', (event) => {
     if (!dragState || dragState.bucket !== bucket) return;
     event.preventDefault();
     listElement.classList.remove('drag-over');
+    listElement.classList.remove('reordering');
     const draggingCard = document.querySelector('.promptlet-card.dragging');
     if (draggingCard) {
       listElement.insertBefore(draggingCard, dropIndicator);
       draggingCard.classList.add('sorted-flash');
-      setTimeout(() => draggingCard.classList.remove('sorted-flash'), 1100);
+      setTimeout(() => draggingCard.classList.remove('sorted-flash'), 700);
     }
-    dropIndicator.classList.add('hidden');
     dropIndicator.classList.remove('active');
-    dropIndicator.style.height = '';
+    dropIndicator.style.removeProperty('--indicator-height');
 
     const orderedNames = Array.from(listElement.querySelectorAll('.promptlet-card'))
       .map(card => card.dataset.name);
@@ -304,11 +306,10 @@ function createBucketSortable(listElement, bucket) {
 }
 
 function clearDragOverStates() {
-  document.querySelectorAll('.promptlet-list').forEach((list) => list.classList.remove('drag-over'));
+  document.querySelectorAll('.promptlet-list').forEach((list) => list.classList.remove('drag-over', 'reordering'));
   document.querySelectorAll('.drop-indicator').forEach((indicator) => {
-    indicator.classList.add('hidden');
     indicator.classList.remove('active');
-    indicator.style.height = '';
+    indicator.style.removeProperty('--indicator-height');
   });
 }
 
