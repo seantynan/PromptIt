@@ -266,10 +266,6 @@ function createBucketSortable(listElement, bucket) {
       listElement.insertBefore(dropIndicator, afterElement);
     }
 
-    if (draggingCard !== dropIndicator.previousElementSibling) {
-      listElement.insertBefore(draggingCard, dropIndicator);
-    }
-
     listElement.classList.add('drag-over');
   });
 
@@ -293,7 +289,7 @@ function createBucketSortable(listElement, bucket) {
     if (draggingCard) {
       listElement.insertBefore(draggingCard, dropIndicator);
       draggingCard.classList.add('sorted-flash');
-      setTimeout(() => draggingCard.classList.remove('sorted-flash'), 1300);
+      setTimeout(() => draggingCard.classList.remove('sorted-flash'), 1100);
     }
     dropIndicator.classList.add('hidden');
     dropIndicator.classList.remove('active');
