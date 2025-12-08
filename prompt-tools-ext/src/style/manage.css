@@ -141,14 +141,14 @@
         color: var(--text-disabled);
     }
 
-    /* 4. Buttons: Disable Edit and Delete buttons only */
-    .promptlet-card.disabled .edit-btn,
-    .promptlet-card.disabled .delete-btn {
-        opacity: 0.2; /* Make them very faint */
-        pointer-events: none; /* Make them unclickable */
+    /* 4. Buttons: Disable Edit button only */
+    .promptlet-card.disabled .edit-btn {
+        opacity: 0.2; /* Make it very faint */
+        pointer-events: none; /* Make it unclickable */
     }
 
-    /* 5. EXCEPTION: Ensure Clone Button remains fully visible and clickable */
+    /* 5. EXCEPTION: Ensure Delete and Clone buttons remain fully visible and clickable */
+    .promptlet-card.disabled .delete-btn,
     .promptlet-card.disabled .clone-btn {
         opacity: 1;
         pointer-events: auto;
