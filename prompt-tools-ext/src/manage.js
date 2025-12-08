@@ -254,6 +254,10 @@ function createBucketSortable(listElement, bucket) {
     const draggingCard = document.querySelector('.promptlet-card.dragging');
     if (!draggingCard) return;
 
+    const placeholderHeight = draggingCard.offsetHeight;
+    dropIndicator.style.height = `${placeholderHeight}px`;
+    dropIndicator.classList.add('active');
+
     const afterElement = getDragAfterElement(listElement, event.clientY);
     dropIndicator.classList.remove('hidden');
     if (afterElement == null) {
@@ -277,6 +281,8 @@ function createBucketSortable(listElement, bucket) {
   listElement.addEventListener('dragleave', () => {
     listElement.classList.remove('drag-over');
     dropIndicator.classList.add('hidden');
+    dropIndicator.classList.remove('active');
+    dropIndicator.style.height = '';
   });
 
   listElement.addEventListener('drop', (event) => {
@@ -287,9 +293,11 @@ function createBucketSortable(listElement, bucket) {
     if (draggingCard) {
       listElement.insertBefore(draggingCard, dropIndicator);
       draggingCard.classList.add('sorted-flash');
-      setTimeout(() => draggingCard.classList.remove('sorted-flash'), 600);
+      setTimeout(() => draggingCard.classList.remove('sorted-flash'), 1300);
     }
     dropIndicator.classList.add('hidden');
+    dropIndicator.classList.remove('active');
+    dropIndicator.style.height = '';
 
     const orderedNames = Array.from(listElement.querySelectorAll('.promptlet-card'))
       .map(card => card.dataset.name);
@@ -301,7 +309,11 @@ function createBucketSortable(listElement, bucket) {
 
 function clearDragOverStates() {
   document.querySelectorAll('.promptlet-list').forEach((list) => list.classList.remove('drag-over'));
-  document.querySelectorAll('.drop-indicator').forEach((indicator) => indicator.classList.add('hidden'));
+  document.querySelectorAll('.drop-indicator').forEach((indicator) => {
+    indicator.classList.add('hidden');
+    indicator.classList.remove('active');
+    indicator.style.height = '';
+  });
 }
 
 function getDragAfterElement(container, y) {
