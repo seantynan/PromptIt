@@ -530,9 +530,9 @@ a.plain {
 }
 
 .action-divider {
-    width: 2px;
+    width: 4px;
     height: auto;
-    background: #2e7d32;
+    background: #1E1E1E;
     margin: 0;
 }
 
