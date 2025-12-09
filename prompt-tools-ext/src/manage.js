@@ -413,7 +413,7 @@ function validateImportPayload(rawContent) {
             throw new Error('Invalid promptlet entry encountered.');
         }
 
-        const requiredFields = ['name', 'emoji', 'prompt', 'model', 'temperature', 'maxTokens'];
+        const requiredFields = ['name', 'emoji', 'model', 'temperature', 'maxTokens'];
         const missing = requiredFields.filter((field) => item[field] === undefined || item[field] === null);
         if (missing.length) {
             throw new Error(`The file is missing required fields: ${missing.join(', ')}`);
@@ -432,11 +432,12 @@ function validateImportPayload(rawContent) {
             throw new Error('Promptlet emoji must be provided.');
         }
 
-        if (typeof item.prompt !== 'string' || !item.prompt.trim()) {
-            throw new Error('Promptlet prompt text must be provided.');
+        const promptText = typeof item.prompt === 'string' ? item.prompt : '';
+        if (item.prompt !== undefined && item.prompt !== null && typeof item.prompt !== 'string') {
+            throw new Error('Promptlet prompt text must be a string when provided.');
         }
 
-        if (item.prompt.length > 7000) {
+        if (promptText.length > 7000) {
             throw new Error('Prompt text exceeds the 7000 character limit.');
         }
 
@@ -467,7 +468,7 @@ function validateImportPayload(rawContent) {
         promptlets.push({
             name: finalName,
             emoji: item.emoji.trim(),
-            prompt: item.prompt.trim(),
+            prompt: promptText.trim(),
             model: item.model.trim(),
             temperature,
             maxTokens,
