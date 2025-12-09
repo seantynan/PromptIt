@@ -44,12 +44,19 @@
     <!-- Add / Import / Export Promptlets -->
     <section class="add-section">
       <div class="action-row">
-        <button class="btn btn-primary btn-large" id="addNewBtn">
+        <button class="btn btn-primary btn-large primary-action" id="addNewBtn">
           ➕ Add New Promptlet
         </button>
-        <div class="secondary-actions">
-          <button class="btn btn-secondary" id="exportBtn" aria-haspopup="dialog">Export</button>
-          <button class="btn btn-secondary" id="importBtn" aria-haspopup="dialog">Import</button>
+        <div class="secondary-actions" role="group" aria-label="Import and export promptlets">
+          <div class="action-divider" aria-hidden="true"></div>
+          <button class="btn btn-secondary icon-button" id="importBtn" aria-haspopup="dialog" aria-label="Import Promptlets">
+            <span aria-hidden="true" class="btn-icon">📥</span>
+            <span class="btn-label">Import</span>
+          </button>
+          <button class="btn btn-secondary icon-button" id="exportBtn" aria-haspopup="dialog" aria-label="Export Promptlets">
+            <span aria-hidden="true" class="btn-icon">📤</span>
+            <span class="btn-label">Export</span>
+          </button>
         </div>
       </div>
     </section>
