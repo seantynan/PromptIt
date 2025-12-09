@@ -16,6 +16,11 @@
     margin-bottom: 30px;
 }
 
+.page-footer {
+    text-align: center;
+    padding: 1rem 0; /* optional: gives it a bit of breathing room */
+}
+
 h1 {
     font-size: 2em;
     font-weight: 600;
