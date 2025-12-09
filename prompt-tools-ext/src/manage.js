@@ -752,9 +752,15 @@ function createBucketSortable(listElement, bucket) {
 
     const dropIndicator = listElement.querySelector('.drop-indicator') || document.createElement('div');
     dropIndicator.className = 'drop-indicator hidden';
-    if (!dropIndicator.parentElement) {
-        listElement.appendChild(dropIndicator);
-    }
+
+    // Ensure the indicator always belongs to this list even after re-renders
+    // or DOM resets (e.g., when import/export refreshes the list contents).
+    const ensureIndicatorAttached = () => {
+        if (dropIndicator.parentElement !== listElement) {
+            listElement.appendChild(dropIndicator);
+        }
+    };
+    ensureIndicatorAttached();
 
     let originalCardHeight = 0;
 
@@ -779,11 +785,13 @@ function createBucketSortable(listElement, bucket) {
 
         // Smooth insertion
         requestAnimationFrame(() => {
-            if (afterElement == null) {
+            ensureIndicatorAttached();
+            if (afterElement && afterElement.parentElement !== listElement) {
                 listElement.appendChild(dropIndicator);
-            } else {
-                listElement.insertBefore(dropIndicator, afterElement);
+                return;
             }
+
+            listElement.insertBefore(dropIndicator, afterElement || null);
         });
 
         listElement.classList.add('drag-over');
@@ -819,7 +827,15 @@ function createBucketSortable(listElement, bucket) {
         const draggingCard = document.querySelector('.promptlet-card.dragging');
 
         if (draggingCard) {
-            listElement.insertBefore(draggingCard, dropIndicator);
+            ensureIndicatorAttached();
+
+            // If another render detached the indicator, fall back to appending
+            // the card to the end of the list to avoid DOM insert errors.
+            if (dropIndicator.parentElement !== listElement) {
+                listElement.appendChild(draggingCard);
+            } else {
+                listElement.insertBefore(draggingCard, dropIndicator);
+            }
 
             // Add flash effect with slight delay
             setTimeout(() => {
