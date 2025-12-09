@@ -8,10 +8,13 @@
 </head>
 <body>
   <div class="container">
-    <h1>
-      <img src="../assets/icons/promptit-badge.svg" class="logo" alt="Prompt It logo" title="Prompt It! - AI in your right-click">
-      <span>Manage Promptlets</span>
-    </h1>
+      <h1>
+        <img class="logo"
+            src="../assets/icons/PromptIt.png"
+            alt="Prompt It logo"
+            title="Prompt It! - AI in your right-click" />
+          <span>Manage Promptlets</span>
+      </h1>
 
     <!-- Default Promptlets Section -->
     <section>
@@ -23,8 +26,7 @@
     <!-- Reset Default Promptlets Button -->
     <section class="reset-section">
       <button class="btn btn-primary btn-large" id="resetDefaultsBtn">
-        <img src="../assets/icons/promptit-badge.svg" class="btn-icon" alt="" aria-hidden="true">
-        Reset Default Promptlets
+        🔄 Reset Default Promptlets
       </button>
     </section>
 
@@ -42,8 +44,7 @@
     <!-- Add New Promptlet Button -->
     <section class="add-section">
       <button class="btn btn-primary btn-large" id="addNewBtn">
-        <img src="../assets/icons/promptit-badge.svg" class="btn-icon" alt="" aria-hidden="true">
-        Add New Promptlet
+        ➕ Add New Promptlet
       </button>
     </section>
 
@@ -57,7 +58,7 @@
           <input type="text" class="form-input form-input-small" id="emojiInput" maxlength="2" placeholder="✨">
         </div>
         
-        <div class="form-group" style="flex: 1;">
+        <div class="form-group validation-group" style="flex: 1;">
           <label class="form-label">Name *</label>
           <input type="text" class="form-input" id="nameInput" placeholder="My Promptlet" required>
           <div class="validation-message hidden" id="nameValidation"></div>
@@ -76,7 +77,7 @@
           <span>Advanced Settings</span>
         </div>
         <div class="advanced-content" id="advancedContent">
-          <div class="form-group">
+        <div class="form-group">
             <label class="form-label">Model</label>
             <select class="form-input" id="modelInput">
                 <option value="gpt-5.1">GPT-5.1 (Advanced: Highest Reasoning / Complex Tasks)</option>
@@ -84,7 +85,10 @@
                 <option value="gpt-5-mini">GPT-5 Mini (Fast: Reasoning at Lower Cost)</option>
                 <option value="gpt-5-nano">GPT-5 Nano (Fastest: Quick Tasks / Classification)</option>
             </select>
-          </div>
+            <p class="help-text">
+                <label class="form-label"><a href="https://openai.com/api/pricing/" title="View model pricing" target="_blank" rel="noopener noreferrer" class="plain">View model pricing</a></label>
+            </p>
+            </div>
 
           <div class="form-group">
             <label class="form-label">Temperature: <span id="tempValue">1.0</span></label>
@@ -108,7 +112,7 @@
 
     <!-- API Key Section -->
     <section class="api-settings">
-      <h2><img src="../assets/icons/promptit-badge.svg" class="btn-icon" alt="" aria-hidden="true"> OpenAI API Key</h2>
+      <h2>🔑 OpenAI API Key</h2>
       <div class="form-group">
         <input type="password" class="form-input" id="apiKeyInput" placeholder="sk-...">
         <p class="help-text">Stored locally only — never sent anywhere except to OpenAI's API.</p>
@@ -117,6 +121,7 @@
     </section>
   </div>
 
+  <script src="promptletUtils.js"></script>
   <script src="manage.js"></script>
 </body>
 </html>

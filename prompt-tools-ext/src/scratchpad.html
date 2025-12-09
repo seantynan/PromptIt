@@ -9,77 +9,66 @@
 <body>
   <header class="top-bar">
     <div class="top-title" aria-label="Prompt It Scratchpad heading">
-      <img src="../assets/icons/promptit-badge.svg" class="logo" aria-hidden="true" title="Prompt It! - AI in your right-click" alt="">
+      <img
+        class="logo"
+        src="../assets/icons/PromptIt.png"
+        alt="Prompt It logo"
+        title="Prompt It! - AI in your right-click"
+      />
       <span class="title-text">Studio</span>
     </div>
     <div class="top-controls" role="toolbar" aria-label="Scratchpad actions">
       <div class="button-group" aria-label="Primary actions">
-        <button id="clearBtn" class="btn" aria-label="Clear Input">
-          <img src="../assets/icons/promptit-badge.svg" class="btn-icon" alt="" aria-hidden="true"> Clear Input
-        </button>
+        <button id="clearBtn" class="btn" aria-label="Clear Input">🧹 Clear Input</button>
       </div>
       <div class="button-group" aria-label="Copy and chain actions">
-        <button id="copyBtn" class="btn" aria-label="Copy Output" disabled>
-          <img src="../assets/icons/promptit-badge.svg" class="btn-icon" alt="" aria-hidden="true"> Copy Output
-        </button>
+        <button id="copyBtn" class="btn" aria-label="Copy Output" disabled>📋 Copy Output</button>
         <div class="dropdown">
-          <button id="chainBtn" class="btn" aria-haspopup="true" aria-expanded="false">
-            <img src="../assets/icons/promptit-badge.svg" class="btn-icon" alt="" aria-hidden="true"> Chain ▼
-          </button>
+          <button id="chainBtn" class="btn" aria-haspopup="true" aria-expanded="false">🔗 Chain ▼</button>
           <div id="chainMenu" class="dropdown-menu" role="menu" aria-label="Chain promptlets"></div>
         </div>
       </div>
       <div class="button-group" aria-label="Formatting actions">
         <div class="dropdown">
-          <button id="themeBtn" class="btn" aria-haspopup="true" aria-expanded="false">
-            <img src="../assets/icons/promptit-badge.svg" class="btn-icon" alt="" aria-hidden="true"> Theme
-          </button>
+          <button id="themeBtn" class="btn" aria-haspopup="true" aria-expanded="false">🎨 Theme</button>
           <div id="themeMenu" class="dropdown-menu" role="menu" aria-label="Theme presets"></div>
         </div>
         <div class="dropdown">
-          <button id="fontTypeBtn" class="btn" aria-haspopup="true" aria-expanded="false">
-            <img src="../assets/icons/promptit-badge.svg" class="btn-icon" alt="" aria-hidden="true"> Font Type
-          </button>
+          <button id="fontTypeBtn" class="btn" aria-haspopup="true" aria-expanded="false">🔤 Font Type</button>
           <div id="fontTypeMenu" class="dropdown-menu" role="menu" aria-label="Font choices"></div>
         </div>
         <div class="dropdown">
-          <button id="fontSizeBtn" class="btn" aria-haspopup="true" aria-expanded="false">
-            <img src="../assets/icons/promptit-badge.svg" class="btn-icon" alt="" aria-hidden="true"> Font Size
-          </button>
+          <button id="fontSizeBtn" class="btn" aria-haspopup="true" aria-expanded="false">🔎 Font Size</button>
           <div id="fontSizeMenu" class="dropdown-menu" role="menu" aria-label="Font sizes"></div>
         </div>
       </div>
       <div class="button-group" aria-label="Layout actions">
-          <button id="layoutBtn" class="btn icon-btn" aria-label="Switch Layout" title="Toggle layout">
-            <img src="../assets/icons/promptit-badge.svg" class="btn-icon" alt="" aria-hidden="true">
-          </button>
+          <button id="layoutBtn" class="btn icon-btn" aria-label="Switch Layout" title="Toggle layout">↕️</button>
       </div>
     </div>
   </header>
 
-  <main class="workspace horizontal" id="workspace">
+  <main class="workspace vertical" id="workspace">
     <section class="panels" id="panels">
       <div class="panel input-panel">
         <div class="panel-header">Input</div>
         <div class="panel-body">
           <textarea id="inputArea" aria-label="Scratchpad input" placeholder="" spellcheck="true"></textarea>
-          <div id="inputOverlay" class="overlay" aria-hidden="true">
-            <img src="../assets/icons/promptit-badge.svg" class="overlay-icon" alt="" aria-hidden="true"> Enter text here...
-          </div>
+          <div id="inputOverlay" class="overlay" aria-hidden="true">✏️ Enter text here...</div>
         </div>
       </div>
+      <div id="panelResizeHandle" class="resize-handle" role="separator" aria-label="Resize panels"></div>
       <div class="panel output-panel">
         <div class="panel-header">Output</div>
         <div class="panel-body">
           <div id="outputArea" class="output-content" aria-label="Scratchpad output" tabindex="0"></div>
-          <div id="outputOverlay" class="overlay" aria-hidden="true">
-            <img src="../assets/icons/promptit-badge.svg" class="overlay-icon" alt="" aria-hidden="true"> Output goes here...
-          </div>
+          <div id="outputOverlay" class="overlay" aria-hidden="true">✨ Output goes here...</div>
         </div>
       </div>
     </section>
     <aside class="sidebar" aria-label="Promptlets">
       <div id="promptletList" class="promptlet-list"></div>
+      <div id="tokenUsage" class="usage-badge hidden" aria-live="polite"></div>
     </aside>
   </main>
 
@@ -110,6 +99,7 @@
   </template>
 
   <script src="defaultPromptlets.js"></script>
+  <script src="promptletUtils.js"></script>
   <script src="scratchpad.js"></script>
 </body>
 </html>

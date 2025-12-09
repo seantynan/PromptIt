@@ -9,7 +9,7 @@ const DEFAULT_PROMPTLETS = [
   {
     name: "Summarise",
     emoji: "💡",
-    prompt: "Summarise this text clearly and concisely.",
+        prompt: "You are an expert editor. Summarise the selected text clearly and concisely. Capture the main ideas and key details without losing the original tone. Use bullet points if the text contains multiple distinct topics. Input text: ",
     model: model,
     maxTokens: 1500,
     outputStructure: ["main"]
@@ -17,7 +17,7 @@ const DEFAULT_PROMPTLETS = [
   {
     name: "Rephrase",
     emoji: "✏️",
-    prompt: "Rephrase this text to improve clarity and flow.",
+      prompt: "Rewrite the selected text to improve clarity, flow, and readability. Ensure the original meaning is strictly preserved. Aim for a professional, natural, and engaging tone. Fix any grammatical errors. Input text: ",
     model: model,
     maxTokens: 1500,
     outputStructure: ["main"]
@@ -25,7 +25,7 @@ const DEFAULT_PROMPTLETS = [
   {
     name: "Verify",
     emoji: "✅",
-    prompt: `You are an evidence-driven analyst. Evaluate the CLAIM below as TRUE, MOSTLY TRUE, MISLEADING, FALSE, or UNVERIFIABLE, and provide a confidence score (0–100%). 
+      prompt: `You are an evidence-driven analyst. If the following text does not contain a verifiable claim or fact, state 'No verifiable claim detected' and explain why. Evaluate the CLAIM below as TRUE, MOSTLY TRUE, MISLEADING, FALSE, or UNVERIFIABLE, and provide a confidence score (0–100%). 
 
 Method:
 1. Break the claim into testable parts.
@@ -51,7 +51,7 @@ CLAIM:
     // This allows users to test the maximum reasoning capabilities of the model
     name: "Max Reasoning",
     emoji: "👑",
-    prompt: "",
+    prompt: "Analyze the following input using deep reasoning. Break down the problem step-by-step, explore multiple perspectives, and validate your assumptions before providing a final conclusion. Show your reasoning process clearly",
     model: "gpt-5.1",
     maxTokens: 16000,
     outputStructure: ["main"]
@@ -59,21 +59,7 @@ CLAIM:
   {
     name: "Learn a Language",
     emoji: "🌍",
-    prompt: `You are an ai translator that translates from from any language to English. 
-
-The user will provide some text input. 
-
-Your role is to:
-
-Detect the language of the user's text.
-
-Translate the text to English.
-
-Display the translated text, starting with the header: "Translated from <the detected language>"
-
-Append some notes in a concise and elegant way for the Intermediate Level student of the language. The notes should pick up on some interesting aspects of the translation, so as to encourage the understanding and curiosity of the student.
-
-The user's text to be translated to English is as follows: 
+      prompt: `You are an expert language tutor. 1. Detect the language of the input. 2. Translate it into natural, fluent English. 3. Provide a section called 'Language Notes' explaining key vocabulary, grammar rules, or idioms found in the source text useful for an intermediate learner. Header format: '### Translated from [Language]': 
 
 `,
     model: model,
@@ -83,7 +69,7 @@ The user's text to be translated to English is as follows:
   {
     name: "Recipe Creator",
     emoji: "🍽️",
-    prompt: `You are a professional chef and recipe developer. Read the text below — it may describe a meal, ingredient combination, or restaurant-style dish — and turn it into a complete, well-structured recipe.
+      prompt: `You are a professional chef and recipe developer. Read the text below — it may describe a meal, ingredient combination, or restaurant-style dish — and turn it into a complete, well-structured recipe. If the input is not food-related, creatively invent a metaphorical recipe based on the theme of the text.
 
 Include:
 
@@ -108,9 +94,10 @@ Optional notes or variations (e.g., substitutions, serving ideas, dietary adjust
     name: "Nutrition Analyser",
     emoji: "🍎",
     prompt: `You are a **nutrition analyst**. The user will provide a food item, meal description or daily food log. 
-    Your task is to **analyze, evaluate, and optimize** the diet in a structured way. 
+    Your task is to **analyze, evaluate, and suggest healthier alternatives.** the diet in a structured way.
     List key nutrients, health benefits, and any concerns (e.g. high fat, sodium). 
     Keep it clear and constructive.
+    Force Markdown tables for the nutrient breakdown.
     Finish by rating the nutritional quality out of ten`,
     model: model,
     maxTokens: 4000,
@@ -121,9 +108,10 @@ Optional notes or variations (e.g., substitutions, serving ideas, dietary adjust
         emoji: "🧩",
         prompt: `You are an expert crossword solver, for both simple and cryptic crosswords.
         Solve the clue step- by - step and give:
-            1. The exact answer in ** bold **
-            2. A clear explanation of definition + wordplay
+        1. The exact answer in ** bold **
+        2. A clear explanation of definition + wordplay
         3. Letter count confirmation
+        4. Explicitly classify the clue type (Anagram, Double Definition, Hidden Word, etc.).
 
         Clue: `,
         model: "gpt-5.1",

@@ -8,7 +8,10 @@ const chainBtn = document.getElementById('chainBtn');
 const chainMenu = document.getElementById('chainMenu');
 const layoutBtn = document.getElementById('layoutBtn');
 const workspace = document.getElementById('workspace');
+const panels = document.getElementById('panels');
+const panelResizeHandle = document.getElementById('panelResizeHandle');
 const promptletList = document.getElementById('promptletList');
+const tokenUsage = document.getElementById('tokenUsage');
 const themeBtn = document.getElementById('themeBtn');
 const themeMenu = document.getElementById('themeMenu');
 const fontTypeBtn = document.getElementById('fontTypeBtn');
@@ -16,32 +19,7 @@ const fontTypeMenu = document.getElementById('fontTypeMenu');
 const fontSizeBtn = document.getElementById('fontSizeBtn');
 const fontSizeMenu = document.getElementById('fontSizeMenu');
 const customThemeContainer = document.createElement('div');
-const ICON_SRC = '../assets/icons/promptit-badge.svg';
-const copyBtnDefaultLabel = 'Copy Output';
-const clearBtnDefaultLabel = 'Clear Input';
-const chainBtnDefaultLabel = 'Chain ▼';
-const themeBtnDefaultLabel = 'Theme';
-const fontTypeDefaultLabel = 'Font Type';
-const fontSizeDefaultLabel = 'Font Size';
-
-function renderIcon(iconClass = 'btn-icon') {
-  return `<img src="${ICON_SRC}" class="${iconClass}" alt="" aria-hidden="true">`;
-}
-
-function setIconButton(button, label, options = {}) {
-  const { iconClass = 'btn-icon', hideLabel = false } = options;
-  const text = label && !hideLabel ? ` ${label}` : '';
-  button.innerHTML = `${renderIcon(iconClass)}${text}`;
-}
-
-setIconButton(copyBtn, copyBtnDefaultLabel);
-setIconButton(clearBtn, clearBtnDefaultLabel);
-setIconButton(chainBtn, chainBtnDefaultLabel);
-setIconButton(themeBtn, themeBtnDefaultLabel);
-setIconButton(fontTypeBtn, fontTypeDefaultLabel);
-setIconButton(fontSizeBtn, fontSizeDefaultLabel);
-setIconButton(layoutBtn, '', { hideLabel: true });
-
+const copyBtnDefaultLabel = copyBtn.textContent;
 const copyBtnMinWidth = copyBtn.offsetWidth;
 copyBtn.style.minWidth = `${copyBtnMinWidth}px`;
 
@@ -59,8 +37,14 @@ const STORAGE_KEYS = {
   layout: 'scratchpad-layout',
   theme: 'scratchpad-theme',
   fontFamily: 'scratchpad-font-family',
-  fontSize: 'scratchpad-font-size'
+  fontSize: 'scratchpad-font-size',
+  splitHorizontal: 'scratchpad-split-horizontal',
+  splitVertical: 'scratchpad-split-vertical'
 };
+
+const PANEL_RATIO_DEFAULT = 0.5;
+const PANEL_RATIO_MIN = 0.2;
+const PANEL_RATIO_MAX = 0.8;
 
 const PRESET_THEMES = {
   Dark: { font: 'Segoe UI', size: 16, bg: '#111217', fg: '#e5e5e5' },
@@ -148,12 +132,36 @@ function getFromStorage(key, defaultValue) {
   });
 }
 
+function clampPanelRatio(value) {
+  return Math.min(Math.max(value, PANEL_RATIO_MIN), PANEL_RATIO_MAX);
+}
+
+function loadPanelRatio(layout) {
+  const key = layout === 'horizontal' ? STORAGE_KEYS.splitHorizontal : STORAGE_KEYS.splitVertical;
+  const stored = Number(localStorage.getItem(key));
+  if (Number.isFinite(stored)) {
+    return clampPanelRatio(stored);
+  }
+  return PANEL_RATIO_DEFAULT;
+}
+
+function persistPanelRatio(layout, value) {
+  const key = layout === 'horizontal' ? STORAGE_KEYS.splitHorizontal : STORAGE_KEYS.splitVertical;
+  localStorage.setItem(key, value);
+}
+
 let undoBuffer = null;
 let availablePromptlets = [];
 let copyTimeout = null;
 let saveTimeout = null;
 let isRunningPromptlet = false;
 let lastOutputValue = '';
+let isDraggingHandle = false;
+
+const panelRatios = {
+  horizontal: loadPanelRatio('horizontal'),
+  vertical: loadPanelRatio('vertical')
+};
 
 init();
 
@@ -161,6 +169,7 @@ async function init() {
   await restoreInput();
   await restoreOutput();
   buildLayoutFromStorage();
+  attachResizeHandle();
   attachInputHandlers();
   attachButtons();
   buildPromptletSidebar();
@@ -168,6 +177,7 @@ async function init() {
   buildThemeMenu();
   buildFontMenus();
   await applyStoredAppearance();
+  updateTokenUsage(null);
   updateOverlays();
 }
 
@@ -264,13 +274,13 @@ function hasScratchpadContent() {
 
 function setClearState() {
   if (hasScratchpadContent()) {
-    setIconButton(clearBtn, 'Clear');
+    clearBtn.textContent = '🧹 Clear';
     clearBtn.setAttribute('aria-label', 'Clear Input and Output');
   } else if (undoBuffer) {
-    setIconButton(clearBtn, 'Undo');
+    clearBtn.textContent = '↩️ Undo';
     clearBtn.setAttribute('aria-label', 'Undo clear');
   } else {
-    setIconButton(clearBtn, 'New');
+    clearBtn.textContent = '📄 New';
     clearBtn.setAttribute('aria-label', 'New scratchpad');
   }
 }
@@ -326,10 +336,10 @@ function handleCopy() {
 
   navigator.clipboard.writeText(textToCopy).then(() => {
     clearTimeout(copyTimeout);
-    setIconButton(copyBtn, 'Copied!');
+    copyBtn.textContent = '✓ Copied!';
     copyBtn.classList.add('copied');
     copyTimeout = setTimeout(() => {
-      setIconButton(copyBtn, copyBtnDefaultLabel);
+      copyBtn.textContent = copyBtnDefaultLabel;
       copyBtn.classList.remove('copied');
     }, 2000);
   });
@@ -385,39 +395,16 @@ async function fetchPromptlets() {
       resolve(DEFAULT_PROMPTLETS || []);
       return;
     }
+
     chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] }, (data) => {
-      const list = combineStoredPromptlets(data);
-      resolve(list.length ? list : DEFAULT_PROMPTLETS || []);
+      const { allPromptlets } = combineStoredPromptlets(data);
+
+      // Match the context menu behaviour: hide promptlets explicitly toggled off.
+      const activePromptlets = allPromptlets.filter((promptlet) => promptlet.isActive !== false);
+
+      resolve(activePromptlets.length ? activePromptlets : DEFAULT_PROMPTLETS || []);
     });
   });
-}
-
-function combineStoredPromptlets(data) {
-  const storedDefaults = Array.isArray(data.defaultPromptlets) ? data.defaultPromptlets : null;
-  const storedCustoms = Array.isArray(data.customPromptlets) ? data.customPromptlets : null;
-
-  if (storedDefaults || storedCustoms) {
-    const defaults = (storedDefaults || []).map((p, index) => ({
-      ...p,
-      isDefault: true,
-      isActive: p.isActive !== false,
-      defaultIndex: p.defaultIndex ?? index
-    }));
-
-    const customs = (storedCustoms || []).map((p) => ({
-      ...p,
-      isDefault: false,
-      isActive: p.isActive !== false
-    }));
-
-    return [...defaults, ...customs];
-  }
-
-  return (data.promptlets || []).map((p, index) => ({
-    ...p,
-    isActive: p.isActive !== false,
-    defaultIndex: p.defaultIndex ?? index
-  }));
 }
 
 function renderPromptletSidebar() {
@@ -438,6 +425,39 @@ function renderPromptletSidebar() {
     btn.addEventListener('click', () => runPromptletOnInput(p));
     promptletList.appendChild(btn);
   });
+}
+
+function updateTokenUsage(usage) {
+  if (!tokenUsage) return;
+
+  const hasUsage = !!usage && [usage.totalTokens, usage.inputTokens, usage.outputTokens]
+    .some((value) => value !== null && value !== undefined);
+
+  if (!hasUsage) {
+    tokenUsage.textContent = '';
+    tokenUsage.classList.add('hidden');
+    return;
+  }
+
+  const segments = [];
+  if (usage.totalTokens !== null && usage.totalTokens !== undefined) {
+    segments.push(`Tokens: ${usage.totalTokens}`);
+  }
+
+  const subSegments = [];
+  if (usage.inputTokens !== null && usage.inputTokens !== undefined) {
+    subSegments.push(`In: ${usage.inputTokens}`);
+  }
+  if (usage.outputTokens !== null && usage.outputTokens !== undefined) {
+    subSegments.push(`Out: ${usage.outputTokens}`);
+  }
+
+  if (subSegments.length) {
+    segments.push(`(${subSegments.join(' | ')})`);
+  }
+
+  tokenUsage.textContent = segments.join(' ');
+  tokenUsage.classList.remove('hidden');
 }
 
 function getInputSelectionOrAll() {
@@ -477,6 +497,7 @@ async function executePromptlet(text, promptlet) {
 
   if (!text || !text.trim()) return;
 
+  updateTokenUsage(null);
   isRunningPromptlet = true;
   outputArea.textContent = '';
   outputOverlay.style.display = 'none';
@@ -514,11 +535,13 @@ async function executePromptlet(text, promptlet) {
     }
 
     renderOutput(response.result);
+    updateTokenUsage(response.usage);
   } catch (err) {
     outputArea.textContent = `Error: ${err.message}`;
     lastOutputValue = outputArea.textContent;
     resizeOutputToContent();
     saveOutput(outputArea.textContent);
+    updateTokenUsage(null);
   } finally {
     isRunningPromptlet = false;
     updateOverlays();
@@ -554,20 +577,90 @@ function basicMarkdown(text) {
   return `<p>${safe}</p>`;
 }
 
+function applyPanelRatios() {
+  if (!panels || !panelResizeHandle) return;
+
+  const isVerticalLayout = workspace.classList.contains('vertical');
+  const layoutKey = isVerticalLayout ? 'vertical' : 'horizontal';
+  const ratio = clampPanelRatio(panelRatios[layoutKey] ?? PANEL_RATIO_DEFAULT);
+  panelRatios[layoutKey] = ratio;
+  const inverse = 1 - ratio;
+
+  if (isVerticalLayout) {
+    panels.style.gridTemplateColumns = '1fr';
+    panels.style.gridTemplateRows = `${ratio}fr var(--divider-size) ${inverse}fr`;
+    panelResizeHandle.setAttribute('aria-orientation', 'horizontal');
+  } else {
+    panels.style.gridTemplateColumns = `${ratio}fr var(--divider-size) ${inverse}fr`;
+    panels.style.gridTemplateRows = '1fr';
+    panelResizeHandle.setAttribute('aria-orientation', 'vertical');
+  }
+}
+
+function attachResizeHandle() {
+  if (!panelResizeHandle) return;
+  panelResizeHandle.addEventListener('pointerdown', startDraggingPanels);
+}
+
+function startDraggingPanels(event) {
+  event.preventDefault();
+  isDraggingHandle = true;
+  panelResizeHandle.classList.add('dragging');
+  panelResizeHandle.setPointerCapture(event.pointerId);
+  window.addEventListener('pointermove', handlePanelDrag);
+  window.addEventListener('pointerup', stopDraggingPanels);
+}
+
+function handlePanelDrag(event) {
+  if (!isDraggingHandle || !panels) return;
+
+  const isVerticalLayout = workspace.classList.contains('vertical');
+  const rect = panels.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  if (isVerticalLayout) {
+    const relativeY = (event.clientY - rect.top) / rect.height;
+    const ratio = clampPanelRatio(relativeY);
+    panelRatios.vertical = ratio;
+    persistPanelRatio('vertical', ratio);
+  } else {
+    const relativeX = (event.clientX - rect.left) / rect.width;
+    const ratio = clampPanelRatio(relativeX);
+    panelRatios.horizontal = ratio;
+    persistPanelRatio('horizontal', ratio);
+  }
+
+  applyPanelRatios();
+}
+
+function stopDraggingPanels(event) {
+  if (!isDraggingHandle) return;
+  isDraggingHandle = false;
+  panelResizeHandle.classList.remove('dragging');
+  if (panelResizeHandle.hasPointerCapture(event.pointerId)) {
+    panelResizeHandle.releasePointerCapture(event.pointerId);
+  }
+  window.removeEventListener('pointermove', handlePanelDrag);
+  window.removeEventListener('pointerup', stopDraggingPanels);
+}
+
 function toggleLayout() {
   const isVertical = workspace.classList.contains('vertical');
-  workspace.classList.toggle('vertical', !isVertical);
-  workspace.classList.toggle('horizontal', isVertical);
-  setIconButton(layoutBtn, '', { hideLabel: true });
-  localStorage.setItem(STORAGE_KEYS.layout, isVertical ? 'horizontal' : 'vertical');
+  const nextIsVertical = !isVertical;
+  workspace.classList.toggle('vertical', nextIsVertical);
+  workspace.classList.toggle('horizontal', !nextIsVertical);
+  layoutBtn.textContent = nextIsVertical ? '↕️' : '↔️';
+  localStorage.setItem(STORAGE_KEYS.layout, nextIsVertical ? 'vertical' : 'horizontal');
+  applyPanelRatios();
 }
 
 function buildLayoutFromStorage() {
-  const stored = localStorage.getItem(STORAGE_KEYS.layout) || 'horizontal';
+  const stored = localStorage.getItem(STORAGE_KEYS.layout) || 'vertical';
   const isVertical = stored === 'vertical';
   workspace.classList.toggle('vertical', isVertical);
   workspace.classList.toggle('horizontal', !isVertical);
-  setIconButton(layoutBtn, '', { hideLabel: true });
+  layoutBtn.textContent = isVertical ? '↕️' : '↔️';
+  applyPanelRatios();
 }
 
 function buildThemeMenu() {
@@ -622,6 +715,7 @@ function applyTheme(theme, themeName = 'custom') {
   themeTarget.style.setProperty('--panel-bg', theme.bg);
   themeTarget.style.setProperty('--bg', theme.bg);
   themeTarget.style.setProperty('--text', theme.fg);
+  themeTarget.style.setProperty('--accent', theme.accent || theme.fg);
   if (theme.font) {
     applyFont(theme.font);
   }

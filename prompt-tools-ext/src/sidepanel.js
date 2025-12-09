@@ -7,34 +7,6 @@ const statusDiv = document.getElementById("status");
 const outputDiv = document.getElementById("output");
 let allPromptlets = []; // Store all promptlets here
 
-function combineStoredPromptlets(data) {
-  const storedDefaults = Array.isArray(data.defaultPromptlets) ? data.defaultPromptlets : null;
-  const storedCustoms = Array.isArray(data.customPromptlets) ? data.customPromptlets : null;
-
-  if (storedDefaults || storedCustoms) {
-    const defaults = (storedDefaults || []).map((p, index) => ({
-      ...p,
-      isDefault: true,
-      isActive: p.isActive !== false,
-      defaultIndex: p.defaultIndex ?? index
-    }));
-
-    const customs = (storedCustoms || []).map((p) => ({
-      ...p,
-      isDefault: false,
-      isActive: p.isActive !== false
-    }));
-
-    return [...defaults, ...customs];
-  }
-
-  return (data.promptlets || []).map((p, index) => ({
-    ...p,
-    isActive: p.isActive !== false,
-    defaultIndex: p.defaultIndex ?? index
-  }));
-}
-
 // -------------------------
 // Initialize - Check for pending promptlet data
 // -------------------------
@@ -81,7 +53,8 @@ async function checkForPendingPromptlet() {
 async function loadAndRenderChainMenu() {
   try {
     const data = await chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] });
-    allPromptlets = combineStoredPromptlets(data);
+    const { allPromptlets: combinedPromptlets } = combineStoredPromptlets(data);
+    allPromptlets = combinedPromptlets;
     console.log(`Loaded ${allPromptlets.length} promptlets for chaining menu.`);
     // The menu is actually built/populated inside addCopyButton now, but we need
     // to ensure allPromptlets is ready before any output appears.
@@ -124,6 +97,7 @@ async function runPromptlet(selectedText, promptlet) {
 
   updateStatus(`Processing with ${promptlet.name}...`);
   outputDiv.textContent = "";
+  renderUsageBadge(null);
 
   try {
     // 1. Build the combined prompt
@@ -151,10 +125,11 @@ async function runPromptlet(selectedText, promptlet) {
     }
 
     const result = response.result;
-    
+    const usage = response.usage;
+
     // Display result
     updateStatus("✓ Done!");
-    displayOutput(result, promptlet);
+    displayOutput(result, promptlet, usage);
 
     // === TOOLTIP: Update after output is in DOM ===
     const chainBtn = document.getElementById('chainBtn');
@@ -181,6 +156,7 @@ async function runPromptlet(selectedText, promptlet) {
   } catch (err) {
     console.error("Error running promptlet:", err);
     updateStatus("Error", true);
+    renderUsageBadge(null);
     
     const isApiKeyError = err.message.includes("API key not found") || 
                           err.message.includes("Invalid Authentication") || 
@@ -210,7 +186,7 @@ async function runPromptlet(selectedText, promptlet) {
 // -------------------------
 // Display output with structure parsing
 // -------------------------
-function displayOutput(text, promptlet) {
+function displayOutput(text, promptlet, usage) {
   // Simple structured output parsing
   const sections = parseStructuredOutput(text);
   
@@ -241,7 +217,7 @@ function displayOutput(text, promptlet) {
   }
 
   // Add copy button
-  addCopyButton(text);
+  addCopyButton(text, usage);
 }
 
 // -------------------------
@@ -276,16 +252,18 @@ function parseStructuredOutput(text) {
 // -------------------------
 // Add copy and chain buttons
 // -------------------------
-function addCopyButton(text) {
+function addCopyButton(text, usage) {
   const existingCopyBtn = document.getElementById("copyBtn");
   const existingChainBtn = document.getElementById("chainBtn");
   const existingCloseBtn = document.getElementById("closeBtn");
   const existingGroup = document.querySelector(".button-group");
-  
+  const existingUsage = document.getElementById("usageBadge");
+
   if (existingCopyBtn) existingCopyBtn.remove();
   if (existingChainBtn) existingChainBtn.remove();
   if (existingCloseBtn) existingCloseBtn.remove();
   if (existingGroup) existingGroup.remove();
+  if (existingUsage) existingUsage.remove();
 
   // Create button group container
   const buttonGroup = document.createElement("div");
@@ -387,8 +365,45 @@ function addCopyButton(text) {
   closeBtn.addEventListener("click", () => {
     window.close();
   });
-  
+
   document.body.appendChild(closeBtn);
+
+  renderUsageBadge(usage);
+}
+
+function renderUsageBadge(usage) {
+  const existingUsage = document.getElementById("usageBadge");
+  if (existingUsage) existingUsage.remove();
+
+  const hasUsage = !!usage && [usage.totalTokens, usage.inputTokens, usage.outputTokens]
+    .some((value) => value !== null && value !== undefined);
+
+  if (!hasUsage) {
+    return;
+  }
+
+  const usageTextParts = [];
+  if (usage.totalTokens !== null && usage.totalTokens !== undefined) {
+    usageTextParts.push(`Tokens: ${usage.totalTokens}`);
+  }
+  const subParts = [];
+  if (usage.inputTokens !== null && usage.inputTokens !== undefined) {
+    subParts.push(`In: ${usage.inputTokens}`);
+  }
+  if (usage.outputTokens !== null && usage.outputTokens !== undefined) {
+    subParts.push(`Out: ${usage.outputTokens}`);
+  }
+
+  if (subParts.length) {
+    usageTextParts.push(`(${subParts.join(" | ")})`);
+  }
+
+  const usageBadge = document.createElement("div");
+  usageBadge.id = "usageBadge";
+  usageBadge.className = "usage-badge";
+  usageBadge.textContent = usageTextParts.join(" ");
+
+  document.body.appendChild(usageBadge);
 }
 
 // -------------------------
