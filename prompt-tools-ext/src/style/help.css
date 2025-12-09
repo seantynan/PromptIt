@@ -46,7 +46,7 @@ h3 {
 code {
     /* Style for text placeholders like [SELECTED_TEXT] */
     background-color: #383838; /* Slightly lighter dark background */
-    color: #ffcc66; /* Amber/yellow color for code contrast */
+    color: #38bd70; /*#ffcc66*/ /* Amber/yellow color for code contrast */
     padding: 2px 5px;
     border-radius: 4px;
     font-family: monospace;
