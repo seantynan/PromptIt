@@ -313,6 +313,10 @@ function openImportModal() {
         errorBox.classList.add('hidden');
         errorBox.textContent = '';
     }
+    const fileHelpText = document.getElementById('importFileHelp');
+    if (fileHelpText) {
+        fileHelpText.classList.remove('hidden');
+    }
     document.getElementById('importPreviewSection').classList.add('hidden');
     document.getElementById('importPreviewList').innerHTML = '';
     document.getElementById('importSummary').textContent = '';
@@ -341,6 +345,7 @@ function handleImportFileChange(event) {
     const confirmBtn = document.getElementById('confirmImportBtn');
     const previewSection = document.getElementById('importPreviewSection');
     const fileNameLabel = document.getElementById('importFileName');
+    const fileHelpText = document.getElementById('importFileHelp');
 
     if (confirmBtn) {
         confirmBtn.disabled = true;
@@ -354,9 +359,11 @@ function handleImportFileChange(event) {
         if (file) {
             fileNameLabel.textContent = `Selected file: ${file.name}`;
             fileNameLabel.classList.remove('hidden');
+            fileHelpText?.classList.add('hidden');
         } else {
             fileNameLabel.textContent = '';
             fileNameLabel.classList.add('hidden');
+            fileHelpText?.classList.remove('hidden');
         }
     }
 
