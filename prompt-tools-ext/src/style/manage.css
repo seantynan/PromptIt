@@ -771,14 +771,28 @@ textarea.form-input {
     align-items: center;
     gap: 10px;
     padding: 10px 12px;
-    border: 1px dashed var(--border);
+    border: 1px solid var(--accent-green);
     border-radius: 8px;
     cursor: pointer;
-    background: var(--bg-card);
+    background: var(--accent-green);
+    color: white;
 }
+
+    .file-picker:hover {
+        background: var(--accent-green-hover);
+        border-color: var(--accent-green-hover);
+    }
+
+    .file-picker:focus-within {
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    }
 
 .file-picker input[type="file"] {
     display: none;
+}
+
+.file-picker-icon {
+    font-size: 16px;
 }
 
 .alert {
