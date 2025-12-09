@@ -1,107 +1,84 @@
-# Prompt It! 🧠⚡
+# Prompt It! v0.4 🧠⚡
 
 AI in your right-click. Run custom AI "Promptlets" on any selected text, instantly.
 
-📖 Overview
+## Overview
+Prompt It! is a Manifest V3 extension for Chrome/Brave/Edge/Opera that lets you run AI-powered workflows without leaving the page. Highlight text, pick a promptlet from the context menu, and view the response in a focused side panel. Manage your own promptlets, tune model settings, and import/export libraries so your AI toolbox stays portable.
 
-Prompt It! is a powerful Chrome/Brave/Edge/Opera browser extension that integrates AI directly into your browsing workflow. Instead of copying text, switching tabs to an AI chatbot, and pasting context, simply select text, right-click, and choose a Promptlet. The results appear within seconds in a dedicated browser Side Panel.
+## Highlights
+- 🖱️ **Native context menu** – Adds a `Prompt It!` submenu to the right-click menu for one-click runs.
+- 📑 **Side Panel UI** – Results open in a resizable, non-blocking side panel with copy + chain actions.
+- 🔗 **Promptlet chaining** – Re-run additional promptlets on the generated output without leaving the panel.
+- ⚙️ **Promptlet manager** – Add, edit, clone, delete, and toggle promptlets; reset built-ins at any time.
+- 🎚️ **Advanced model controls** – Per-promptlet settings for model, temperature, and max tokens (OpenAI Responses API).
+- 🔑 **Local API key storage** – Save your OpenAI API key in extension storage (never sent anywhere else).
+- 📥 **Import/Export** – Share promptlet libraries via `.pi` JSON files; choose all or selected entries.
+- 🌑 **Adaptive theming** – Dark-first UI with automatic light/dark support across popup, manager, and help pages.
+- 🚀 **Preloaded defaults** – A starter pack of versatile promptlets for writing, fact-checking, learning, and puzzles.
 
-Built with Manifest V3, it is fast, secure, and fully customizable. It comes with a suite of useful default promptlets (Summarise, Verify, Translate, etc.), but its true power lies in the Manage Promptlets page, where you can create, edit, and delete your own custom AI commands.
+## Installation (Developer Mode)
+1. Clone or download this repository.
+2. Open your Chromium-based browser and visit `chrome://extensions/`.
+3. Enable **Developer mode** (top right).
+4. Click **Load unpacked** and select the `prompt-tools-ext` folder.
+5. Pin the **Prompt It! (P)** action icon for quick access.
 
-✨ Features
+## Usage
+### Run a promptlet
+1. Highlight text on any webpage.
+2. Right-click → **Prompt It!** → choose a promptlet (e.g., 💡 Summarise).
+3. The side panel opens with live status, usage badge, and output.
 
-🖱️ Seamless Integration: Adds a "Prompt It!" submenu to your browser's native right-click context menu.
+### Chain or copy results
+- Use **Copy** to grab the response.
+- Use **Chain** to run another promptlet on either your selection or the generated output.
 
-📑 Side Panel Results: AI responses appear in a clean, resizeable side panel that doesn't block your view of the webpage.
+### Manage promptlets
+1. Click the **Prompt It! (P)** toolbar icon → **⚙️ Manage Promptlets** (or open the options page).
+2. Create/edit promptlets with emoji, name, prompt text, and advanced settings (model, temperature, max tokens).
+3. Toggle visibility to control what appears in the context menu; clone defaults to customize safely.
+4. Import/export `.pi` files to back up or share promptlets; reset built-ins if you want a clean slate.
+5. Save your **OpenAI API key** (stored locally only) to enable API calls.
 
-⚙️ Fully Customizable: Create your own "Promptlets" with custom system prompts.
+## Default Promptlets (v0.4)
+| Emoji | Name | Purpose | Default model |
+| --- | --- | --- | --- |
+| 💡 | Summarise | Concise summaries with key details. | gpt-5-mini |
+| ✏️ | Rephrase | Improve clarity and flow while preserving meaning. | gpt-5-mini |
+| ✅ | Verify | Evidence-driven fact check with confidence scoring. | gpt-5-mini |
+| 👑 | Max Reasoning | Deep, step-by-step reasoning for complex problems. | gpt-5.1 |
+| 🌍 | Learn a Language | Detect, translate, and teach language notes. | gpt-5-mini |
+| 🍽️ | Recipe Creator | Turn food ideas into complete recipes (with notes). | gpt-5-mini |
+| 🍎 | Nutrition Analyser | Structured nutrition breakdowns plus healthier alternatives. | gpt-5-mini |
+| 🧩 | Crossword Solver | Solve and explain crossword clues with classification. | gpt-5.1 |
 
-🌑 Dark Mode UI: A sleek, modern dark-themed interface for the Side Panel, Manager, and Help pages. Light and Dark mode are automatically driven by your browser or OS settings.
-
-🚀 Pre-loaded Promptlets: Comes ready to use with tools for summarization, fact-checking, language learning, and more.
-
-🛠️ Installation (Developer Mode)
-
-Since this extension is currently in development/local version:
-
-Clone or Download this repository to your local machine.
-
-Open Google Chrome and navigate to chrome://extensions/.
-
-Toggle Developer mode in the top right corner.
-
-Click Load unpacked.
-
-Select the folder where you cloned/downloaded this repository.
-
-The Prompt It! icon (P) should appear in your toolbar!
-
-🚀 Usage
-
-Running a Promptlet:
-
-Highlight any text on a webpage.
-
-Right-click to open the context menu.
-
-Hover over Prompt It! and select a tool (e.g., 💡 Summarise or 🌍 Learn a Language).
-
-The Side Panel will open automatically with the AI's response.
-
-Managing Promptlets
-Click the Prompt It! (P) icon in your browser toolbar.
-
-Select ⚙️ Manage Promptlets.
-
-Create: Enter a Name and your Prompt text (ensure you include [SELECTED_TEXT]).
-
-Delete: Remove any promptlets you no longer need.
-
-Toggle: Active promptlets appear in the menu; inactive ones are saved but hidden.
-
-📦 Default Promptlets
-
-The extension installs with these powerful defaults:
-
-Emoji	Name	Description
-💡	Summarise	Concisely captures main ideas and key details.
-✏️	Rephrase	Improves clarity and flow while preserving meaning.
-✅	Verify	Analyzes claims for truthfulness, bias, and missing context.
-👑	Max Reasoning	Deep, step-by-step analysis for complex problems.
-🌍	Learn a Language	Detects, translates, and provides grammar notes for learners.
-🍽️	Recipe Creator	Turns food descriptions into structured recipes.
-🍎	Nutrition Analyser	Breaks down macros and suggests healthier alternatives.
-🧩	Crossword Solver	Solves cryptic clues with explanations.
-
-🏗️ Project Structure
-
-prompt-it/
-├── manifest.json        # Extension configuration (Manifest V3)
+## Project Structure
+```
+prompt-tools-ext/
+├── manifest.json             # Extension manifest (MV3)
+├── assets/                   # Icons, screenshots, functional specs
 ├── src/
-│   ├── background.js    # Handles context menus and API calls
-│   ├── popup.html       # Toolbar popup menu
-│   ├── popup.js         # Popup logic
-│   ├── popup.css        # Popup styling
-│   ├── manage.html      # Options page for CRUD operations
-│   ├── manage.js        # Logic for saving/deleting promptlets
-│   ├── help.html        # User Guide
-│   ├── sidepanel.html   # The output view
-│   ├── sidepanel.js     # Displays AI results
-│   ├── defaultPromptlets.js # Configuration for default tools
-│   └── style/
-│       ├── main.css     # Global dark theme styles
-│       └── help.css     # Specific styles for the help page
-└── assets/
-    └── icons/           # App icons
+│   ├── background.js         # Service worker: context menus, OpenAI calls, storage
+│   ├── defaultPromptlets.js  # Built-in promptlet definitions
+│   ├── promptletUtils.js     # Shared helpers (combining promptlets, parsing output)
+│   ├── popup.html/js         # Toolbar popup entry point
+│   ├── manage.html/js        # Promptlet manager + API key UI
+│   ├── sidepanel.html/js     # Results side panel with copy + chaining
+│   ├── help.html             # In-extension help page
+│   ├── scratchpad.html/js    # Dev scratchpad for rapid testing
+│   └── style/                # CSS for popup, manager, help, scratchpad, global theme
+└── README.md
+```
 
-🔒 Permissions
-contextMenus: To add the right-click menu items.
+## Permissions
+- `contextMenus` – Add right-click menu entries.
+- `sidePanel` – Display results in the browser side panel.
+- `storage` – Persist promptlets, settings, and API key locally.
+- `activeTab`, `scripting`, `tabs` – Read selected text and route messages between pages.
 
-sidePanel: To display results in the browser side panel.
+## Notes
+- Prompt It! v0.4 uses the OpenAI Responses API; ensure your API key has access to the chosen models.
+- Light/Dark mode follows your OS/browser preference automatically.
 
-storage: To save your custom promptlets and settings.
-
-activeTab & scripting: To read the selected text from the current page.
-
-📄 License
+## License
 MIT License © 2025 Prompt It! Team
