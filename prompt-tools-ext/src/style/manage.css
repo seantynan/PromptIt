@@ -653,6 +653,8 @@ textarea.form-input {
     box-shadow: 0 10px 30px var(--shadow);
     display: flex;
     flex-direction: column;
+    font-size: 16px;
+    line-height: 1.6;
 }
 
 .modal-header, .modal-footer {
@@ -665,6 +667,19 @@ textarea.form-input {
 .modal-header {
     border-bottom: 1px solid var(--border);
     justify-content: space-between;
+    background: var(--accent-green);
+    color: #ffffff;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.modal-header .btn-icon {
+    color: #ffffff;
 }
 
 .modal-body {
@@ -685,6 +700,17 @@ textarea.form-input {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.modal-content h4 {
+    font-size: 18px;
+    margin: 0;
+}
+
+.modal-content .help-text,
+.modal-content .selection-item .note,
+.modal-content .selection-hint {
+    font-size: 14px;
 }
 
 .radio-group {
