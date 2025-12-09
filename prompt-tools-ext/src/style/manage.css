@@ -503,13 +503,13 @@ a.plain {
 
 .action-row {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     gap: 0;
     flex-wrap: wrap;
 }
 
 .action-row .btn {
-    min-height: 40px;
+    min-height: 48px;
 }
 
 .action-row .btn-large {
@@ -523,7 +523,7 @@ a.plain {
 
 .secondary-actions {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     gap: 0;
     margin-left: 0;
     white-space: nowrap;
@@ -531,20 +531,16 @@ a.plain {
 
 .action-divider {
     width: 1px;
-    height: 40px;
-    background: rgba(46, 125, 50, 0.6);
-    margin: 0 12px;
-}
-
-.icon-button + .icon-button {
-    margin-left: 8px;
+    height: auto;
+    background: #2e7d32;
+    margin: 0;
 }
 
 .icon-button {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 10px 14px;
+    padding: 12px 16px;
 }
 
 .icon-button .btn-icon {
