@@ -317,6 +317,11 @@ function openImportModal() {
     document.getElementById('importPreviewList').innerHTML = '';
     document.getElementById('importSummary').textContent = '';
     document.getElementById('confirmImportBtn').disabled = true;
+    const fileNameLabel = document.getElementById('importFileName');
+    if (fileNameLabel) {
+        fileNameLabel.textContent = '';
+        fileNameLabel.classList.add('hidden');
+    }
 
     const fileInput = document.getElementById('importFileInput');
     if (fileInput) {
@@ -333,7 +338,37 @@ function closeImportModal() {
 
 function handleImportFileChange(event) {
     const file = event.target.files?.[0];
-    if (!file) return;
+    const confirmBtn = document.getElementById('confirmImportBtn');
+    const previewSection = document.getElementById('importPreviewSection');
+    const fileNameLabel = document.getElementById('importFileName');
+
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+    }
+
+    document.getElementById('importPreviewList').innerHTML = '';
+    document.getElementById('importSummary').textContent = '';
+    previewSection?.classList.add('hidden');
+
+    if (fileNameLabel) {
+        if (file) {
+            fileNameLabel.textContent = `Selected file: ${file.name}`;
+            fileNameLabel.classList.remove('hidden');
+        } else {
+            fileNameLabel.textContent = '';
+            fileNameLabel.classList.add('hidden');
+        }
+    }
+
+    const errorBox = document.getElementById('importError');
+    if (errorBox) {
+        errorBox.classList.add('hidden');
+        errorBox.textContent = '';
+    }
+
+    if (!file) {
+        return;
+    }
     if (file.size > MAX_IMPORT_SIZE) {
         displayImportError('This file is too large. Please use a file under 5MB.');
         return;
