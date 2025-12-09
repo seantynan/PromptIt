@@ -22,6 +22,7 @@
                 <li><a href="#running-promptlets">Running Promptlets</a></li>
                 <li><a href="#side-panel">Reading &amp; Reusing Output</a></li>
                 <li><a href="#managing-promptlets">Managing Promptlets</a></li>
+                <li><a href="#backup-import">Backup &amp; Import</a></li>
                 <li><a href="#advanced-settings">Advanced Promptlet Settings</a></li>
                 <li><a href="#studio">Studio</a></li>
                 <li><a href="#privacy-security">Privacy &amp; Security</a></li>
@@ -125,6 +126,32 @@
                 <li><strong>Delete</strong>: Remove a custom promptlet permanently (defaults can be reset instead).</li>
             </ul>
             <p class="screenshot-note">[Screenshot placeholder: Promptlet editor with advanced settings collapsed]</p>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="backup-import">
+            <h2>Backup &amp; Import</h2>
+            <p>Export your promptlets to a <code>.pi</code> file for backup or sharing, and import them back with conflict-aware naming.</p>
+            <h3>Exporting Promptlets</h3>
+            <ul>
+                <li>Open <strong>Manage Promptlets</strong> and click <em>Export</em> beside <em>Add New Promptlet</em>.</li>
+                <li>Choose <em>All Promptlets</em> (exports every custom promptlet) or <em>Selected Promptlets</em> to tick specific ones.</li>
+                <li>Default promptlets are listed for reference but are not included in the export.</li>
+                <li>Set a filename (the download ends with <code>.pi</code>) and click <em>Export</em> to download a JSON-based backup.</li>
+            </ul>
+            <h3>Importing Promptlets</h3>
+            <ul>
+                <li>Click <em>Import</em> on the Manage page, choose a <code>.pi</code> file, and wait for the preview.</li>
+                <li>The preview shows all promptlets that will be added, along with any renamed entries (e.g., <em>Name (Copy)</em>) to avoid conflicts.</li>
+                <li>If the file is invalid or empty, an error appears so you can pick another file.</li>
+                <li>Click <em>Import</em> to add them—new promptlets appear immediately in Manage, Studio, and the right-click menu.</li>
+            </ul>
+            <h3>File Format Notes</h3>
+            <ul>
+                <li>The <code>.pi</code> file includes the export version, date, and an array of promptlets (name, emoji, prompt, model, temperature, max tokens, and active flag).</li>
+                <li>Imports skip built-in promptlets from the file and ensure duplicate names are suffixed with <code>(Copy)</code>.</li>
+                <li>If the file uses a newer format version, the import still proceeds but warns you first.</li>
+            </ul>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
         </section>
 
