@@ -504,7 +504,7 @@ a.plain {
 .action-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0;
     flex-wrap: wrap;
 }
 
@@ -525,7 +525,7 @@ a.plain {
     display: flex;
     align-items: center;
     gap: 0;
-    margin-left: auto;
+    margin-left: 0;
     white-space: nowrap;
 }
 
@@ -533,7 +533,7 @@ a.plain {
     width: 1px;
     height: 40px;
     background: rgba(46, 125, 50, 0.6);
-    margin-right: 12px;
+    margin: 0 12px;
 }
 
 .icon-button + .icon-button {
