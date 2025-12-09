@@ -7,6 +7,9 @@ let allPromptlets = [];
 let editingPromptletName = null;
 const model = "gpt-4o";
 let dragState = null;
+const EXPORT_VERSION = "1.0";
+const MAX_IMPORT_SIZE = 5 * 1024 * 1024; // 5MB safeguard
+let importPreviewData = null;
 
 function savePromptletBuckets(defaults, customs, callback = null) {
     const combined = [...defaults, ...customs];
@@ -59,6 +62,26 @@ function setupEventListeners() {
     if (resetBtn) {
         resetBtn.addEventListener('click', handleResetDefaults);
     }
+
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', openExportModal);
+    }
+
+    const importBtn = document.getElementById('importBtn');
+    if (importBtn) {
+        importBtn.addEventListener('click', openImportModal);
+    }
+
+    initializeExportControls();
+    initializeImportControls();
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeExportModal();
+            closeImportModal();
+        }
+    });
 }
 
 // -------------------------
@@ -75,6 +98,504 @@ function loadPromptlets() {
         }));
 
         savePromptletBuckets(defaults, customs, renderPromptlets);
+    });
+}
+
+function getCustomPromptlets() {
+    return allPromptlets
+        .filter(p => !p.isDefault)
+        .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function getDefaultPromptlets() {
+    return allPromptlets
+        .filter(p => p.isDefault)
+        .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function generateUniqueName(baseName, existingNames) {
+    let candidate = baseName;
+    let suffix = 0;
+    while (existingNames.has(candidate)) {
+        suffix += 1;
+        candidate = `${baseName}${' (Copy)'.repeat(suffix)}`;
+    }
+    existingNames.add(candidate);
+    return candidate;
+}
+
+// -------------------------
+// Export controls
+// -------------------------
+function initializeExportControls() {
+    const scopeRadios = document.querySelectorAll('input[name="exportScope"]');
+    scopeRadios.forEach((radio) => radio.addEventListener('change', handleExportScopeChange));
+
+    const selectAllBtn = document.getElementById('selectAllPromptlets');
+    const deselectAllBtn = document.getElementById('deselectAllPromptlets');
+    selectAllBtn?.addEventListener('click', () => toggleSelectAllPromptlets(true));
+    deselectAllBtn?.addEventListener('click', () => toggleSelectAllPromptlets(false));
+
+    document.getElementById('cancelExportBtn')?.addEventListener('click', closeExportModal);
+    document.getElementById('closeExportModal')?.addEventListener('click', closeExportModal);
+    document.getElementById('confirmExportBtn')?.addEventListener('click', performExport);
+}
+
+function openExportModal() {
+    const customPromptlets = getCustomPromptlets();
+    if (!customPromptlets.length) {
+        alert('No custom promptlets to export.');
+        return;
+    }
+
+    const modal = document.getElementById('exportModal');
+    if (!modal) return;
+
+    document.getElementById('exportFilename').value = 'my-promptlets.pi';
+    document.getElementById('exportSelectionPanel').classList.add('hidden');
+    document.getElementById('exportSelectionHint').classList.add('hidden');
+    document.getElementById('confirmExportBtn').disabled = false;
+
+    const scopeRadios = document.querySelectorAll('input[name="exportScope"]');
+    scopeRadios.forEach((radio) => {
+        radio.checked = radio.value === 'all';
+    });
+
+    buildExportPromptletList();
+    updateExportButtonState();
+    modal.classList.remove('hidden');
+}
+
+function closeExportModal() {
+    document.getElementById('exportModal')?.classList.add('hidden');
+}
+
+function handleExportScopeChange(event) {
+    const panel = document.getElementById('exportSelectionPanel');
+    if (!panel) return;
+    const isSelectedMode = event.target.value === 'selected';
+    panel.classList.toggle('hidden', !isSelectedMode);
+    updateExportButtonState();
+}
+
+function toggleSelectAllPromptlets(selectAll) {
+    document.querySelectorAll('.export-checkbox').forEach((checkbox) => {
+        if (!checkbox.disabled) {
+            checkbox.checked = selectAll;
+        }
+    });
+    updateExportButtonState();
+}
+
+function buildExportPromptletList() {
+    const listContainer = document.getElementById('exportPromptletList');
+    if (!listContainer) return;
+    listContainer.innerHTML = '';
+
+    const customs = getCustomPromptlets();
+
+    customs.forEach((promptlet) => {
+        const item = document.createElement('label');
+        item.className = 'selection-item';
+        item.innerHTML = `
+            <input type="checkbox" class="export-checkbox" value="${promptlet.name}" checked>
+            <span class="name">${promptlet.emoji || '📝'} ${promptlet.name}</span>
+        `;
+        listContainer.appendChild(item);
+    });
+
+    listContainer.querySelectorAll('.export-checkbox').forEach((checkbox) => {
+        checkbox.addEventListener('change', updateExportButtonState);
+    });
+}
+
+function updateExportButtonState() {
+    const scope = document.querySelector('input[name="exportScope"]:checked')?.value || 'all';
+    const hint = document.getElementById('exportSelectionHint');
+    const confirmBtn = document.getElementById('confirmExportBtn');
+    const customPromptlets = getCustomPromptlets();
+
+    if (scope === 'all') {
+        const hasCustoms = customPromptlets.length > 0;
+        confirmBtn.disabled = !hasCustoms;
+        hint.classList.toggle('hidden', hasCustoms);
+        if (!hasCustoms) {
+            hint.textContent = 'No custom promptlets to export.';
+        }
+        return;
+    }
+
+    const selectedCount = Array.from(document.querySelectorAll('.export-checkbox:checked')).length;
+    const isValid = selectedCount > 0;
+    confirmBtn.disabled = !isValid;
+    hint.textContent = 'Select at least one promptlet to export.';
+    hint.classList.toggle('hidden', isValid);
+}
+
+function performExport() {
+    const scope = document.querySelector('input[name="exportScope"]:checked')?.value || 'all';
+    const filenameInput = document.getElementById('exportFilename');
+    const rawFilename = (filenameInput?.value || 'my-promptlets.pi').trim();
+    const filename = rawFilename.toLowerCase().endsWith('.pi') ? rawFilename : `${rawFilename}.pi`;
+
+    const customPromptlets = getCustomPromptlets();
+    if (!customPromptlets.length) {
+        alert('No custom promptlets to export.');
+        closeExportModal();
+        return;
+    }
+
+    let selectedNames = null;
+    if (scope === 'selected') {
+        selectedNames = Array.from(document.querySelectorAll('.export-checkbox:checked')).map((input) => input.value);
+        if (!selectedNames.length) {
+            updateExportButtonState();
+            return;
+        }
+    }
+
+    const promptletsToExport = selectedNames
+        ? customPromptlets.filter((p) => selectedNames.includes(p.name))
+        : customPromptlets;
+
+    if (!promptletsToExport.length) {
+        alert('No promptlets matched your selection.');
+        return;
+    }
+
+    const exportPayload = {
+        version: EXPORT_VERSION,
+        exportDate: new Date().toISOString(),
+        promptlets: promptletsToExport.map((promptlet) => ({
+            name: promptlet.name,
+            emoji: promptlet.emoji || '📝',
+            prompt: promptlet.prompt || '',
+            active: promptlet.isActive !== false,
+            model: promptlet.model || model,
+            temperature: Number.isFinite(promptlet.temperature) ? promptlet.temperature : 1,
+            maxTokens: Number.isFinite(promptlet.maxTokens) ? promptlet.maxTokens : 1500,
+            outputStructure: promptlet.outputStructure || ['main']
+        })),
+    };
+
+    try {
+        const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        closeExportModal();
+        alert('Promptlets exported successfully.');
+    } catch (err) {
+        alert(`Export failed: ${err.message}`);
+    }
+}
+
+// -------------------------
+// Import controls
+// -------------------------
+function initializeImportControls() {
+    document.getElementById('importFileInput')?.addEventListener('change', handleImportFileChange);
+    document.getElementById('cancelImportBtn')?.addEventListener('click', closeImportModal);
+    document.getElementById('closeImportModal')?.addEventListener('click', closeImportModal);
+    document.getElementById('confirmImportBtn')?.addEventListener('click', performImport);
+}
+
+function openImportModal() {
+    importPreviewData = null;
+    const modal = document.getElementById('importModal');
+    if (!modal) return;
+
+    const errorBox = document.getElementById('importError');
+    if (errorBox) {
+        errorBox.classList.add('hidden');
+        errorBox.textContent = '';
+    }
+    const fileHelpText = document.getElementById('importFileHelp');
+    if (fileHelpText) {
+        fileHelpText.classList.remove('hidden');
+    }
+    document.getElementById('importPreviewSection').classList.add('hidden');
+    document.getElementById('importPreviewList').innerHTML = '';
+    document.getElementById('importSummary').textContent = '';
+    document.getElementById('confirmImportBtn').disabled = true;
+    const fileNameLabel = document.getElementById('importFileName');
+    if (fileNameLabel) {
+        fileNameLabel.textContent = '';
+        fileNameLabel.classList.add('hidden');
+    }
+
+    const fileInput = document.getElementById('importFileInput');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+
+    modal.classList.remove('hidden');
+}
+
+function closeImportModal() {
+    importPreviewData = null;
+    document.getElementById('importModal')?.classList.add('hidden');
+}
+
+function handleImportFileChange(event) {
+    const file = event.target.files?.[0];
+    const confirmBtn = document.getElementById('confirmImportBtn');
+    const previewSection = document.getElementById('importPreviewSection');
+    const fileNameLabel = document.getElementById('importFileName');
+    const fileHelpText = document.getElementById('importFileHelp');
+
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+    }
+
+    document.getElementById('importPreviewList').innerHTML = '';
+    document.getElementById('importSummary').textContent = '';
+    previewSection?.classList.add('hidden');
+
+    if (fileNameLabel) {
+        if (file) {
+            fileNameLabel.textContent = `Selected file: ${file.name}`;
+            fileNameLabel.classList.remove('hidden');
+            fileHelpText?.classList.add('hidden');
+        } else {
+            fileNameLabel.textContent = '';
+            fileNameLabel.classList.add('hidden');
+            fileHelpText?.classList.remove('hidden');
+        }
+    }
+
+    const errorBox = document.getElementById('importError');
+    if (errorBox) {
+        errorBox.classList.add('hidden');
+        errorBox.textContent = '';
+    }
+
+    if (!file) {
+        return;
+    }
+    if (file.size > MAX_IMPORT_SIZE) {
+        displayImportError('This file is too large. Please use a file under 5MB.');
+        return;
+    }
+
+    readImportFile(file)
+        .then((content) => validateImportPayload(content))
+        .then((preview) => {
+            importPreviewData = preview;
+            renderImportPreview(preview);
+        })
+        .catch((err) => {
+            displayImportError(err.message);
+            importPreviewData = null;
+        });
+}
+
+function readImportFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Could not read the selected file.'));
+        reader.readAsText(file);
+    });
+}
+
+function validateImportPayload(rawContent) {
+    let data;
+    try {
+        data = JSON.parse(rawContent);
+    } catch (err) {
+        throw new Error('Invalid JSON format.');
+    }
+
+    if (!data || typeof data !== 'object') {
+        throw new Error('This file is not a valid Prompt It export.');
+    }
+
+    if (!data.version) {
+        throw new Error('The file is missing the export version.');
+    }
+
+    if (!Array.isArray(data.promptlets)) {
+        throw new Error('The file is missing the promptlets array.');
+    }
+
+    if (!data.promptlets.length) {
+        throw new Error('This file contains no promptlets.');
+    }
+
+    const parsedIncoming = parseFloat(data.version);
+    const parsedCurrent = parseFloat(EXPORT_VERSION);
+    const newerVersion = Number.isFinite(parsedIncoming)
+        && Number.isFinite(parsedCurrent)
+        && parsedIncoming > parsedCurrent;
+    const existingNames = new Set(allPromptlets.map((p) => p.name));
+    const workingNames = new Set(existingNames);
+    const promptlets = [];
+    const conflicts = [];
+
+    data.promptlets.forEach((item) => {
+        if (!item || typeof item !== 'object') {
+            throw new Error('Invalid promptlet entry encountered.');
+        }
+
+        const requiredFields = ['name', 'emoji', 'model', 'temperature', 'maxTokens'];
+        const missing = requiredFields.filter((field) => item[field] === undefined || item[field] === null);
+        if (missing.length) {
+            throw new Error(`The file is missing required fields: ${missing.join(', ')}`);
+        }
+
+        const activeValue = item.active !== undefined ? item.active : item.isActive;
+        if (typeof activeValue !== 'boolean') {
+            throw new Error('Each promptlet must include a boolean "active" field.');
+        }
+
+        if (typeof item.name !== 'string' || !item.name.trim()) {
+            throw new Error('Promptlet name must be a non-empty string.');
+        }
+
+        if (typeof item.emoji !== 'string' || !item.emoji.trim()) {
+            throw new Error('Promptlet emoji must be provided.');
+        }
+
+        const promptText = typeof item.prompt === 'string' ? item.prompt : '';
+        if (item.prompt !== undefined && item.prompt !== null && typeof item.prompt !== 'string') {
+            throw new Error('Promptlet prompt text must be a string when provided.');
+        }
+
+        if (promptText.length > 7000) {
+            throw new Error('Prompt text exceeds the 7000 character limit.');
+        }
+
+        if (typeof item.model !== 'string' || !item.model.trim()) {
+            throw new Error('Promptlet model must be provided.');
+        }
+
+        const temperature = Number(item.temperature);
+        if (!Number.isFinite(temperature) || temperature < 0 || temperature > 2) {
+            throw new Error('Temperature must be a number between 0 and 2.');
+        }
+
+        const maxTokens = Number(item.maxTokens);
+        if (!Number.isFinite(maxTokens) || maxTokens < 100 || maxTokens > 16000) {
+            throw new Error('Max tokens must be between 100 and 16000.');
+        }
+
+        if (item.isDefault) {
+            return; // Skip any default promptlets bundled in the file
+        }
+
+        const trimmedName = item.name.trim();
+        const finalName = generateUniqueName(trimmedName, workingNames);
+        if (finalName !== trimmedName) {
+            conflicts.push({ originalName: trimmedName, newName: finalName });
+        }
+
+        promptlets.push({
+            name: finalName,
+            emoji: item.emoji.trim(),
+            prompt: promptText.trim(),
+            model: item.model.trim(),
+            temperature,
+            maxTokens,
+            outputStructure: Array.isArray(item.outputStructure) ? item.outputStructure : ['main'],
+            active: activeValue === true,
+        });
+    });
+
+    if (!promptlets.length) {
+        throw new Error('This file contains no importable promptlets.');
+    }
+
+    return {
+        promptlets,
+        conflicts,
+        renamedCount: conflicts.length,
+        totalCount: promptlets.length,
+        newerVersion,
+    };
+}
+
+function renderImportPreview(preview) {
+    const previewList = document.getElementById('importPreviewList');
+    const summary = document.getElementById('importSummary');
+    const previewSection = document.getElementById('importPreviewSection');
+    const confirmBtn = document.getElementById('confirmImportBtn');
+
+    previewList.innerHTML = '';
+
+    preview.promptlets.forEach((promptlet) => {
+        const conflict = preview.conflicts.find((c) => c.newName === promptlet.name);
+        const item = document.createElement('div');
+        item.className = `selection-item ${conflict ? 'conflict' : ''}`;
+        const note = conflict
+            ? `<div class="note">Will be renamed to: ${conflict.newName}</div>`
+            : '';
+        item.innerHTML = `
+            <div class="name">${promptlet.emoji || '📝'} ${promptlet.name}</div>
+            ${note}
+        `;
+        previewList.appendChild(item);
+    });
+
+    const renameText = preview.renamedCount
+        ? `${preview.renamedCount} will be renamed due to naming conflicts.`
+        : 'No naming conflicts detected.';
+
+    const versionWarning = preview.newerVersion
+        ? ' This file was created by a newer export version. Importing will continue.'
+        : '';
+
+    summary.textContent = `Ready to import ${preview.totalCount} promptlet(s). ${renameText}${versionWarning}`;
+
+    previewSection.classList.remove('hidden');
+    confirmBtn.disabled = false;
+
+    const errorBox = document.getElementById('importError');
+    errorBox.classList.add('hidden');
+    errorBox.textContent = '';
+}
+
+function displayImportError(message) {
+    const errorBox = document.getElementById('importError');
+    if (!errorBox) return;
+    errorBox.textContent = message;
+    errorBox.classList.remove('hidden');
+    document.getElementById('importPreviewSection').classList.add('hidden');
+    document.getElementById('confirmImportBtn').disabled = true;
+}
+
+function performImport() {
+    if (!importPreviewData || !importPreviewData.promptlets) {
+        return;
+    }
+
+    const startIndex = getNextCustomIndex();
+    const imported = importPreviewData.promptlets.map((promptlet, index) => ({
+        name: promptlet.name,
+        emoji: promptlet.emoji || '📝',
+        prompt: promptlet.prompt,
+        model: promptlet.model || model,
+        temperature: promptlet.temperature,
+        maxTokens: promptlet.maxTokens,
+        outputStructure: promptlet.outputStructure || ['main'],
+        isActive: promptlet.active,
+        isDefault: false,
+        customIndex: startIndex + index,
+        createdAt: Date.now(),
+        lastModified: Date.now(),
+    }));
+
+    allPromptlets = [...allPromptlets, ...imported];
+
+    saveAllPromptlets(() => {
+        closeImportModal();
+        const renameMessage = importPreviewData.renamedCount
+            ? ` ${importPreviewData.renamedCount} were renamed due to naming conflicts.`
+            : '';
+        alert(`Successfully imported ${imported.length} promptlet(s).${renameMessage}`);
     });
 }
 
@@ -260,9 +781,15 @@ function createBucketSortable(listElement, bucket) {
 
     const dropIndicator = listElement.querySelector('.drop-indicator') || document.createElement('div');
     dropIndicator.className = 'drop-indicator hidden';
-    if (!dropIndicator.parentElement) {
-        listElement.appendChild(dropIndicator);
-    }
+
+    // Ensure the indicator always belongs to this list even after re-renders
+    // or DOM resets (e.g., when import/export refreshes the list contents).
+    const ensureIndicatorAttached = () => {
+        if (dropIndicator.parentElement !== listElement) {
+            listElement.appendChild(dropIndicator);
+        }
+    };
+    ensureIndicatorAttached();
 
     let originalCardHeight = 0;
 
@@ -287,11 +814,13 @@ function createBucketSortable(listElement, bucket) {
 
         // Smooth insertion
         requestAnimationFrame(() => {
-            if (afterElement == null) {
+            ensureIndicatorAttached();
+            if (afterElement && afterElement.parentElement !== listElement) {
                 listElement.appendChild(dropIndicator);
-            } else {
-                listElement.insertBefore(dropIndicator, afterElement);
+                return;
             }
+
+            listElement.insertBefore(dropIndicator, afterElement || null);
         });
 
         listElement.classList.add('drag-over');
@@ -327,7 +856,15 @@ function createBucketSortable(listElement, bucket) {
         const draggingCard = document.querySelector('.promptlet-card.dragging');
 
         if (draggingCard) {
-            listElement.insertBefore(draggingCard, dropIndicator);
+            ensureIndicatorAttached();
+
+            // If another render detached the indicator, fall back to appending
+            // the card to the end of the list to avoid DOM insert errors.
+            if (dropIndicator.parentElement !== listElement) {
+                listElement.appendChild(draggingCard);
+            } else {
+                listElement.insertBefore(draggingCard, dropIndicator);
+            }
 
             // Add flash effect with slight delay
             setTimeout(() => {

@@ -41,11 +41,25 @@
       </div>
     </section>
 
-    <!-- Add New Promptlet Button -->
+    <!-- Add / Import / Export Promptlets -->
     <section class="add-section">
-      <button class="btn btn-primary btn-large" id="addNewBtn">
-        ➕ Add New Promptlet
-      </button>
+      <div class="action-row">
+        <button class="btn btn-primary btn-large primary-action" id="addNewBtn">
+          ➕ Add New Promptlet
+        </button>
+        <div class="secondary-actions" role="group" aria-label="Import and export promptlets">
+            <div class="action-divider" aria-hidden="true"></div>
+            <button class="btn btn-primary icon-button" id="importBtn" aria-haspopup="dialog" aria-label="Import Promptlets">
+                <span aria-hidden="true" class="btn-icon">📥</span>
+                <span class="btn-label">Import</span>
+            </button>
+            <div class="action-divider" aria-hidden="true"></div>
+            <button class="btn btn-primary icon-button" id="exportBtn" aria-haspopup="dialog" aria-label="Export Promptlets">
+                <span aria-hidden="true" class="btn-icon">📤</span>
+                <span class="btn-label">Export</span>
+            </button>
+        </div>
+      </div>
     </section>
 
     <!-- Editor Panel (hidden by default) -->
@@ -119,6 +133,78 @@
       </div>
       <button class="btn btn-primary" id="saveKeyBtn">Save API Key</button>
     </section>
+  </div>
+
+  <!-- Export Modal -->
+  <div class="modal hidden" id="exportModal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="exportModalTitle">Export Promptlets</h3>
+        <button class="btn-icon" id="closeExportModal" aria-label="Close export modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <h4>Export Options</h4>
+          <div class="radio-group">
+            <label><input type="radio" name="exportScope" value="all" checked> All Promptlets</label>
+            <label><input type="radio" name="exportScope" value="selected"> Selected Promptlets</label>
+          </div>
+          <p class="help-text">Only your custom promptlets are available for export.</p>
+          <div id="exportSelectionPanel" class="selection-panel hidden" aria-live="polite">
+            <div class="selection-toolbar">
+              <button class="link-btn" id="selectAllPromptlets" type="button">Select All</button>
+              <button class="link-btn" id="deselectAllPromptlets" type="button">Deselect All</button>
+            </div>
+            <div class="selection-list" id="exportPromptletList"></div>
+            <div class="selection-hint hidden" id="exportSelectionHint">Select at least one promptlet to export.</div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h4>File Options</h4>
+          <label class="form-label" for="exportFilename">Filename</label>
+          <input id="exportFilename" class="form-input" type="text" value="my-promptlets.pi" aria-describedby="exportFilenameHelp">
+          <p class="help-text" id="exportFilenameHelp">Files download as <code>.pi</code> JSON exports.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelExportBtn">Cancel</button>
+        <button class="btn btn-primary" id="confirmExportBtn" disabled>Export</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Modal -->
+  <div class="modal hidden" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="importModalTitle">Import Promptlets</h3>
+        <button class="btn-icon" id="closeImportModal" aria-label="Close import modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <h4>Select File</h4>
+          <label class="file-picker" for="importFileInput">
+            <span aria-hidden="true" class="file-picker-icon">📂</span>
+            <span>Choose a .pi file</span>
+            <input id="importFileInput" type="file" accept=".pi,application/json">
+          </label>
+          <div class="file-name hidden" id="importFileName" aria-live="polite"></div>
+          <p class="help-text" id="importFileHelp">Select a .pi file exported from Prompt It!</p>
+          <div class="alert hidden" id="importError" role="alert"></div>
+        </div>
+
+        <div class="modal-section hidden" id="importPreviewSection">
+          <h4>Preview</h4>
+          <div class="preview-summary" id="importSummary"></div>
+          <div class="selection-list" id="importPreviewList"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelImportBtn">Cancel</button>
+        <button class="btn btn-primary" id="confirmImportBtn" disabled>Import</button>
+      </div>
+    </div>
   </div>
 
   <script src="promptletUtils.js"></script>
