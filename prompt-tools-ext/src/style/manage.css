@@ -532,7 +532,7 @@ a.plain {
 .action-divider {
     width: 4px;
     height: auto;
-    background: #1E1E1E;
+    background: var(--bg-primary);
     margin: 0;
 }
 
