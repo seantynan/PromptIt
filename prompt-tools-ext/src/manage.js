@@ -193,7 +193,6 @@ function buildExportPromptletList() {
     listContainer.innerHTML = '';
 
     const customs = getCustomPromptlets();
-    const defaults = getDefaultPromptlets();
 
     customs.forEach((promptlet) => {
         const item = document.createElement('label');
@@ -201,19 +200,6 @@ function buildExportPromptletList() {
         item.innerHTML = `
             <input type="checkbox" class="export-checkbox" value="${promptlet.name}" checked>
             <span class="name">${promptlet.emoji || '📝'} ${promptlet.name}</span>
-        `;
-        listContainer.appendChild(item);
-    });
-
-    defaults.forEach((promptlet) => {
-        const item = document.createElement('div');
-        item.className = 'selection-item';
-        item.innerHTML = `
-            <input type="checkbox" disabled aria-disabled="true">
-            <div>
-                <div class="name">${promptlet.emoji || '📝'} ${promptlet.name}</div>
-                <div class="note">Built-in promptlets are not exported.</div>
-            </div>
         `;
         listContainer.appendChild(item);
     });
