@@ -51,7 +51,11 @@ CLAIM:
     // This allows users to test the maximum reasoning capabilities of the model
     name: "Max Reasoning",
     emoji: "👑",
-    prompt: "Analyze the following input using deep reasoning. Break down the problem step-by-step, explore multiple perspectives, and validate your assumptions before providing a final conclusion. Show your reasoning process clearly",
+      prompt: `Analyze the following input carefully. Use deep internal reasoning if needed,
+but only output the final answer, not your reasoning steps.
+Be accurate and concise.
+
+Input: `,
     model: "gpt-5.1",
     maxTokens: 16000,
     outputStructure: ["main"]
