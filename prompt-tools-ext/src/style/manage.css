@@ -560,6 +560,35 @@ a.plain {
     margin-bottom: 20px;
 }
 
+.input-suffix-group {
+    display: inline-flex;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px var(--shadow);
+    overflow: hidden;
+    border: 1px solid var(--border-input);
+    background: linear-gradient(90deg, var(--bg-input) 0%, var(--bg-input) 70%, rgba(76, 175, 80, 0.08) 100%);
+}
+
+.input-suffix-group .form-input {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.input-suffix {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 12px;
+    font-weight: 700;
+    color: var(--accent-green);
+    background: rgba(76, 175, 80, 0.08);
+    border-left: 1px solid var(--border-input);
+    letter-spacing: 0.4px;
+}
+
     .form-group.validation-group {
         position: relative;
         padding-bottom: 24px;
