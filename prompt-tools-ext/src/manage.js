@@ -131,6 +131,9 @@ function initializeExportControls() {
     const scopeRadios = document.querySelectorAll('input[name="exportScope"]');
     scopeRadios.forEach((radio) => radio.addEventListener('change', handleExportScopeChange));
 
+    const filenameInput = document.getElementById('exportFilename');
+    filenameInput?.addEventListener('input', updateExportButtonState);
+
     const selectAllBtn = document.getElementById('selectAllPromptlets');
     const deselectAllBtn = document.getElementById('deselectAllPromptlets');
     selectAllBtn?.addEventListener('click', () => toggleSelectAllPromptlets(true));
@@ -215,9 +218,17 @@ function updateExportButtonState() {
     const confirmBtn = document.getElementById('confirmExportBtn');
     const customPromptlets = getCustomPromptlets();
 
+    if (!confirmBtn) return;
+
+    const filenameInput = document.getElementById('exportFilename');
+    const rawFilename = (filenameInput?.value || '').trim();
+    const sanitizedName = rawFilename.replace(/\.[^.\s]+$/, '').replace(/\.+$/, '');
+    const hasFilename = sanitizedName.length > 0;
+
     if (scope === 'all') {
         const hasCustoms = customPromptlets.length > 0;
-        confirmBtn.disabled = !hasCustoms;
+        const isValid = hasFilename && hasCustoms;
+        confirmBtn.disabled = !isValid;
         hint.classList.toggle('hidden', hasCustoms);
         if (!hasCustoms) {
             hint.textContent = 'No custom promptlets to export.';
@@ -226,7 +237,7 @@ function updateExportButtonState() {
     }
 
     const selectedCount = Array.from(document.querySelectorAll('.export-checkbox:checked')).length;
-    const isValid = selectedCount > 0;
+    const isValid = hasFilename && selectedCount > 0;
     confirmBtn.disabled = !isValid;
     hint.textContent = 'Select at least one promptlet to export.';
     hint.classList.toggle('hidden', isValid);
@@ -235,9 +246,16 @@ function updateExportButtonState() {
 function performExport() {
     const scope = document.querySelector('input[name="exportScope"]:checked')?.value || 'all';
     const filenameInput = document.getElementById('exportFilename');
-    const rawFilename = (filenameInput?.value || 'my-promptlets').trim();
+    const rawFilename = (filenameInput?.value || '').trim();
     const sanitizedName = rawFilename.replace(/\.[^.\s]+$/, '').replace(/\.+$/, '');
-    const baseFilename = sanitizedName || 'my-promptlets';
+
+    if (!sanitizedName) {
+        updateExportButtonState();
+        filenameInput?.focus();
+        return;
+    }
+
+    const baseFilename = sanitizedName;
     const filename = `${baseFilename}.pi`;
 
     const customPromptlets = getCustomPromptlets();
