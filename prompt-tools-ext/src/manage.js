@@ -389,9 +389,14 @@ function handleImportFileChange(event) {
     readImportFile(file)
         .then((content) => validateImportPayload(content))
         .then((preview) => {
-            const selectablePreview = {
+            const safePreview = {
                 ...preview,
-                promptlets: preview.promptlets.map((promptlet) => ({ ...promptlet, selected: true })),
+                conflicts: Array.isArray(preview.conflicts) ? preview.conflicts : [],
+            };
+
+            const selectablePreview = {
+                ...safePreview,
+                promptlets: safePreview.promptlets.map((promptlet) => ({ ...promptlet, selected: true })),
             };
             importPreviewData = selectablePreview;
             renderImportPreview(selectablePreview);
@@ -534,12 +539,19 @@ function renderImportPreview(preview) {
     const confirmBtn = document.getElementById('confirmImportBtn');
     const hint = document.getElementById('importSelectionHint');
 
+    if (!preview || !Array.isArray(preview.promptlets)) {
+        displayImportError('Nothing to import. Please choose a valid .pi file.');
+        return;
+    }
+
+    const conflicts = Array.isArray(preview.conflicts) ? preview.conflicts : [];
+
     previewList.innerHTML = '';
 
     const selectedPromptlets = preview.promptlets.filter((promptlet) => promptlet.selected !== false);
 
     preview.promptlets.forEach((promptlet) => {
-        const conflict = preview.conflicts.find((c) => c.newName === promptlet.name);
+        const conflict = conflicts.find((c) => c.newName === promptlet.name);
         const item = document.createElement('label');
         item.className = `selection-item ${conflict ? 'conflict' : ''}`;
         const displayName = conflict ? conflict.originalName : promptlet.name;
@@ -562,7 +574,7 @@ function renderImportPreview(preview) {
         });
     });
 
-    const selectedConflicts = preview.conflicts.filter((conflict) => selectedPromptlets.some((p) => p.name === conflict.newName));
+    const selectedConflicts = conflicts.filter((conflict) => selectedPromptlets.some((p) => p.name === conflict.newName));
     const renameText = selectedConflicts.length
         ? `${selectedConflicts.length} will be renamed due to naming conflicts.`
         : 'No naming conflicts detected.';
