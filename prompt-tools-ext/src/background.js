@@ -433,9 +433,11 @@ function handleSidePanelSelection(promptletName, text) {
         promptlet: promptlet,
         text: text,
         timestamp: Date.now()
-      }).catch(err => {
+      }, () => {
         // Message might fail if panel is closed/reloading; storage is the backup
-        console.log("Message send attempted:", err.message);
+        if (chrome.runtime.lastError) {
+          console.log("Message send attempted:", chrome.runtime.lastError.message);
+        }
       });
     });
   });
@@ -491,8 +493,10 @@ function runPromptlet(tabId, promptlet, selectionText) {
             promptlet: promptlet,
             text: selectionText || "",
             timestamp: Date.now()
-          }).catch(err => {
-            console.log("Message send failed (side panel will read from storage):", err.message);
+          }, () => {
+            if (chrome.runtime.lastError) {
+              console.log("Message send failed (side panel will read from storage):", chrome.runtime.lastError.message);
+            }
           });
         }, 200);
       });
