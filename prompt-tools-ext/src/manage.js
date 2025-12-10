@@ -151,7 +151,7 @@ function openExportModal() {
     const modal = document.getElementById('exportModal');
     if (!modal) return;
 
-    document.getElementById('exportFilename').value = 'my-promptlets.pi';
+    document.getElementById('exportFilename').value = 'my-promptlets';
     document.getElementById('exportSelectionPanel').classList.add('hidden');
     document.getElementById('exportSelectionHint').classList.add('hidden');
     document.getElementById('confirmExportBtn').disabled = false;
@@ -235,8 +235,10 @@ function updateExportButtonState() {
 function performExport() {
     const scope = document.querySelector('input[name="exportScope"]:checked')?.value || 'all';
     const filenameInput = document.getElementById('exportFilename');
-    const rawFilename = (filenameInput?.value || 'my-promptlets.pi').trim();
-    const filename = rawFilename.toLowerCase().endsWith('.pi') ? rawFilename : `${rawFilename}.pi`;
+    const rawFilename = (filenameInput?.value || 'my-promptlets').trim();
+    const sanitizedName = rawFilename.replace(/\.[^.\s]+$/, '').replace(/\.+$/, '');
+    const baseFilename = sanitizedName || 'my-promptlets';
+    const filename = `${baseFilename}.pi`;
 
     const customPromptlets = getCustomPromptlets();
     if (!customPromptlets.length) {

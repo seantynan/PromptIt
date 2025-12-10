@@ -163,8 +163,11 @@
         <div class="modal-section">
           <h4>File Options</h4>
           <label class="form-label" for="exportFilename">Filename</label>
-          <input id="exportFilename" class="form-input" type="text" value="my-promptlets.pi" aria-describedby="exportFilenameHelp">
-          <p class="help-text" id="exportFilenameHelp">Files download as <code>.pi</code> JSON exports.</p>
+          <div class="input-suffix-group" aria-live="polite">
+            <input id="exportFilename" class="form-input" type="text" value="my-promptlets" aria-describedby="exportFilenameHelp">
+            <span class="input-suffix" aria-hidden="true">.pi</span>
+          </div>
+          <p class="help-text" id="exportFilenameHelp">Files download as <code>.pi</code> JSON exports. Enter only the filename.</p>
         </div>
       </div>
       <div class="modal-footer">
