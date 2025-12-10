@@ -809,10 +809,11 @@ textarea.form-input {
 }
 
 .selection-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     align-items: center;
-    gap: 10px;
-    padding: 8px;
+    gap: 12px;
+    padding: 8px 12px;
     border-radius: 6px;
     background: var(--bg-card);
     border: 1px solid transparent;
@@ -825,11 +826,39 @@ textarea.form-input {
 
 .selection-item .name {
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.selection-item .note {
-    color: var(--text-secondary);
+.rename-note {
     font-size: 13px;
+    color: var(--text-secondary);
+    text-align: left;
+}
+
+.rename-target {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.rename-note.placeholder {
+    visibility: hidden;
+}
+
+@media (max-width: 520px) {
+    .selection-item {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .rename-note {
+        text-align: left;
+    }
+
+    .rename-note.placeholder {
+        display: none;
+    }
 }
 
 .selection-hint {
