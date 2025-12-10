@@ -638,6 +638,7 @@ function performImport() {
     }
 
     const selectedPromptlets = importPreviewData.promptlets.filter((promptlet) => promptlet.selected !== false);
+    const conflicts = Array.isArray(importPreviewData.conflicts) ? importPreviewData.conflicts : [];
     if (!selectedPromptlets.length) {
         return;
     }
@@ -661,10 +662,10 @@ function performImport() {
     allPromptlets = [...allPromptlets, ...imported];
 
     saveAllPromptlets(() => {
-        closeImportModal();
-        const renamedSelectedCount = importPreviewData.conflicts
+        const renamedSelectedCount = conflicts
             .filter((conflict) => selectedPromptlets.some((p) => p.name === conflict.newName))
             .length;
+        closeImportModal();
         const renameMessage = renamedSelectedCount
             ? ` ${renamedSelectedCount} were renamed due to naming conflicts.`
             : '';
