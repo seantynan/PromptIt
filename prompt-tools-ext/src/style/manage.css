@@ -810,8 +810,8 @@ textarea.form-input {
 
 .selection-item {
     display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
     gap: 12px;
     padding: 8px 12px;
     border-radius: 6px;
@@ -819,15 +819,16 @@ textarea.form-input {
     border: 1px solid transparent;
 }
 
-.selection-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.selection-left input[type="checkbox"] {
+.selection-checkbox input[type="checkbox"] {
     width: 18px;
     height: 18px;
+}
+
+.selection-name {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
 }
 
 .selection-item.conflict {
@@ -838,14 +839,19 @@ textarea.form-input {
 .selection-item .name {
     font-weight: 600;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
+    min-width: 0;
+    flex-wrap: wrap;
+    word-break: break-word;
 }
 
 .rename-note {
     font-size: 13px;
     color: var(--text-secondary);
     text-align: left;
+    min-width: 0;
+    word-break: break-word;
 }
 
 .rename-target {
@@ -859,12 +865,13 @@ textarea.form-input {
 
 @media (max-width: 520px) {
     .selection-item {
-        grid-template-columns: 1fr;
-        gap: 4px;
+        grid-template-columns: auto 1fr;
+        gap: 8px;
     }
 
     .rename-note {
         text-align: left;
+        grid-column: 1 / -1;
     }
 
     .rename-note.placeholder {
