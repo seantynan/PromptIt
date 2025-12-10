@@ -34,15 +34,6 @@ function getPromptletsWithDefaultsFlag() {
   }));
 }
 
-function savePromptletBuckets(defaults, customs, callback) {
-  const combined = [...defaults, ...customs];
-  chrome.storage.local.set({
-    defaultPromptlets: defaults,
-    customPromptlets: customs,
-    promptlets: combined
-  }, callback);
-}
-
 // -------------------------
 // Initialization
 // -------------------------
