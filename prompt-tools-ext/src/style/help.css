@@ -14,6 +14,25 @@
     margin-bottom: 28px;
 }
 
+.header-hero {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.page-logo {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #0f0f0f, #1c1c1c);
+    border: 1px solid #2c2c2c;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+.header-content {
+    flex: 1;
+}
+
 .eyebrow {
     font-size: 0.85rem;
     letter-spacing: 0.08em;
