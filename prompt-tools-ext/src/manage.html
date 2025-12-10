@@ -197,7 +197,12 @@
         <div class="modal-section hidden" id="importPreviewSection">
           <h4>Preview</h4>
           <div class="preview-summary" id="importSummary"></div>
+          <div class="selection-toolbar">
+            <button class="link-btn" id="selectAllImports" type="button">Select All</button>
+            <button class="link-btn" id="deselectAllImports" type="button">Deselect All</button>
+          </div>
           <div class="selection-list" id="importPreviewList"></div>
+          <div class="selection-hint hidden" id="importSelectionHint">Select at least one promptlet to import.</div>
         </div>
       </div>
       <div class="modal-footer">
