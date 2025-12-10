@@ -11,6 +11,15 @@ const EXPORT_VERSION = "1.0";
 const MAX_IMPORT_SIZE = 5 * 1024 * 1024; // 5MB safeguard
 let importPreviewData = null;
 
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function formatModelLabel(promptlet) {
     const modelValue = promptlet.model || model;
     return modelValue ? modelValue.toUpperCase() : '';
@@ -187,10 +196,20 @@ function buildExportPromptletList() {
     customs.forEach((promptlet) => {
         const item = document.createElement('label');
         item.className = 'selection-item';
-        item.innerHTML = `
-            <input type="checkbox" class="export-checkbox" value="${promptlet.name}" checked>
-            <span class="name">${promptlet.emoji || '📝'} ${promptlet.name}</span>
-        `;
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'export-checkbox';
+        checkbox.value = promptlet.name;
+        checkbox.checked = true;
+
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = `${promptlet.emoji || '📝'} ${promptlet.name}`;
+
+        item.appendChild(checkbox);
+        item.appendChild(name);
+
         listContainer.appendChild(item);
     });
 
@@ -562,18 +581,38 @@ function renderImportPreview(preview) {
         const item = document.createElement('label');
         item.className = `selection-item ${conflict ? 'conflict' : ''}`;
         const displayName = conflict ? conflict.originalName : promptlet.name;
-        const renameNote = conflict
-            ? `<div class="rename-note" aria-label="Renamed promptlet">Will be renamed to: <span class="rename-target">${conflict.newName}</span></div>`
-            : '<div class="rename-note placeholder"></div>';
-        item.innerHTML = `
-            <div class="selection-checkbox">
-                <input type="checkbox" class="import-checkbox" value="${promptlet.name}" ${promptlet.selected !== false ? 'checked' : ''}>
-            </div>
-            <div class="selection-name">
-                <span class="name">${promptlet.emoji || '📝'} ${displayName}</span>
-            </div>
-            ${renameNote}
-        `;
+
+        const checkboxWrapper = document.createElement('div');
+        checkboxWrapper.className = 'selection-checkbox';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'import-checkbox';
+        checkbox.value = promptlet.name;
+        checkbox.checked = promptlet.selected !== false;
+        checkboxWrapper.appendChild(checkbox);
+
+        const nameWrapper = document.createElement('div');
+        nameWrapper.className = 'selection-name';
+        const name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = `${promptlet.emoji || '📝'} ${displayName}`;
+        nameWrapper.appendChild(name);
+
+        const renameNote = document.createElement('div');
+        renameNote.className = conflict ? 'rename-note' : 'rename-note placeholder';
+        if (conflict) {
+            renameNote.setAttribute('aria-label', 'Renamed promptlet');
+            renameNote.append('Will be renamed to: ');
+            const renameTarget = document.createElement('span');
+            renameTarget.className = 'rename-target';
+            renameTarget.textContent = conflict.newName;
+            renameNote.appendChild(renameTarget);
+        }
+
+        item.appendChild(checkboxWrapper);
+        item.appendChild(nameWrapper);
+        item.appendChild(renameNote);
+
         previewList.appendChild(item);
     });
 
@@ -721,27 +760,32 @@ function createPromptletElement(promptlet) {
     const item = document.createElement('div');
     const isActive = promptlet.isActive !== false;
     const modelLabel = formatModelLabel(promptlet);
+    const safeName = escapeHtml(promptlet.name);
+    const safeEmoji = escapeHtml(promptlet.emoji || '📝');
+    const safePrompt = escapeHtml(promptlet.prompt || '');
+    const safeModelLabel = modelLabel ? escapeHtml(modelLabel) : '';
+    const toggleTitle = escapeHtml(isActive ? 'On' : 'Off');
 
     item.className = `promptlet-card ${!isActive ? 'disabled' : ''}`;
     item.dataset.name = promptlet.name;
 
     item.innerHTML = `
      <div class="promptlet-header">
-      <label class="toggle-switch" title="${isActive ? 'On' : 'Off'}">
-        <input 
-          type="checkbox" 
-          class="toggle-input" 
-          data-name="${promptlet.name}" 
-          ${isActive ? 'checked' : ''} 
+      <label class="toggle-switch" title="${toggleTitle}">
+        <input
+          type="checkbox"
+          class="toggle-input"
+          data-name="${safeName}"
+          ${isActive ? 'checked' : ''}
         >
         <span class="toggle-slider"></span>
       </label>
 
-        <span class="promptlet-emoji">${promptlet.emoji || '📝'}</span>
-        <span class="promptlet-name">${promptlet.name}</span>
+        <span class="promptlet-emoji">${safeEmoji}</span>
+        <span class="promptlet-name">${safeName}</span>
 
         <div class="promptlet-actions">
-          ${modelLabel ? `<span class="promptlet-badge">${modelLabel}</span>` : ''}
+          ${safeModelLabel ? `<span class="promptlet-badge">${safeModelLabel}</span>` : ''}
           ${promptlet.isDefault
             ? '<span class="promptlet-badge">DEFAULT</span>'
             : `<button class="btn btn-small btn-secondary edit-btn">Edit</button>`
@@ -753,10 +797,10 @@ function createPromptletElement(promptlet) {
           <span class="drag-grip" aria-hidden="true"></span>
         </div>
       </div>
-    
+
     ${promptlet.isDefault
             ? ''
-            : `<div class="promptlet-prompt">${promptlet.prompt}</div>`
+            : `<div class="promptlet-prompt">${safePrompt}</div>`
         }
    `;
 
