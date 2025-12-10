@@ -819,6 +819,17 @@ textarea.form-input {
     border: 1px solid transparent;
 }
 
+.selection-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.selection-left input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+
 .selection-item.conflict {
     border-color: var(--accent-blue);
     background: rgba(100, 181, 246, 0.08);

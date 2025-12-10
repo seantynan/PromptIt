@@ -301,6 +301,8 @@ function initializeImportControls() {
     document.getElementById('cancelImportBtn')?.addEventListener('click', closeImportModal);
     document.getElementById('closeImportModal')?.addEventListener('click', closeImportModal);
     document.getElementById('confirmImportBtn')?.addEventListener('click', performImport);
+    document.getElementById('selectAllImports')?.addEventListener('click', () => toggleImportSelections(true));
+    document.getElementById('deselectAllImports')?.addEventListener('click', () => toggleImportSelections(false));
 }
 
 function openImportModal() {
@@ -320,6 +322,7 @@ function openImportModal() {
     document.getElementById('importPreviewSection').classList.add('hidden');
     document.getElementById('importPreviewList').innerHTML = '';
     document.getElementById('importSummary').textContent = '';
+    document.getElementById('importSelectionHint')?.classList.add('hidden');
     document.getElementById('confirmImportBtn').disabled = true;
     const fileNameLabel = document.getElementById('importFileName');
     if (fileNameLabel) {
@@ -354,6 +357,7 @@ function handleImportFileChange(event) {
     document.getElementById('importPreviewList').innerHTML = '';
     document.getElementById('importSummary').textContent = '';
     previewSection?.classList.add('hidden');
+    selectionHint?.classList.add('hidden');
 
     if (fileNameLabel) {
         if (file) {
@@ -384,8 +388,12 @@ function handleImportFileChange(event) {
     readImportFile(file)
         .then((content) => validateImportPayload(content))
         .then((preview) => {
-            importPreviewData = preview;
-            renderImportPreview(preview);
+            const selectablePreview = {
+                ...preview,
+                promptlets: preview.promptlets.map((promptlet) => ({ ...promptlet, selected: true })),
+            };
+            importPreviewData = selectablePreview;
+            renderImportPreview(selectablePreview);
         })
         .catch((err) => {
             displayImportError(err.message);
@@ -523,40 +531,82 @@ function renderImportPreview(preview) {
     const summary = document.getElementById('importSummary');
     const previewSection = document.getElementById('importPreviewSection');
     const confirmBtn = document.getElementById('confirmImportBtn');
+    const hint = document.getElementById('importSelectionHint');
 
     previewList.innerHTML = '';
 
+    const selectedPromptlets = preview.promptlets.filter((promptlet) => promptlet.selected !== false);
+
     preview.promptlets.forEach((promptlet) => {
         const conflict = preview.conflicts.find((c) => c.newName === promptlet.name);
-        const item = document.createElement('div');
+        const item = document.createElement('label');
         item.className = `selection-item ${conflict ? 'conflict' : ''}`;
         const displayName = conflict ? conflict.originalName : promptlet.name;
         const renameNote = conflict
             ? `<div class="rename-note" aria-label="Renamed promptlet">Will be renamed to: <span class="rename-target">${conflict.newName}</span></div>`
             : '<div class="rename-note placeholder"></div>';
         item.innerHTML = `
-            <div class="name">${promptlet.emoji || '📝'} ${displayName}</div>
+            <div class="selection-left">
+                <input type="checkbox" class="import-checkbox" value="${promptlet.name}" ${promptlet.selected !== false ? 'checked' : ''}>
+                <span class="name">${promptlet.emoji || '📝'} ${displayName}</span>
+            </div>
             ${renameNote}
         `;
         previewList.appendChild(item);
     });
 
-    const renameText = preview.renamedCount
-        ? `${preview.renamedCount} will be renamed due to naming conflicts.`
+    previewList.querySelectorAll('.import-checkbox').forEach((checkbox) => {
+        checkbox.addEventListener('change', (event) => {
+            setImportPromptletSelected(event.target.value, event.target.checked);
+        });
+    });
+
+    const selectedConflicts = preview.conflicts.filter((conflict) => selectedPromptlets.some((p) => p.name === conflict.newName));
+    const renameText = selectedConflicts.length
+        ? `${selectedConflicts.length} will be renamed due to naming conflicts.`
         : 'No naming conflicts detected.';
 
     const versionWarning = preview.newerVersion
         ? ' This file was created by a newer export version. Importing will continue.'
         : '';
 
-    summary.textContent = `Ready to import ${preview.totalCount} promptlet(s). ${renameText}${versionWarning}`;
+    summary.textContent = `Ready to import ${selectedPromptlets.length} of ${preview.totalCount} promptlet(s). ${renameText}${versionWarning}`;
 
     previewSection.classList.remove('hidden');
-    confirmBtn.disabled = false;
+    const hasSelection = selectedPromptlets.length > 0;
+    confirmBtn.disabled = !hasSelection;
+    hint.classList.toggle('hidden', hasSelection);
 
     const errorBox = document.getElementById('importError');
     errorBox.classList.add('hidden');
     errorBox.textContent = '';
+}
+
+function setImportPromptletSelected(name, isSelected) {
+    if (!importPreviewData) return;
+
+    importPreviewData = {
+        ...importPreviewData,
+        promptlets: importPreviewData.promptlets.map((promptlet) => (
+            promptlet.name === name ? { ...promptlet, selected: isSelected } : promptlet
+        )),
+    };
+
+    renderImportPreview(importPreviewData);
+}
+
+function toggleImportSelections(selectAll) {
+    if (!importPreviewData) return;
+
+    importPreviewData = {
+        ...importPreviewData,
+        promptlets: importPreviewData.promptlets.map((promptlet) => ({
+            ...promptlet,
+            selected: selectAll,
+        })),
+    };
+
+    renderImportPreview(importPreviewData);
 }
 
 function displayImportError(message) {
@@ -566,6 +616,7 @@ function displayImportError(message) {
     errorBox.classList.remove('hidden');
     document.getElementById('importPreviewSection').classList.add('hidden');
     document.getElementById('confirmImportBtn').disabled = true;
+    document.getElementById('importSelectionHint')?.classList.add('hidden');
 }
 
 function performImport() {
@@ -573,8 +624,13 @@ function performImport() {
         return;
     }
 
+    const selectedPromptlets = importPreviewData.promptlets.filter((promptlet) => promptlet.selected !== false);
+    if (!selectedPromptlets.length) {
+        return;
+    }
+
     const startIndex = getNextCustomIndex();
-    const imported = importPreviewData.promptlets.map((promptlet, index) => ({
+    const imported = selectedPromptlets.map((promptlet, index) => ({
         name: promptlet.name,
         emoji: promptlet.emoji || '📝',
         prompt: promptlet.prompt,
@@ -593,8 +649,11 @@ function performImport() {
 
     saveAllPromptlets(() => {
         closeImportModal();
-        const renameMessage = importPreviewData.renamedCount
-            ? ` ${importPreviewData.renamedCount} were renamed due to naming conflicts.`
+        const renamedSelectedCount = importPreviewData.conflicts
+            .filter((conflict) => selectedPromptlets.some((p) => p.name === conflict.newName))
+            .length;
+        const renameMessage = renamedSelectedCount
+            ? ` ${renamedSelectedCount} were renamed due to naming conflicts.`
             : '';
         alert(`Successfully imported ${imported.length} promptlet(s).${renameMessage}`);
     });
