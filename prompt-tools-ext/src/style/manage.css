@@ -810,7 +810,7 @@ textarea.form-input {
 
 .selection-item {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: 1fr 1fr;
     align-items: center;
     gap: 12px;
     padding: 8px 12px;
@@ -834,7 +834,7 @@ textarea.form-input {
 .rename-note {
     font-size: 13px;
     color: var(--text-secondary);
-    text-align: right;
+    text-align: left;
 }
 
 .rename-target {
