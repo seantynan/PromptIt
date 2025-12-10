@@ -530,11 +530,12 @@ function renderImportPreview(preview) {
         const conflict = preview.conflicts.find((c) => c.newName === promptlet.name);
         const item = document.createElement('div');
         item.className = `selection-item ${conflict ? 'conflict' : ''}`;
+        const displayName = conflict ? conflict.originalName : promptlet.name;
         const note = conflict
             ? `<div class="note">Will be renamed to: ${conflict.newName}</div>`
             : '';
         item.innerHTML = `
-            <div class="name">${promptlet.emoji || '📝'} ${promptlet.name}</div>
+            <div class="name">${promptlet.emoji || '📝'} ${displayName}</div>
             ${note}
         `;
         previewList.appendChild(item);
