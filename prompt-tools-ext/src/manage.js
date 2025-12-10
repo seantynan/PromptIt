@@ -349,6 +349,7 @@ function handleImportFileChange(event) {
     const previewSection = document.getElementById('importPreviewSection');
     const fileNameLabel = document.getElementById('importFileName');
     const fileHelpText = document.getElementById('importFileHelp');
+    const selectionHint = document.getElementById('importSelectionHint');
 
     if (confirmBtn) {
         confirmBtn.disabled = true;
