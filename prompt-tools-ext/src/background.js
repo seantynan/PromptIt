@@ -108,7 +108,7 @@ async function callOpenAI(
     frequencyPenalty = 0,
     presencePenalty = 0,
 ) {
-    console.log(`[BG] Calling OpenAI API:`, { model, maxTokens });
+    console.log(`[BG] Calling OpenAI API:`, { prompt, model, maxTokens });
 
     const response = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
