@@ -559,8 +559,10 @@ function renderImportPreview(preview) {
             ? `<div class="rename-note" aria-label="Renamed promptlet">Will be renamed to: <span class="rename-target">${conflict.newName}</span></div>`
             : '<div class="rename-note placeholder"></div>';
         item.innerHTML = `
-            <div class="selection-left">
+            <div class="selection-checkbox">
                 <input type="checkbox" class="import-checkbox" value="${promptlet.name}" ${promptlet.selected !== false ? 'checked' : ''}>
+            </div>
+            <div class="selection-name">
                 <span class="name">${promptlet.emoji || '📝'} ${displayName}</span>
             </div>
             ${renameNote}
