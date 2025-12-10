@@ -531,12 +531,12 @@ function renderImportPreview(preview) {
         const item = document.createElement('div');
         item.className = `selection-item ${conflict ? 'conflict' : ''}`;
         const displayName = conflict ? conflict.originalName : promptlet.name;
-        const note = conflict
-            ? `<div class="note">Will be renamed to: ${conflict.newName}</div>`
-            : '';
+        const renameNote = conflict
+            ? `<div class="rename-note" aria-label="Renamed promptlet">Will be renamed to: <span class="rename-target">${conflict.newName}</span></div>`
+            : '<div class="rename-note placeholder"></div>';
         item.innerHTML = `
             <div class="name">${promptlet.emoji || '📝'} ${displayName}</div>
-            ${note}
+            ${renameNote}
         `;
         previewList.appendChild(item);
     });
