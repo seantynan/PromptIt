@@ -9,7 +9,7 @@ const DEFAULT_PROMPTLETS = [
   {
     name: "Summarise",
     emoji: "💡",
-        prompt: "You are an expert editor. Summarise the selected text clearly and concisely. Capture the main ideas and key details without losing the original tone. Use bullet points if the text contains multiple distinct topics. Input text: ",
+    prompt: "You are an expert editor. Summarise the selected text clearly and concisely. Capture the main ideas and key details without losing the original tone. Use bullet points if the text contains multiple distinct topics. Input text: ",
     model: model,
     maxTokens: 1500,
     outputStructure: ["main"]
