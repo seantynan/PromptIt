@@ -23,6 +23,23 @@ function normalizePromptlet(promptlet, index, { isDefault, fillCreatedAt }) {
 }
 
 /**
+ * Persist default and custom promptlet buckets to storage while keeping
+ * a combined array for consumers that rely on the merged list.
+ *
+ * @param {Array} defaults Default promptlets.
+ * @param {Array} customs Custom promptlets.
+ * @param {Function} [callback] Optional callback after storage write.
+ */
+function savePromptletBuckets(defaults, customs, callback) {
+  const combined = [...defaults, ...customs];
+  chrome.storage.local.set({
+    defaultPromptlets: defaults,
+    customPromptlets: customs,
+    promptlets: combined
+  }, callback);
+}
+
+/**
  * Combines stored default and custom promptlets into unified collections.
  *
  * @param {object} data Storage payload containing promptlet buckets or legacy promptlets array.

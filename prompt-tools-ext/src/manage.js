@@ -11,19 +11,6 @@ const EXPORT_VERSION = "1.0";
 const MAX_IMPORT_SIZE = 5 * 1024 * 1024; // 5MB safeguard
 let importPreviewData = null;
 
-function savePromptletBuckets(defaults, customs, callback = null) {
-    const combined = [...defaults, ...customs];
-    chrome.storage.local.set({
-        defaultPromptlets: defaults,
-        customPromptlets: customs,
-        promptlets: combined
-    }, () => {
-        if (typeof callback === 'function') {
-            callback();
-        }
-    });
-}
-
 function formatModelLabel(promptlet) {
     const modelValue = promptlet.model || model;
     return modelValue ? modelValue.toUpperCase() : '';
