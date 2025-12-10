@@ -6,6 +6,7 @@
 const statusDiv = document.getElementById("status");
 const outputDiv = document.getElementById("output");
 let allPromptlets = []; // Store all promptlets here
+let chainMenuCloseHandler = null;
 
 // -------------------------
 // Initialize - Check for pending promptlet data
@@ -162,16 +163,29 @@ async function runPromptlet(selectedText, promptlet) {
                           err.message.includes("Invalid Authentication") || 
                           err.message.includes("You must provide an API key");
 
-    outputDiv.innerHTML = `
-      <div style="color: red; padding: 10px; background: #fee; border-radius: 4px;">
-        <strong>Error:</strong> ${err.message}
-      </div>
-      <div style="margin-top: 10px; font-size: 12px; color: #666;">
-        ${isApiKeyError ? 
-          'Go to <a href="#" id="openManage">Manage Promptlets</a> to set your API key.' : 
-          'Check the console for details.'}
-      </div>
-    `;
+    const errorContainer = document.createElement("div");
+    errorContainer.style.cssText = "color: red; padding: 10px; background: #fee; border-radius: 4px;";
+
+    const strongLabel = document.createElement("strong");
+    strongLabel.textContent = "Error:";
+    errorContainer.appendChild(strongLabel);
+    errorContainer.appendChild(document.createTextNode(" " + err.message));
+
+    const helpText = document.createElement("div");
+    helpText.style.cssText = "margin-top: 10px; font-size: 12px; color: #666;";
+    if (isApiKeyError) {
+      const manageLink = document.createElement("a");
+      manageLink.href = "#";
+      manageLink.id = "openManage";
+      manageLink.textContent = "Manage Promptlets";
+      helpText.append("Go to ", manageLink, " to set your API key.");
+    } else {
+      helpText.textContent = "Check the console for details.";
+    }
+
+    outputDiv.innerHTML = "";
+    outputDiv.appendChild(errorContainer);
+    outputDiv.appendChild(helpText);
 
     const manageLink = document.getElementById("openManage");
     if (manageLink) {
@@ -347,11 +361,15 @@ function addCopyButton(text, usage) {
   });
   
   // Close menu when clicking outside
-  document.addEventListener("click", (e) => {
+  if (chainMenuCloseHandler) {
+    document.removeEventListener("click", chainMenuCloseHandler);
+  }
+  chainMenuCloseHandler = (e) => {
     if (!chainBtn.contains(e.target)) {
       chainMenu.classList.remove("show");
     }
-  });
+  };
+  document.addEventListener("click", chainMenuCloseHandler);
   
   buttonGroup.appendChild(copyBtn);
   buttonGroup.appendChild(chainBtn);
