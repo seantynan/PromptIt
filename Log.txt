@@ -1,4 +1,8 @@
 
+07 DEC 2025
+
+v0.3 Studio released
+
 
 30 NOV 2025
 
@@ -6,7 +10,7 @@ Version 0.2 "Cadence" released.
 
 Next steps:
 
-System prompt, include locale and markdown formatting
+System prompt, include locale and markdown formatting: done
 
 Review default prompts
 
@@ -15,7 +19,7 @@ Help documentation
 README.md
 
 Branding: icons, polish, screenshots... generate images using nano banana
-
+Crossword Solver
 Positional ordering by drag and drop: later
 
 Prevent resetting defaults from deleting user prompts
