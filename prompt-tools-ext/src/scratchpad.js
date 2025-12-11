@@ -138,11 +138,17 @@ function clampPanelRatio(value) {
 
 function loadPanelRatio(layout) {
   const key = layout === 'horizontal' ? STORAGE_KEYS.splitHorizontal : STORAGE_KEYS.splitVertical;
-  const stored = Number(localStorage.getItem(key));
-  if (Number.isFinite(stored)) {
-    return clampPanelRatio(stored);
+  const storedValue = localStorage.getItem(key);
+  if (storedValue === null) {
+    return PANEL_RATIO_DEFAULT;
   }
-  return PANEL_RATIO_DEFAULT;
+
+  const stored = Number(storedValue);
+  if (!Number.isFinite(stored)) {
+    return PANEL_RATIO_DEFAULT;
+  }
+
+  return clampPanelRatio(stored);
 }
 
 function persistPanelRatio(layout, value) {
@@ -655,7 +661,7 @@ function toggleLayout() {
 }
 
 function buildLayoutFromStorage() {
-  const stored = localStorage.getItem(STORAGE_KEYS.layout) || 'vertical';
+  const stored = localStorage.getItem(STORAGE_KEYS.layout) || 'horizontal';
   const isVertical = stored === 'vertical';
   workspace.classList.toggle('vertical', isVertical);
   workspace.classList.toggle('horizontal', !isVertical);
