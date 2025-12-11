@@ -11,7 +11,7 @@ let chainMenuCloseHandler = null;
 // -------------------------
 // Initialize - Check for pending promptlet data
 // -------------------------
-console.log("PromptIt side panel loaded");
+logDebug("PromptIt side panel loaded");
 updateStatus("Ready. Select text and run a promptlet.");
 
 // Check if there's a pending promptlet when side panel opens
@@ -29,7 +29,7 @@ async function checkForPendingPromptlet() {
       // Check if it's recent (within last 5 seconds)
       const age = Date.now() - pendingPromptlet.timestamp;
       if (age < 5000) {
-        console.log("Found pending promptlet in storage");
+        logDebug("Found pending promptlet in storage");
         await chrome.storage.local.remove("pendingPromptlet");
         runPromptlet(pendingPromptlet.text, pendingPromptlet.promptlet);
         return;
@@ -39,12 +39,12 @@ async function checkForPendingPromptlet() {
     // Also try asking background script
     chrome.runtime.sendMessage({ action: "getPendingPromptlet" }, (response) => {
       if (response && response.data) {
-        console.log("Received pending promptlet from background");
+        logDebug("Received pending promptlet from background");
         runPromptlet(response.data.text, response.data.promptlet);
       }
     });
   } catch (err) {
-    console.error("Error checking for pending promptlet:", err);
+    logError("Error checking for pending promptlet:", err);
   }
 }
 
@@ -56,11 +56,11 @@ async function loadAndRenderChainMenu() {
     const data = await chrome.storage.local.get({ defaultPromptlets: [], customPromptlets: [], promptlets: [] });
     const { allPromptlets: combinedPromptlets } = combineStoredPromptlets(data);
     allPromptlets = combinedPromptlets;
-    console.log(`Loaded ${allPromptlets.length} promptlets for chaining menu.`);
+    logInfo(`Loaded ${allPromptlets.length} promptlets for chaining menu.`);
     // The menu is actually built/populated inside addCopyButton now, but we need
     // to ensure allPromptlets is ready before any output appears.
   } catch (err) {
-    console.error("Error loading promptlets for side panel:", err);
+    logError("Error loading promptlets for side panel:", err);
   }
 }
 
@@ -68,7 +68,7 @@ async function loadAndRenderChainMenu() {
 // Listen for messages from background script
 // -------------------------
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  console.log("Side panel received message:", msg);
+  logDebug("Side panel received message", msg.action);
 
   if (msg.action === "runPromptlet") {
     runPromptlet(msg.text, msg.promptlet);
@@ -88,7 +88,7 @@ function updateStatus(message, isError = false) {
 // Main promptlet execution
 // -------------------------
 async function runPromptlet(selectedText, promptlet) {
-  console.log(`Running: ${promptlet.name}`);
+  logInfo(`Running promptlet: ${promptlet.name}`);
   
   if (!selectedText || selectedText.trim() === "") {
     updateStatus("No text selected", true);
@@ -155,7 +155,7 @@ async function runPromptlet(selectedText, promptlet) {
     }
 
   } catch (err) {
-    console.error("Error running promptlet:", err);
+    logError("Error running promptlet:", err);
     updateStatus("Error", true);
     renderUsageBadge(null);
     
@@ -435,8 +435,8 @@ function runChainedPromptlet(promptlet, fullOutputText) {
   // Use selected text if available, otherwise use full output
   const textToProcess = selectedText || fullOutputText;
   
-  console.log("Running chained promptlet:", promptlet.name);
-  console.log("Processing:", selectedText ? "selected text" : "full output");
+  logInfo("Running chained promptlet:", promptlet.name);
+  logDebug("Processing selection state for chained promptlet", selectedText ? "selected text" : "full output");
   
   // Run the promptlet on the text
   runPromptlet(textToProcess, promptlet);
@@ -446,11 +446,11 @@ function runChainedPromptlet(promptlet, fullOutputText) {
 // Handle connection from background script (alternative method)
 // -------------------------
 chrome.runtime.onConnect.addListener((port) => {
-  console.log("Port connected:", port.name);
+  logInfo("Port connected:", port.name);
   
   if (port.name === "PromptItChannel") {
     port.onMessage.addListener((msg) => {
-      console.log("Message via port:", msg);
+      logDebug("Message via port", msg.action);
       if (msg.action === "runPromptlet") {
         runPromptlet(msg.text, msg.promptlet);
       }
@@ -458,4 +458,4 @@ chrome.runtime.onConnect.addListener((port) => {
   }
 });
 
-console.log("PromptIt side panel ready");
+logDebug("PromptIt side panel ready");
