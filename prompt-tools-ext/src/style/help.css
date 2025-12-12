@@ -334,7 +334,7 @@ figcaption {
 
 .callout.labeled {
     display: grid;
-    grid-template-columns: max-content 1fr;
+    grid-template-columns: 200px 1fr;
     align-items: flex-start;
     gap: 12px;
     padding: 14px;
@@ -344,13 +344,14 @@ figcaption {
     position: static;
     background: #c2410c;
     color: #fff7ed;
-    padding: 6px 10px;
+    padding: 8px 14px;
     border-radius: 8px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     line-height: 1.2;
-    white-space: nowrap;
+    text-align: center;
+    width: 100%;
 }
 
 .callout-body {
@@ -360,6 +361,16 @@ figcaption {
 
 .callout.warning.labeled {
     background: #2a160f;
+}
+
+@media (max-width: 640px) {
+    .callout.labeled {
+        grid-template-columns: 1fr;
+    }
+
+    .callout .label {
+        justify-self: start;
+    }
 }
 
 .floating-help {
