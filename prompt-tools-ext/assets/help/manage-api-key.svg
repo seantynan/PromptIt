@@ -1,0 +1,30 @@
+<svg width="720" height="360" viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Manage promptlets with API key entry">
+  <rect width="720" height="360" fill="#0f1729" rx="18" />
+  <rect x="24" y="24" width="672" height="312" rx="14" fill="#101826" stroke="#1f2a3b" stroke-width="2" />
+  <text x="48" y="62" fill="#cde6ff" font-family="Inter, Arial" font-size="18" font-weight="700">Manage Promptlets</text>
+  <rect x="48" y="78" width="624" height="64" rx="12" fill="#0d1220" stroke="#26324b" />
+  <text x="66" y="106" fill="#9fbafc" font-family="Inter, Arial" font-size="13" font-weight="600">OpenAI API Key</text>
+  <rect x="66" y="116" width="410" height="28" rx="7" fill="#141c2f" stroke="#2b3b5a" />
+  <text x="78" y="134" fill="#5eead4" font-family="SFMono-Regular, Consolas" font-size="12">sk-************************</text>
+  <rect x="488" y="110" width="132" height="34" rx="9" fill="#0ea5e9" stroke="#67e8f9" />
+  <text x="510" y="133" fill="#0b1020" font-family="Inter, Arial" font-size="13" font-weight="800">Save API Key</text>
+
+  <rect x="48" y="158" width="310" height="154" rx="12" fill="#0d1524" stroke="#1f2c40" />
+  <text x="66" y="182" fill="#9fbafc" font-family="Inter, Arial" font-size="13" font-weight="700">Default promptlets</text>
+  <text x="66" y="204" fill="#d6e1ff" font-family="Inter, Arial" font-size="12">• 💡 Summarise</text>
+  <text x="66" y="222" fill="#d6e1ff" font-family="Inter, Arial" font-size="12">• ✏️ Rephrase</text>
+  <text x="66" y="240" fill="#d6e1ff" font-family="Inter, Arial" font-size="12">• 🧠 Max Reasoning</text>
+  <text x="66" y="258" fill="#b3c8f5" font-family="Inter, Arial" font-size="12">(view-only, clone to edit)</text>
+
+  <rect x="378" y="158" width="294" height="154" rx="12" fill="#0d1524" stroke="#1f2c40" />
+  <text x="396" y="182" fill="#9fbafc" font-family="Inter, Arial" font-size="13" font-weight="700">Your promptlets</text>
+  <rect x="396" y="196" width="246" height="34" rx="8" fill="#111c30" stroke="#1f3658" />
+  <text x="414" y="218" fill="#d6e1ff" font-family="Inter, Arial" font-size="12">🆕 Add New Promptlet</text>
+  <rect x="396" y="236" width="246" height="28" rx="8" fill="#0b1a2c" stroke="#1f3658" />
+  <text x="414" y="254" fill="#a5b9e8" font-family="Inter, Arial" font-size="12">Toggle Active</text>
+
+  <rect x="510" y="270" width="142" height="28" rx="8" fill="#10b981" stroke="#6ee7a8" />
+  <text x="524" y="289" fill="#082f1f" font-family="Inter, Arial" font-size="12" font-weight="800">Open Manager</text>
+  <rect x="304" y="112" width="12" height="12" rx="3" fill="#a855f7" />
+  <text x="322" y="121" fill="#cdb5ff" font-family="Inter, Arial" font-size="11">Stored locally</text>
+</svg>
