@@ -417,14 +417,22 @@ function renderUsageBadge(usage) {
   const existingUsage = document.getElementById("usageBadge");
   if (existingUsage) existingUsage.remove();
 
-  const hasUsage = !!usage && ([usage.totalTokens, usage.inputTokens, usage.outputTokens]
-    .some((value) => value !== null && value !== undefined) || Number.isFinite(usage.durationMs));
+  const hasUsage = !!usage && (
+    usage.model ||
+    [usage.totalTokens, usage.inputTokens, usage.outputTokens]
+      .some((value) => value !== null && value !== undefined) ||
+    Number.isFinite(usage.durationMs)
+  );
 
   if (!hasUsage) {
     return;
   }
 
   const lines = [];
+  if (usage.model) {
+    lines.push(`Model: ${usage.model}`);
+  }
+
   const usageTextParts = [];
   if (usage.totalTokens !== null && usage.totalTokens !== undefined) {
     usageTextParts.push(`Tokens: ${usage.totalTokens}`);

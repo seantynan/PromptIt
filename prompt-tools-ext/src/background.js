@@ -37,6 +37,17 @@ function resolveModelId(model) {
     return MODEL_SNAPSHOTS[model] || model;
 }
 
+function getModelAlias(model) {
+    if (MODEL_SNAPSHOTS[model]) {
+        return model;
+    }
+
+    const aliasEntry = Object.entries(MODEL_SNAPSHOTS)
+        .find(([, snapshot]) => snapshot === model);
+
+    return aliasEntry ? aliasEntry[0] : model;
+}
+
 
 // ------------------------
 // Helpers for promptlet storage
@@ -540,6 +551,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
                     const requestedModel = msg.promptlet.model || "gpt-5-mini";
                     const resolvedModel = resolveModelId(requestedModel);
+                    const modelAlias = getModelAlias(requestedModel);
 
                     logDebug("[BG] Model requested:", requestedModel, "=> resolved:", resolvedModel);
 
@@ -554,7 +566,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                         msg.promptlet.presencePenalty ?? 0
                     );
 
-                    sendResponse({ success: true, result: result.text, usage: result.usage });
+                    const usageWithModel = result.usage
+                        ? { ...result.usage, model: modelAlias }
+                        : { model: modelAlias };
+
+                    sendResponse({ success: true, result: result.text, usage: usageWithModel });
 
                 } catch (err) {
                     logError("[BG] API Execution Error:", err.message);
