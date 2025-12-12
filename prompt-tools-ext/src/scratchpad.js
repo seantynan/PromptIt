@@ -433,11 +433,35 @@ function renderPromptletSidebar() {
   });
 }
 
+function formatDuration(durationMs) {
+  if (!Number.isFinite(durationMs) || durationMs < 0) return null;
+  if (durationMs < 1000) return `${Math.round(durationMs)} ms`;
+
+  const seconds = durationMs / 1000;
+  if (seconds < 60) {
+    const precision = seconds >= 10 ? 0 : 1;
+    return `${seconds.toFixed(precision)} s`;
+  }
+
+  const totalSeconds = Math.round(seconds);
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainingSeconds = totalSeconds % 60;
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  const parts = [];
+  if (hours) parts.push(`${hours}h`);
+  parts.push(`${remainingMinutes}m`);
+  if (remainingSeconds) parts.push(`${remainingSeconds}s`);
+
+  return parts.join(' ');
+}
+
 function updateTokenUsage(usage) {
   if (!tokenUsage) return;
 
-  const hasUsage = !!usage && [usage.totalTokens, usage.inputTokens, usage.outputTokens]
-    .some((value) => value !== null && value !== undefined);
+  const hasUsage = !!usage && ([usage.totalTokens, usage.inputTokens, usage.outputTokens]
+    .some((value) => value !== null && value !== undefined) || Number.isFinite(usage.durationMs));
 
   if (!hasUsage) {
     tokenUsage.textContent = '';
@@ -445,6 +469,7 @@ function updateTokenUsage(usage) {
     return;
   }
 
+  const lines = [];
   const segments = [];
   if (usage.totalTokens !== null && usage.totalTokens !== undefined) {
     segments.push(`Tokens: ${usage.totalTokens}`);
@@ -462,7 +487,16 @@ function updateTokenUsage(usage) {
     segments.push(`(${subSegments.join(' | ')})`);
   }
 
-  tokenUsage.textContent = segments.join(' ');
+  if (segments.length) {
+    lines.push(segments.join(' '));
+  }
+
+  const durationText = formatDuration(usage.durationMs);
+  if (durationText) {
+    lines.push(`Duration: ${durationText}`);
+  }
+
+  tokenUsage.innerHTML = lines.map((line) => `<div class="usage-line">${line}</div>`).join('');
   tokenUsage.classList.remove('hidden');
 }
 

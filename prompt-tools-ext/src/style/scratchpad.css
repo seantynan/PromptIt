@@ -366,6 +366,15 @@ textarea#inputArea::-webkit-scrollbar-thumb:hover,
   width: 100%;
 }
 
+.usage-badge .usage-line {
+  display: block;
+  line-height: 1.4;
+}
+
+.usage-badge .usage-line + .usage-line {
+  margin-top: 2px;
+}
+
 .hidden {
   display: none !important;
 }

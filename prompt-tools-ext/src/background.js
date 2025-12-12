@@ -110,6 +110,8 @@ async function callOpenAI(
 ) {
     console.log(`[BG] Calling OpenAI API:`, { prompt, model, maxTokens });
 
+    const startTime = Date.now();
+
     const response = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
         headers: {
@@ -143,7 +145,15 @@ async function callOpenAI(
     //console.log("[API RESPONSE DATA EXTRACTED]", extractOutput(data));
 
     // Extract output safely
-    return extractOutput(data);
+    const output = extractOutput(data);
+    const durationMs = Date.now() - startTime;
+
+    return {
+        text: output.text,
+        usage: (output.usage || Number.isFinite(durationMs))
+            ? { ...(output.usage || {}), durationMs }
+            : output.usage
+    };
 }
 
 /**
