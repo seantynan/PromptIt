@@ -56,7 +56,7 @@ but only output the final answer, not your reasoning steps.
 Be accurate and concise.
 
 Input: `,
-    model: "gpt-5.1",
+    model: "gpt-5.2",
     maxTokens: 16000,
     outputStructure: ["main"]
   },

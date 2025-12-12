@@ -22,6 +22,22 @@ let pendingPromptletData = null;
 // Flag to prevent duplicate menu builds
 let isRebuildingMenus = false;
 
+// -------------------------
+// Model snapshot resolution (alias -> pinned snapshot)
+// -------------------------
+const MODEL_SNAPSHOTS = {
+    "gpt-5.2": "gpt-5.2-2025-12-11",
+    "gpt-5.1": "gpt-5.1",          // TODO: replace with a pinned snapshot when you choose one
+    "gpt-5-mini": "gpt-5-mini-2025-08-07",
+    "gpt-5-nano": "gpt-5-nano",     // TODO: replace with a pinned snapshot when you choose one
+    "gpt-4o": "gpt-4o"             // TODO: replace with a pinned snapshot if you want
+};
+
+function resolveModelId(model) {
+    return MODEL_SNAPSHOTS[model] || model;
+}
+
+
 // ------------------------
 // Helpers for promptlet storage
 // ------------------------
@@ -512,10 +528,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                         throw new Error("API key not found. Please add it in Manage Promptlets.");
                     }
 
+                    const requestedModel = msg.promptlet.model || "gpt-5-mini";
+                    const resolvedModel = resolveModelId(requestedModel);
+
+                    console.log("[BG] Model requested:", requestedModel, "=> resolved:", resolvedModel);
+
                     const result = await callOpenAI(
                         msg.prompt,
                         apiKey,
-                        msg.promptlet.model || "gpt-4o",
+                        resolvedModel,
                         msg.promptlet.temperature ?? 1,
                         msg.promptlet.maxTokens || 3000,
                         msg.promptlet.topP ?? 1,
