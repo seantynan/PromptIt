@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prompt It! Onboarding Guide</title>
+    <link rel="stylesheet" href="style/main.css">
+    <link rel="stylesheet" href="style/help.css">
+</head>
+<body>
+    <div class="container" id="top">
+        <header class="page-header">
+            <div class="version-banner">
+                <p class="eyebrow version-badge">Onboarding · Prompt It!</p>
+            </div>
+            <div class="hero-layout">
+                <div class="logo-block">
+                    <div class="logo-wrap">
+                        <img src="../assets/icons/icon128.png" alt="Prompt It! robot logo" class="logo-mark" title="Prompt It! - AI in your right-click">
+                    </div>
+                </div>
+                <div class="hero-copy">
+                    <h1>🚀 Prompt It: Turn Your Prompts Into Tools</h1>
+                    <p>Your starter guide for turning repeatable prompts into Promptlets and reclaiming your time.</p>
+                    <div class="pill-row">
+                        <span class="pill">Promptlet basics</span>
+                        <span class="pill">Repeatable patterns</span>
+                        <span class="pill">High-signal tips</span>
+                        <span class="pill">Shareable workflows</span>
+                    </div>
+                    <div class="support-links">
+                        <a class="link-chip" href="mailto:info@promptitapp.com?subject=Prompt%20It%21%20Onboarding">Ask a question</a>
+                        <a class="link-chip" href="help.html">Open the Help Center</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="quick-start card" aria-label="Onboarding quick start">
+            <div class="section-meta">90-second orientation</div>
+            <ol class="strip">
+                <li><a href="#what">See what Prompt It does</a></li>
+                <li><a href="#patterns">Pick your Promptlet pattern</a></li>
+                <li><a href="#getting-started">Build your first Promptlet</a></li>
+            </ol>
+        </section>
+
+        <nav class="toc card" aria-label="Table of contents">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#what">What Is Prompt It?</a></li>
+                <li><a href="#need">Do You Need This?</a></li>
+                <li><a href="#patterns">The Four Core Patterns</a></li>
+                <li><a href="#before-after">From Manual to Automated</a></li>
+                <li><a href="#use-cases">Use Cases by Domain</a></li>
+                <li><a href="#getting-started">Getting Started: Your First Promptlet</a></li>
+                <li><a href="#power-tips">Power User Tips</a></li>
+                <li><a href="#not">What Prompt It Is Not</a></li>
+                <li><a href="#bottom-line">The Bottom Line</a></li>
+                <li><a href="#help">Need Help?</a></li>
+            </ol>
+        </nav>
+
+        <section id="what">
+            <div class="section-meta">Overview</div>
+            <h2>What Is Prompt It?</h2>
+            <div class="card">
+                <p>Prompt It turns any AI prompt into a reusable tool called a <strong>Promptlet</strong>. If you keep using the same prompt structure and only swap the inputs, a Promptlet will save you time and keep your results consistent.</p>
+                <p><strong>Stop copying and pasting. Create it once, use it everywhere.</strong></p>
+            </div>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="need">
+            <div class="section-meta">Fit check</div>
+            <h2>Do You Need This?</h2>
+            <div class="card">
+                <ul>
+                    <li>“I wish I could run this prompt on all 50 of these items.”</li>
+                    <li>“I keep tweaking this same prompt for different inputs.”</li>
+                    <li>“This would be useful if I didn’t have to copy-paste every time.”</li>
+                    <li>“I have a process that works, but it’s too tedious to scale.”</li>
+                    <li>“I need consistent results across many similar items.”</li>
+                </ul>
+            </div>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="patterns">
+            <div class="section-meta">Choose your shape</div>
+            <h2>The Four Core Patterns</h2>
+            <div class="grid two-col">
+                <div class="card">
+                    <h3>Pattern 1: The Reviewer</h3>
+                    <p><strong>You have:</strong> Items that need evaluation against consistent criteria.</p>
+                    <p><strong>The Promptlet:</strong> Embeds your rubric or checklist and applies it to each item.</p>
+                    <ul>
+                        <li>Teacher grading essays against a rubric</li>
+                        <li>HR screening resumes for required qualifications</li>
+                        <li>QA checking bug reports for completeness</li>
+                        <li>Editor reviewing articles for style guide compliance</li>
+                        <li>Lawyer checking contracts for standard clauses</li>
+                        <li>Developer reviewing pull requests for coding standards</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Pattern 2: The Transformer</h3>
+                    <p><strong>You have:</strong> Content in one format that needs to become another format.</p>
+                    <p><strong>The Promptlet:</strong> Defines the transformation rules once and applies them repeatedly.</p>
+                    <ul>
+                        <li>Meeting notes → structured action items with owners and deadlines</li>
+                        <li>Customer calls → CRM summaries</li>
+                        <li>Technical documentation → user-friendly guides</li>
+                        <li>Raw data → executive summaries</li>
+                        <li>Interview transcripts → key insights</li>
+                        <li>Social media posts → different platform formats</li>
+                        <li>Long emails → bullet-point summaries</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Pattern 3: The Analyzer</h3>
+                    <p><strong>You have:</strong> Raw information that needs structured analysis.</p>
+                    <p><strong>The Promptlet:</strong> Contains your analysis framework and applies it consistently.</p>
+                    <ul>
+                        <li>Customer feedback → categorized issues with sentiment</li>
+                        <li>Error logs → root cause analysis</li>
+                        <li>Survey responses → thematic groupings</li>
+                        <li>Medical symptoms → differential diagnosis considerations</li>
+                        <li>Financial statements → risk indicators</li>
+                        <li>Code → security vulnerability assessment</li>
+                        <li>User behavior data → pattern identification</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Pattern 4: The Generator</h3>
+                    <p><strong>You have:</strong> Parameters that should produce consistent output.</p>
+                    <p><strong>The Promptlet:</strong> Templates your requirements and generates on demand.</p>
+                    <ul>
+                        <li>Product specs → marketing copy</li>
+                        <li>Meeting attendees + agenda → calendar invite text</li>
+                        <li>Customer issue → response email draft</li>
+                        <li>Dataset → visualization code</li>
+                        <li>Requirements → test cases</li>
+                        <li>User story → acceptance criteria</li>
+                        <li>Interview answers → reference letter draft</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="before-after">
+            <div class="section-meta">Time saved</div>
+            <h2>From Manual to Automated</h2>
+            <div class="grid two-col">
+                <div class="card">
+                    <h3>Before Prompt It</h3>
+                    <ol>
+                        <li>Open ChatGPT.</li>
+                        <li>Paste your carefully crafted prompt.</li>
+                        <li>Paste item #1.</li>
+                        <li>Copy results to your document.</li>
+                        <li>Repeat for items #2, #3, #4... #50.</li>
+                        <li>Lose an afternoon of your life.</li>
+                    </ol>
+                </div>
+                <div class="card">
+                    <h3>After Prompt It</h3>
+                    <ol>
+                        <li>Create one Promptlet with your prompt.</li>
+                        <li>Drop 50 items onto it.</li>
+                        <li>Get all results.</li>
+                        <li>Actually finish work before dinner.</li>
+                    </ol>
+                </div>
+            </div>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="use-cases">
+            <div class="section-meta">Inspiration</div>
+            <h2>Use Cases By Domain</h2>
+            <div class="grid two-col">
+                <div class="card">
+                    <h3>For Educators</h3>
+                    <ul>
+                        <li><strong>Essay grading:</strong> Apply rubrics consistently across all submissions.</li>
+                        <li><strong>Feedback generation:</strong> Provide structured feedback on student work.</li>
+                        <li><strong>Assignment creation:</strong> Generate practice problems with variations.</li>
+                        <li><strong>Plagiarism checking:</strong> First-pass similarity detection.</li>
+                        <li><strong>Reading level analysis:</strong> Evaluate text complexity for grade appropriateness.</li>
+                        <li><strong>Quiz generation:</strong> Create questions from course materials.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>For Developers</h3>
+                    <ul>
+                        <li><strong>Code review:</strong> Check PRs against team standards before human review.</li>
+                        <li><strong>Documentation generation:</strong> Turn code comments into user docs.</li>
+                        <li><strong>Bug triage:</strong> Categorize and prioritize issue reports.</li>
+                        <li><strong>Test case creation:</strong> Generate test scenarios from requirements.</li>
+                        <li><strong>API response validation:</strong> Check outputs against schema requirements.</li>
+                        <li><strong>Dependency analysis:</strong> Identify potential version conflicts.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>For Content Creators &amp; Writers</h3>
+                    <ul>
+                        <li><strong>Style consistency:</strong> Check pieces against your style guide.</li>
+                        <li><strong>SEO optimization:</strong> Analyze content for search best practices.</li>
+                        <li><strong>Fact checking:</strong> Flag claims needing verification.</li>
+                        <li><strong>Tone analysis:</strong> Ensure brand voice consistency.</li>
+                        <li><strong>Headline testing:</strong> Generate variations for A/B testing.</li>
+                        <li><strong>Content repurposing:</strong> Adapt long-form content for different platforms.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>For Business Professionals</h3>
+                    <ul>
+                        <li><strong>Email triage:</strong> Categorize and prioritize incoming messages.</li>
+                        <li><strong>Report generation:</strong> Turn raw data into formatted reports.</li>
+                        <li><strong>Meeting prep:</strong> Analyze participant backgrounds and generate talking points.</li>
+                        <li><strong>RFP screening:</strong> Initial qualification of vendor proposals.</li>
+                        <li><strong>Expense validation:</strong> Check receipts against policy before approval.</li>
+                        <li><strong>Customer inquiry routing:</strong> Categorize support tickets to the right teams.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>For Researchers &amp; Analysts</h3>
+                    <ul>
+                        <li><strong>Literature screening:</strong> First-pass relevance filtering of papers.</li>
+                        <li><strong>Data annotation:</strong> Label datasets according to coding schemes.</li>
+                        <li><strong>Citation formatting:</strong> Standardize references across documents.</li>
+                        <li><strong>Survey coding:</strong> Categorize open-ended responses.</li>
+                        <li><strong>Abstract generation:</strong> Summarize findings consistently.</li>
+                        <li><strong>Methodology validation:</strong> Check studies against protocol requirements.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>For Healthcare Professionals</h3>
+                    <ul>
+                        <li><strong>Chart review:</strong> Pre-screen for protocol compliance.</li>
+                        <li><strong>Prior authorization:</strong> Check cases against coverage criteria.</li>
+                        <li><strong>Patient triage:</strong> Initial symptom assessment for urgency.</li>
+                        <li><strong>Documentation review:</strong> Verify completeness before submission.</li>
+                        <li><strong>Clinical note summarization:</strong> Extract key points from lengthy records.</li>
+                        <li><strong>Research screening:</strong> Identify eligible participants from databases.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>For Legal Professionals</h3>
+                    <ul>
+                        <li><strong>Contract review:</strong> Initial check against standard clauses.</li>
+                        <li><strong>Discovery screening:</strong> Categorize documents by relevance.</li>
+                        <li><strong>Citation checking:</strong> Verify legal references.</li>
+                        <li><strong>Compliance review:</strong> Flag potential regulatory issues.</li>
+                        <li><strong>Due diligence:</strong> Systematic review against checklists.</li>
+                        <li><strong>Brief preparation:</strong> Extract key facts from case files.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>For Creative Professionals</h3>
+                    <ul>
+                        <li><strong>Script coverage:</strong> Analyze submissions against criteria.</li>
+                        <li><strong>Style guide compliance:</strong> Check designs against brand standards.</li>
+                        <li><strong>Asset organization:</strong> Categorize and tag creative files.</li>
+                        <li><strong>Client brief analysis:</strong> Extract requirements from project descriptions.</li>
+                        <li><strong>Concept validation:</strong> Check ideas against brief requirements.</li>
+                        <li><strong>Portfolio curation:</strong> Analyze work samples for theme consistency.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>For Hobbyists &amp; Personal Use</h3>
+                    <ul>
+                        <li><strong>Recipe analysis:</strong> Extract ingredients and nutrition info.</li>
+                        <li><strong>Trip planning:</strong> Organize research into structured itineraries.</li>
+                        <li><strong>Book/movie logging:</strong> Keep consistent notes and ratings.</li>
+                        <li><strong>Learning notes:</strong> Turn highlights into flashcards.</li>
+                        <li><strong>Email drafting:</strong> Respond to common situations consistently.</li>
+                        <li><strong>Home inventory:</strong> Categorize and value possessions.</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="getting-started">
+            <div class="section-meta">Build your first one</div>
+            <h2>Getting Started: Your First Promptlet</h2>
+            <ol class="steps">
+                <li><strong>Identify your repetitive task.</strong> What do you do over and over that follows the same pattern?</li>
+                <li><strong>Write your prompt once.</strong> Craft the perfect prompt with criteria, context, and requirements.</li>
+                <li><strong>Test on a few examples.</strong> Run it manually on 3–5 samples and refine until results feel consistent.</li>
+                <li><strong>Create your Promptlet.</strong> Turn that tested prompt into a Promptlet.</li>
+                <li><strong>Scale.</strong> Run it on all 50, 100, or 500 items and get your time back.</li>
+            </ol>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="power-tips">
+            <div class="section-meta">Pro moves</div>
+            <h2>Power User Tips</h2>
+            <div class="grid two-col">
+                <div class="card">
+                    <h3>Start Simple</h3>
+                    <p>Your first Promptlet should solve one clear, repetitive task. Avoid the Swiss Army knife on day one.</p>
+                </div>
+                <div class="card">
+                    <h3>Iterate on the Prompt</h3>
+                    <p>Test on a few examples before running it on hundreds. Small refinements compound.</p>
+                </div>
+                <div class="card">
+                    <h3>Be Specific</h3>
+                    <p>“Grade this essay” → inconsistent results. “Grade this essay using the attached rubric. Provide scores for thesis (0–25), evidence (0–25), organization (0–25), and mechanics (0–25), with specific examples for each.” → reliable results.</p>
+                </div>
+                <div class="card">
+                    <h3>Chain Promptlets</h3>
+                    <ol>
+                        <li>Promptlet A: Extract action items from meeting transcript.</li>
+                        <li>Promptlet B: Generate calendar events from action items.</li>
+                    </ol>
+                </div>
+                <div class="card">
+                    <h3>Version Your Prompts</h3>
+                    <p>Keep track of what works. Save prior versions when you improve a prompt in case you need to revert.</p>
+                </div>
+                <div class="card">
+                    <h3>Use Context Files</h3>
+                    <p>If your prompt needs rubrics, style guides, or examples, attach them to the Promptlet rather than pasting them each time.</p>
+                </div>
+                <div class="card">
+                    <h3>Batch Similar Items</h3>
+                    <p>Process similar items together. You’ll spot patterns and can refine the prompt for the whole batch.</p>
+                </div>
+                <div class="card">
+                    <h3>Keep Humans in the Loop</h3>
+                    <p>Promptlets handle the mechanical first pass. You keep the judgment calls.</p>
+                </div>
+            </div>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="not">
+            <div class="section-meta">Expectations</div>
+            <h2>What Prompt It Is NOT</h2>
+            <div class="card">
+                <ul>
+                    <li><strong>Not a chat thread.</strong> Prompt It runs each promptlet as a one-shot transformer—follow-up runs don’t remember prior inputs or conversation history.</li>
+                    <li><strong>Not a replacement for expertise.</strong> It handles mechanical processing so your expertise can focus where it matters.</li>
+                    <li><strong>Not infallible.</strong> AI makes mistakes. Always review outputs, especially for high-stakes decisions.</li>
+                    <li><strong>Not a substitute for thinking.</strong> It executes your process at scale, but you still design the process.</li>
+                    <li><strong>Not magic.</strong> Garbage in, garbage out. The quality of your Promptlet depends on the quality of your prompt.</li>
+                    <li><strong>Not a data harvester.</strong> Prompt It does not collect analytics, track usage, or store your content remotely.</li>
+                </ul>
+            </div>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="bottom-line">
+            <div class="section-meta">Decision</div>
+            <h2>The Bottom Line</h2>
+            <div class="card">
+                <p>If you’re doing the same AI-assisted task more than three times, you should make a Promptlet. Your time is valuable—stop copy-pasting and start automating.</p>
+            </div>
+            <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
+        </section>
+
+        <section id="help">
+            <div class="section-meta">Still stuck?</div>
+            <h2>Need Help?</h2>
+            <div class="card">
+                <p><strong>Can’t figure out your use case?</strong> Think about the last time you thought “I need to do this 30 more times” and dreaded it.</p>
+                <p><strong>Prompt not working well?</strong> Start with what you want the output to look like, then work backwards to the prompt.</p>
+                <p><strong>Want to share your Promptlet?</strong> Great use cases help everyone. Show us what you built.</p>
+                <p>When you’re ready for installation steps, detailed feature guidance, or troubleshooting, the Help Center has screenshots and deeper instructions.</p>
+                <div class="support-links">
+                    <a class="link-chip" href="mailto:info@promptitapp.com?subject=Prompt%20It%21%20Onboarding">Email the team</a>
+                    <a class="link-chip" href="help.html">Return to the Help Center</a>
+                </div>
+            </div>
+            <div class="page-footer">Prompt It! · Built for multiplying your prompts</div>
+        </section>
+    </div>
+</body>
+</html>
