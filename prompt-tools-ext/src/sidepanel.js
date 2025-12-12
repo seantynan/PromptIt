@@ -389,17 +389,42 @@ function addCopyButton(text, usage) {
   renderUsageBadge(usage);
 }
 
+function formatDuration(durationMs) {
+  if (!Number.isFinite(durationMs) || durationMs < 0) return null;
+  if (durationMs < 1000) return `${Math.round(durationMs)} ms`;
+
+  const seconds = durationMs / 1000;
+  if (seconds < 60) {
+    const precision = seconds >= 10 ? 0 : 1;
+    return `${seconds.toFixed(precision)} s`;
+  }
+
+  const totalSeconds = Math.round(seconds);
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainingSeconds = totalSeconds % 60;
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  const parts = [];
+  if (hours) parts.push(`${hours}h`);
+  parts.push(`${remainingMinutes}m`);
+  if (remainingSeconds) parts.push(`${remainingSeconds}s`);
+
+  return parts.join(" ");
+}
+
 function renderUsageBadge(usage) {
   const existingUsage = document.getElementById("usageBadge");
   if (existingUsage) existingUsage.remove();
 
-  const hasUsage = !!usage && [usage.totalTokens, usage.inputTokens, usage.outputTokens]
-    .some((value) => value !== null && value !== undefined);
+  const hasUsage = !!usage && ([usage.totalTokens, usage.inputTokens, usage.outputTokens]
+    .some((value) => value !== null && value !== undefined) || Number.isFinite(usage.durationMs));
 
   if (!hasUsage) {
     return;
   }
 
+  const lines = [];
   const usageTextParts = [];
   if (usage.totalTokens !== null && usage.totalTokens !== undefined) {
     usageTextParts.push(`Tokens: ${usage.totalTokens}`);
@@ -416,10 +441,21 @@ function renderUsageBadge(usage) {
     usageTextParts.push(`(${subParts.join(" | ")})`);
   }
 
+  if (usageTextParts.length) {
+    lines.push(usageTextParts.join(" "));
+  }
+
+  const durationText = formatDuration(usage.durationMs);
+  if (durationText) {
+    lines.push(`Duration: ${durationText}`);
+  }
+
+  if (!lines.length) return;
+
   const usageBadge = document.createElement("div");
   usageBadge.id = "usageBadge";
   usageBadge.className = "usage-badge";
-  usageBadge.textContent = usageTextParts.join(" ");
+  usageBadge.innerHTML = lines.map((line) => `<div class="usage-line">${line}</div>`).join("");
 
   document.body.appendChild(usageBadge);
 }
