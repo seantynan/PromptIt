@@ -16,10 +16,7 @@
   <text x="466" y="124" fill="#93c5fd" font-family="Inter, Arial" font-size="14" font-weight="700">OpenAI API</text>
   <text x="466" y="146" fill="#dce8ff" font-family="Inter, Arial" font-size="12">Receives selected text</text>
   <text x="466" y="164" fill="#dce8ff" font-family="Inter, Arial" font-size="12">+ prompt content to respond</text>
-  <text x="466" y="182" fill="#bcd3ff" font-family="Inter, Arial" font-size="12">
-    <tspan x="466" dy="0">API key used only for</tspan>
-    <tspan x="466" dy="16">direct calls to OpenAI</tspan>
-  </text>
+  <text x="466" y="182" fill="#bcd3ff" font-family="Inter, Arial" font-size="12">Key never uploaded by Prompt It!</text>
 
   <path d="M270 168 C330 168, 388 150, 450 148" stroke="#38bdf8" stroke-width="3" fill="none" marker-end="url(#arrow)" />
   <path d="M450 186 C390 188, 330 204, 270 206" stroke="#10b981" stroke-width="3" fill="none" marker-end="url(#arrow)" />
@@ -31,5 +28,4 @@
 
   <rect x="268" y="230" width="184" height="26" rx="8" fill="#1e293b" />
   <text x="280" y="248" fill="#cbd5f5" font-family="Inter, Arial" font-size="12">You control when data is sent</text>
-  <text x="360" y="292" fill="#8fb0d8" font-family="Inter, Arial" font-size="11" text-anchor="middle">OpenAI may retain request logs according to your OpenAI account settings.</text>
 </svg>
