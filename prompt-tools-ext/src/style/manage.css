@@ -96,9 +96,9 @@ a.plain {
     transition: color 0.2s;
 }
 
-    a.plain:hover {
-        color: var(--accent-blue);
-    }
+a.plain:hover {
+    color: var(--accent-blue);
+}
 
 .promptlet-list {
     display: flex;
@@ -1035,3 +1035,40 @@ textarea.form-input {
     cursor: not-allowed;
     opacity: 0.5;
 }
+
+.model-help {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.model-help strong {
+    font-weight: 600;
+}
+
+.model-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 12px;
+}
+
+.model-select-wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: 4px;
+}
+
+.model-pricing-link {
+    justify-self: end; /* right-align under the dropdown */
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.model-pricing-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+

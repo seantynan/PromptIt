@@ -5,11 +5,39 @@
 
 let allPromptlets = [];
 let editingPromptletName = null;
-const model = "gpt-4o";
+const model = "gpt-5-mini";
 let dragState = null;
 const EXPORT_VERSION = "1.0";
 const MAX_IMPORT_SIZE = 5 * 1024 * 1024; // 5MB safeguard
 let importPreviewData = null;
+
+const MODEL_EXPLANATIONS = {
+    "gpt-5-mini": `
+<strong>Fast, balanced model with strong reasoning.</strong><br>
+Best for most Promptlets, summaries, rewrites, and chaining.
+`,
+
+    "gpt-5.2": `
+<strong>Highest overall quality and reliability.</strong><br>
+Use when accuracy matters more than speed or cost.
+`,
+
+    "gpt-5.1": `
+<strong>Deep reasoning for complex or ambiguous tasks.</strong><br>
+Slower and more expensive — avoid for quick rewrites.
+`,
+
+    "gpt-5-nano": `
+<strong>Ultra-fast for short, mechanical tasks.</strong><br>
+Not suitable for long outputs or multi-step reasoning.
+`,
+
+    "gpt-4o": `
+<strong>Stable, expressive writing model.</strong><br>
+Legacy option; generally superseded by GPT-5 Mini.
+`
+};
+
 
 function escapeHtml(value) {
     return String(value ?? '')
@@ -79,6 +107,22 @@ function setupEventListeners() {
         }
     });
 }
+
+const modelInput = document.getElementById("modelInput");
+const modelHelp = document.getElementById("modelHelp");
+
+function updateModelHelp() {
+    const model = modelInput.value;
+    modelHelp.innerHTML =
+        MODEL_EXPLANATIONS[model] ||
+        "<strong>Unknown model.</strong>";
+}
+
+// Initial render (important when editing existing promptlets)
+updateModelHelp();
+
+// Update on change
+modelInput.addEventListener("change", updateModelHelp);
 
 // -------------------------
 // Load promptlets

@@ -101,7 +101,7 @@ function initializeDefaults() {
 async function callOpenAI(
     prompt,
     apiKey,
-    model = "gpt-4o",
+    model = "gpt-5-mini,
     temperature = 1,
     maxTokens = 3000,
     topP = 1,

@@ -91,30 +91,50 @@
           <span>Advanced Settings</span>
         </div>
         <div class="advanced-content" id="advancedContent">
-        <div class="form-group">
-            <label class="form-label">Model</label>
-            <select class="form-input" id="modelInput">
-                <option value="gpt-5.1">GPT-5.1 (Advanced: Highest Reasoning / Complex Tasks)</option>
-                <option value="gpt-4o" selected>GPT-4o (Balanced: Best Speed + Quality)</option>
-                <option value="gpt-5-mini">GPT-5 Mini (Fast: Reasoning at Lower Cost)</option>
-                <option value="gpt-5-nano">GPT-5 Nano (Fastest: Quick Tasks / Classification)</option>
-            </select>
-            <p class="help-text">
-                <label class="form-label"><a href="https://openai.com/api/pricing/" title="View model pricing" target="_blank" rel="noopener noreferrer" class="plain">View model pricing</a></label>
-            </p>
+            <div class="form-group">
+                <label class="form-label">Model</label>
+
+                <div class="model-select-wrap">
+                    <select class="form-input" id="modelInput">
+                        <option value="gpt-5-mini" selected>
+                            GPT-5 Mini — Default (Fast, strong reasoning, low cost)
+                        </option>
+                        <option value="gpt-5.2">
+                            GPT-5.2 — Latest (Highest overall quality & reliability)
+                        </option>
+                        <option value="gpt-5.1">
+                            GPT-5.1 — Advanced (Deep reasoning, complex analysis)
+                        </option>
+                        <option value="gpt-5-nano">
+                            GPT-5 Nano — Ultra Fast (Classification, extraction, short tasks)
+                        </option>
+                        <option value="gpt-4o">
+                            GPT-4o — General Purpose (Legacy / expressive writing)
+                        </option>
+                    </select>
+
+                    <a href="https://openai.com/api/pricing/"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="plain model-pricing-link">
+                        View model pricing
+                    </a>
+                </div>
+
+                <div id="modelHelp" class="model-help" aria-live="polite"></div>
             </div>
 
-          <div class="form-group">
-            <label class="form-label">Temperature: <span id="tempValue">1.0</span></label>
-            <input type="range" class="form-input" id="tempInput" min="0" max="2" step="0.1" value="1.0">
-            <p class="help-text">Controls creativity. Lower = focused, Higher = creative</p>
-          </div>
+            <div class="form-group">
+                <label class="form-label">Temperature: <span id="tempValue">1.0</span></label>
+                <input type="range" class="form-input" id="tempInput" min="0" max="2" step="0.1" value="1.0">
+                <p class="help-text">Controls creativity. Lower = focused, Higher = creative</p>
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">Max Tokens: <span id="tokensValue">1500</span></label>
-            <input type="range" class="form-input" id="tokensInput" min="100" max="16000" step="100" value="1500">
-            <p class="help-text">Maximum response length. **Higher values cost more.** If your prompt fails or is cut off, try increasing this.</p>
-          </div>
+            <div class="form-group">
+                <label class="form-label">Max Tokens: <span id="tokensValue">1500</span></label>
+                <input type="range" class="form-input" id="tokensInput" min="100" max="16000" step="100" value="1500">
+                <p class="help-text">Maximum response length. **Higher values cost more.** If your prompt fails or is cut off, try increasing this.</p>
+            </div>
         </div>
       </div>
 
