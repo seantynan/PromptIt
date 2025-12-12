@@ -27,9 +27,22 @@
                         <span class="pill">Local storage only</span>
                         <span class="pill">Import / Export</span>
                     </div>
+                    <div class="support-links">
+                        <a class="link-chip" href="mailto:info@promptitapp.com?subject=Prompt%20It%21%20Feedback">Send feedback</a>
+                        <a class="link-chip" href="mailto:info@promptitapp.com?subject=Prompt%20It%21%20Issue">Report an issue</a>
+                    </div>
                 </div>
             </div>
         </header>
+
+        <section class="quick-start card" aria-label="90-second quick start">
+            <div class="section-meta">90-second quick start</div>
+            <ol class="strip">
+                <li><a href="#setup">Load unpacked</a></li>
+                <li><a href="#setup">Save API key</a></li>
+                <li><a href="#running">Select text → Summarise</a></li>
+            </ol>
+        </section>
 
         <nav class="toc card">
             <h2>Table of Contents</h2>
@@ -71,13 +84,22 @@
                     </ul>
                 </div>
             </div>
-            <p class="screenshot-note">[Screenshot placeholder: Context menu &amp; side panel shown together]</p>
+            <div class="figure-grid">
+                <figure>
+                    <img src="../assets/help/context-sidepanel.svg" alt="Right-click to run and side panel response" loading="lazy">
+                    <figcaption>Context menu → <strong>💡 Summarise</strong> → side panel opens with <strong>🔗 Chain</strong> ready for the next promptlet.</figcaption>
+                </figure>
+            </div>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
         </section>
 
         <section id="setup">
             <div class="section-meta">Before you start</div>
             <h2>Install &amp; First-Time Setup</h2>
+            <div class="cta-row">
+                <a class="link-chip" href="manage.html" target="_blank">Open in extension · Manage Promptlets</a>
+                <a class="link-chip" href="chrome://extensions/" target="_blank">Open extensions page</a>
+            </div>
             <ol class="steps">
                 <li><strong>Load the extension.</strong> Install in developer mode via <code>chrome://extensions</code> → <em>Load unpacked</em> → select the project folder.</li>
                 <li><strong>Open the manager.</strong> Click the Prompt It! toolbar icon and choose <em>Manage Promptlets</em> (or click the icon itself).</li>
@@ -86,13 +108,21 @@
                 <li><strong>Run a smoke test.</strong> Select text on any page, choose <em>💡 Summarise</em> from the context menu, and confirm the side panel opens.</li>
             </ol>
             <div class="callout info"><strong>Tip:</strong> Pin the extension icon so <em>Manage Promptlets</em>, <em>Studio</em>, and <em>User Guide</em> are always one click away.</div>
-            <p class="screenshot-note">[Screenshot placeholder: Manage page with API key field]</p>
+            <div class="figure-grid">
+                <figure>
+                    <img src="../assets/help/manage-api-key.svg" alt="Manage Promptlets page with API key field" loading="lazy">
+                    <figcaption><strong>Save API Key</strong> in the manager, then use <strong>Open Manager</strong> anytime from the toolbar popup.</figcaption>
+                </figure>
+            </div>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
         </section>
 
         <section id="running">
             <div class="section-meta">Everyday use</div>
             <h2>Run Promptlets</h2>
+            <div class="cta-row">
+                <a class="link-chip" href="popup.html" target="_blank">Open in extension · Toolbar popup</a>
+            </div>
             <div class="grid two-col">
                 <div class="card">
                     <h3>Context menu</h3>
@@ -110,7 +140,12 @@
                     </ul>
                 </div>
             </div>
-            <p class="screenshot-note">[Screenshot placeholder: Browser context menu with Prompt It! submenu]</p>
+            <div class="figure-grid">
+                <figure>
+                    <img src="../assets/help/context-sidepanel.svg" alt="Context menu to side panel" loading="lazy">
+                    <figcaption><strong>Right-click run</strong> keeps your selection on the left while responses land in the side panel on the right.</figcaption>
+                </figure>
+            </div>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
         </section>
 
@@ -125,13 +160,16 @@
                 <li><strong>Pending requests:</strong> If the panel opens slowly, Prompt It! queues the last promptlet for a few seconds so it can finish automatically.</li>
                 <li><strong>Accessibility:</strong> Buttons are keyboard focusable, and tooltips update based on whether you’ve selected text inside the panel.</li>
             </ul>
-            <p class="screenshot-note">[Screenshot placeholder: Side panel with copy, token badge, and chain menu]</p>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
         </section>
 
         <section id="managing">
             <div class="section-meta">Library control</div>
             <h2>Manage Promptlets</h2>
+            <div class="cta-row">
+                <a class="link-chip" href="manage.html" target="_blank">Open in extension · Manage Promptlets</a>
+                <a class="link-chip" href="popup.html" target="_blank">Open via toolbar popup</a>
+            </div>
             <p>Open <strong>Manage Promptlets</strong> to view defaults, enable/disable items, reorder them, or build your own.</p>
             <div class="grid two-col">
                 <div class="card">
@@ -151,7 +189,12 @@
                     </ul>
                 </div>
             </div>
-            <p class="screenshot-note">[Screenshot placeholder: Promptlet cards with toggles and drag handles]</p>
+            <div class="figure-grid">
+                <figure>
+                    <img src="../assets/help/manage-api-key.svg" alt="Promptlet cards with API key and toggles" loading="lazy">
+                    <figcaption>Use <strong>Toggle Active</strong> to rebuild the context menu and <strong>Drag</strong> handles to reorder quickly.</figcaption>
+                </figure>
+            </div>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
         </section>
 
@@ -159,28 +202,38 @@
             <div class="section-meta">Fine-tuning</div>
             <h2>Advanced Settings</h2>
             <p>Every promptlet can override API parameters. Open <strong>Advanced Settings</strong> in the editor to adjust:</p>
-            <ul>
-                <li>
-                    <strong>Model:</strong>
-                    GPT-5 Mini (default; fast, balanced, strong reasoning for most tasks),
-                    GPT-5.2 (latest; highest overall quality and reliability),
-                    GPT-5.1 (advanced; deep reasoning for complex analysis),
-                    GPT-5 Nano (ultra-fast; short, mechanical tasks only),
-                    GPT-4o (legacy; general-purpose writing).
-                </li>
-
-                <li>
-                    <strong>Temperature:</strong>
-                    0–2. Lower values produce more focused and deterministic output;
-                    higher values increase creativity and variation.
-                </li>
-
-                <li>
-                    <strong>Max Tokens:</strong>
-                    Controls the maximum length of the response.
-                    Increase if output is truncated; higher values use more tokens and may increase cost.
-                </li>
-            </ul>
+            <div class="spec-table">
+                <div class="spec-row header">
+                    <div>Parameter</div>
+                    <div>Default</div>
+                    <div>When to change</div>
+                    <div>Impact</div>
+                </div>
+                <div class="spec-row">
+                    <div>Model</div>
+                    <div>GPT-5 Mini</div>
+                    <div>
+                        <strong>GPT-5.2</strong> — highest quality longform.<br>
+                        <strong>GPT-5.1</strong> — complex reasoning.<br>
+                        <strong>GPT-5 Nano</strong> — quick rewrites/utility.<br>
+                        <strong>GPT-4o</strong> — legacy compat.<br>
+                        Watch for <em>Recommended for this promptlet</em> badges in the manager.
+                    </div>
+                    <div>Trade speed vs. depth/cost. Faster models respond sooner; GPT-5.2 yields best accuracy for research or drafting.</div>
+                </div>
+                <div class="spec-row">
+                    <div>Temperature</div>
+                    <div>0.6</div>
+                    <div>Lower (0–0.3) for deterministic checks; higher (0.8–1.2) for creative brainstorming.</div>
+                    <div>Controls variety. Higher values add new angles but may drift off-topic.</div>
+                </div>
+                <div class="spec-row">
+                    <div>Max Tokens</div>
+                    <div>800</div>
+                    <div>Increase if outputs truncate; reduce to cap cost or force concise replies.</div>
+                    <div>Higher limits use more tokens and latency. Lower limits keep answers short.</div>
+                </div>
+            </div>
 
             <div class="callout info"><strong>Reminder:</strong> Model, temperature, and token settings are stored per promptlet, so you can mix fast utilities with deeper analysis tools.</div>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
@@ -189,6 +242,10 @@
         <section id="backup">
             <div class="section-meta">Safety net</div>
             <h2>Export &amp; Import</h2>
+            <div class="cta-row">
+                <a class="link-chip" href="manage.html#export" target="_blank">Open in extension · Export</a>
+                <a class="link-chip" href="manage.html#import" target="_blank">Open in extension · Import</a>
+            </div>
             <div class="grid two-col">
                 <div class="card">
                     <h3>Export</h3>
@@ -207,13 +264,21 @@
                     </ul>
                 </div>
             </div>
-            <p class="screenshot-note">[Screenshot placeholder: Import modal showing preview list]</p>
+            <div class="figure-grid">
+                <figure>
+                    <img src="../assets/help/import-export.svg" alt="Export and Import modal preview" loading="lazy">
+                    <figcaption><strong>Export selected</strong> for shareable sets, then <strong>Preview</strong> imports to see what will be added before confirming.</figcaption>
+                </figure>
+            </div>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
         </section>
 
         <section id="studio">
             <div class="section-meta">Scratchpad</div>
             <h2>Studio</h2>
+            <div class="cta-row">
+                <a class="link-chip" href="scratchpad.html" target="_blank">Open in extension · Studio</a>
+            </div>
             <p>The Studio is a themed two-pane workspace for drafting text, experimenting with promptlets, and saving ideas locally.</p>
             <ul>
                 <li><strong>Layout:</strong> Vertical or horizontal split with a draggable handle. Input and output areas show overlays until you start typing.</li>
@@ -222,7 +287,12 @@
                 <li><strong>Utilities:</strong> <em>🧹 Clear Input</em>, <em>📋 Copy Output</em>, and a token usage badge keep you in control.</li>
                 <li><strong>Persistence:</strong> Input, output, layout, and theme preferences are stored locally so your workspace reopens exactly as you left it.</li>
             </ul>
-            <p class="screenshot-note">[Screenshot placeholder: Studio with dual panes, theme menu, and promptlet list]</p>
+            <div class="figure-grid">
+                <figure>
+                    <img src="../assets/help/studio-chaining.svg" alt="Studio chaining demo" loading="lazy">
+                    <figcaption>Draft in <strong>Input</strong>, run <strong>Run Summarise</strong>, then press <strong>🔗 Chain</strong> to feed the output into another promptlet.</figcaption>
+                </figure>
+            </div>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
         </section>
 
@@ -235,21 +305,30 @@
                 <li><strong>Scoped actions:</strong> Context menus appear only when text is selected, reducing accidental sends.</li>
                 <li><strong>Reset safety:</strong> Resetting default promptlets does not touch your custom promptlets or API key.</li>
             </ul>
+            <div class="figure-grid">
+                <figure>
+                    <img src="../assets/help/privacy-dataflow.svg" alt="Privacy and data flow diagram" loading="lazy">
+                    <figcaption>Data stays in <strong>chrome.storage.local</strong>; only selected text + prompts travel to <strong>OpenAI API</strong>. No cloud storage for keys or promptlets.</figcaption>
+                </figure>
+            </div>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
         </section>
 
         <section id="troubleshooting">
             <div class="section-meta">Fix it fast</div>
             <h2>Troubleshooting</h2>
+            <div class="callout warning labeled"><span class="label">Missing API key</span> Save a valid <code>sk-</code> key in <a href="manage.html" target="_blank">Manage Promptlets</a> then retry. Side panel error cards link straight to the manager.</div>
+            <div class="callout warning labeled"><span class="label">Context menu empty</span> Toggle any promptlet’s <strong>Active</strong> switch off/on to rebuild, or <strong>Reset Default Promptlets</strong> to repopulate. <a href="chrome://extensions/" target="_blank">Reload extension</a> if menus stay blank.</div>
+            <div class="callout warning labeled"><span class="label">Import errors</span> Keep files under 5 MB, ensure <code>.pi</code> format, and use <strong>Preview</strong> to confirm contents. If a file is invalid, pick another or export fresh from this device. <a href="manage.html#import" target="_blank">Open Manager</a></div>
             <ul>
-                <li><strong>Missing API key or auth errors:</strong> Open <em>Manage Promptlets</em> and save a valid <code>sk-</code> key. Error cards in the side panel include a direct link.</li>
-                <li><strong>Context menu is empty:</strong> Toggle any promptlet’s active switch off/on to rebuild the menu. Reinstall defaults if you removed them.</li>
                 <li><strong>Output cuts off:</strong> Increase <em>Max Tokens</em> for that promptlet in Advanced Settings.</li>
                 <li><strong>Slow responses:</strong> Switch to <em>GPT-5 Mini</em> or <em>GPT-5 Nano</em> for faster, cheaper runs; shorten the input.</li>
-                <li><strong>Import fails:</strong> Ensure the file is under 5 MB and uses the <code>.pi</code> format exported from Prompt It!.</li>
                 <li><strong>Service worker issues:</strong> Reload the extension from the extensions page to refresh background scripts.</li>
             </ul>
-            <p class="screenshot-note">[Screenshot placeholder: Side panel error card linking to manager]</p>
+            <div class="support-links">
+                <a class="link-chip" href="mailto:info@promptitapp.com?subject=Prompt%20It%21%20Issue">Report an issue</a>
+                <a class="link-chip" href="mailto:info@promptitapp.com?subject=Prompt%20It%21%20Feedback">Send feedback</a>
+            </div>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
         </section>
 
@@ -264,12 +343,17 @@
                 <dt>Can I restore the defaults?</dt>
                 <dd>Yes. Use <em>🔄 Reset Default Promptlets</em> in the manager. Your custom promptlets and API key stay intact.</dd>
                 <dt>Which models can I use?</dt>
-                <dd>Each promptlet can target GPT-5.2, GPT-5.1, GPT-4o, GPT-5 Mini, or GPT-5 Nano. Adjust per promptlet inside Advanced Settings.</dd>
+                <dd>Pick per promptlet: <strong>GPT-5.2</strong> (best quality/longform), <strong>GPT-5.1</strong> (deep reasoning), <strong>GPT-5 Mini</strong> (balanced default), <strong>GPT-5 Nano</strong> (fast, brief utility), or <strong>GPT-4o</strong> (legacy). Look for <em>Recommended for this promptlet</em> badges when editing.</dd>
                 <dt>Does Studio keep my work?</dt>
                 <dd>Yes. Studio saves input, output, layout, and theme choices locally so the workspace reopens with your last state.</dd>
             </dl>
             <p class="back-to-top"><a href="#top">Back to top ↑</a></p>
         </section>
+
+        <div class="floating-help" aria-label="Quick navigation">
+            <a class="mini-nav" href="#top">⬆ Back to top</a>
+            <a class="mini-nav" href="mailto:info@promptitapp.com?subject=Prompt%20It%21%20Support">✉ Contact support</a>
+        </div>
 
         <footer class="page-footer">
             <p>&copy; <a href="https://www.promptitapp.com/" title="www.promptitapp.com" target="_blank">Prompt It! Extension</a> — Version 0.5 — Built with love in <a href="https://www.purecork.ie/" title="Visit Cork City" target="_blank">Cork City, Ireland</a> ☘️ — <a href="mailto:info@promptitapp.com?subject=Prompt%20It%21%20-%20AI%20in%20your%20right-click" title="info@promptitapp.com">Contact</a></p>
