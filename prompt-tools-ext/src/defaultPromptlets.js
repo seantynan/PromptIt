@@ -56,7 +56,7 @@ but only output the final answer, not your reasoning steps.
 Be accurate and concise.
 
 Input: `,
-    model: "gpt-5.1",
+    model: "gpt-5.2",
     maxTokens: 16000,
     outputStructure: ["main"]
   },
@@ -86,6 +86,8 @@ Short description (style, flavor profile, or context).
 Ingredients list with clear quantities and units.
 
 Step-by-step method with numbered instructions.
+
+Format the response as a clean, readable Markdown recipe.
 
 Optional notes or variations (e.g., substitutions, serving ideas, dietary adjustments):
 
