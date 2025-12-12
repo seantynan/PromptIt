@@ -87,6 +87,8 @@ Ingredients list with clear quantities and units.
 
 Step-by-step method with numbered instructions.
 
+Format the response as a clean, readable Markdown recipe.
+
 Optional notes or variations (e.g., substitutions, serving ideas, dietary adjustments):
 
 `,
