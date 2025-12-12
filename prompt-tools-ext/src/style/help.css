@@ -188,11 +188,9 @@ h3 {
 /* --- Emphasis Styles (Code Snippets and Placeholders) --- */
 
 code {
-    /* Style for text placeholders like [SELECTED_TEXT] */
-    background-color: #383838; /* Slightly lighter dark 
-}
-background {
-    color: #38bd70; /*green*/
+    /* Style for inline code such as [SELECTED_TEXT] */
+    background-color: #383838; /* Slightly lighter dark background */
+    color: #38bd70; /* Green for emphasis */
     padding: 2px 5px;
     border-radius: 4px;
     font-family: monospace;
@@ -335,14 +333,15 @@ figcaption {
 }
 
 .callout.labeled {
-    position: relative;
-    padding-left: 96px;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
 }
 
 .callout .label {
-    position: absolute;
-    left: 12px;
-    top: 12px;
+    position: static;
     background: #c2410c;
     color: #fff7ed;
     padding: 6px 10px;
@@ -350,6 +349,8 @@ figcaption {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .callout.warning.labeled {
