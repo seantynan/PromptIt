@@ -1,1 +1,4 @@
 api_key.js
+# Editor / IDE files
+*.sublime-project
+*.sublime-workspace
