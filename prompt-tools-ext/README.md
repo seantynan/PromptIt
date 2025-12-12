@@ -1,84 +1,102 @@
-# Prompt It! v0.4 🧠⚡
+# Prompt It
 
-AI in your right-click. Run custom AI "Promptlets" on any selected text, instantly.
+**Prompt It** is a browser extension that lets you run reusable AI “promptlets” on any selected text — directly from your browser.
 
-## Overview
-Prompt It! is a Manifest V3 extension for Chrome/Brave/Edge/Opera that lets you run AI-powered workflows without leaving the page. Highlight text, pick a promptlet from the context menu, and view the response in a focused side panel. Manage your own promptlets, tune model settings, and import/export libraries so your AI toolbox stays portable.
+It is designed as a fast, local-first utility for summarising, rewriting, analysing, and transforming text using your **own OpenAI API key**.
 
-## Highlights
-- 🖱️ **Native context menu** – Adds a `Prompt It!` submenu to the right-click menu for one-click runs.
-- 📑 **Side Panel UI** – Results open in a resizable, non-blocking side panel with copy + chain actions.
-- 🔗 **Promptlet chaining** – Re-run additional promptlets on the generated output without leaving the panel.
-- ⚙️ **Promptlet manager** – Add, edit, clone, delete, and toggle promptlets; reset built-ins at any time.
-- 🎚️ **Advanced model controls** – Per-promptlet settings for model, temperature, and max tokens (OpenAI Responses API).
-- 🔑 **Local API key storage** – Save your OpenAI API key in extension storage (never sent anywhere else).
-- 📥 **Import/Export** – Share promptlet libraries via `.pi` JSON files; choose all or selected entries.
-- 🌑 **Adaptive theming** – Dark-first UI with automatic light/dark support across popup, manager, and help pages.
-- 🚀 **Preloaded defaults** – A starter pack of versatile promptlets for writing, fact-checking, learning, and puzzles.
+No accounts.  
+No tracking.  
+No backend servers.
 
-## Installation (Developer Mode)
-1. Clone or download this repository.
-2. Open your Chromium-based browser and visit `chrome://extensions/`.
-3. Enable **Developer mode** (top right).
-4. Click **Load unpacked** and select the `prompt-tools-ext` folder.
-5. Pin the **Prompt It! (P)** action icon for quick access.
+---
 
-## Usage
-### Run a promptlet
-1. Highlight text on any webpage.
-2. Right-click → **Prompt It!** → choose a promptlet (e.g., 💡 Summarise).
-3. The side panel opens with live status, usage badge, and output.
+## What is a Promptlet?
 
-### Chain or copy results
-- Use **Copy** to grab the response.
-- Use **Chain** to run another promptlet on either your selection or the generated output.
+A **promptlet** is a small, reusable AI prompt with optional parameters (model, temperature, token limits).
 
-### Manage promptlets
-1. Click the **Prompt It! (P)** toolbar icon → **⚙️ Manage Promptlets** (or open the options page).
-2. Create/edit promptlets with emoji, name, prompt text, and advanced settings (model, temperature, max tokens).
-3. Toggle visibility to control what appears in the context menu; clone defaults to customize safely.
-4. Import/export `.pi` files to back up or share promptlets; reset built-ins if you want a clean slate.
-5. Save your **OpenAI API key** (stored locally only) to enable API calls.
+With Prompt It, you can:
+- Right-click any selected text on a webpage
+- Choose a promptlet from the context menu
+- View the result instantly in a side panel
+- Chain additional promptlets on the output
 
-## Default Promptlets (v0.4)
-| Emoji | Name | Purpose | Default model |
-| --- | --- | --- | --- |
-| 💡 | Summarise | Concise summaries with key details. | gpt-5-mini |
-| ✏️ | Rephrase | Improve clarity and flow while preserving meaning. | gpt-5-mini |
-| ✅ | Verify | Evidence-driven fact check with confidence scoring. | gpt-5-mini |
-| 👑 | Max Reasoning | Deep, step-by-step reasoning for complex problems. | gpt-5.1 |
-| 🌍 | Learn a Language | Detect, translate, and teach language notes. | gpt-5-mini |
-| 🍽️ | Recipe Creator | Turn food ideas into complete recipes (with notes). | gpt-5-mini |
-| 🍎 | Nutrition Analyser | Structured nutrition breakdowns plus healthier alternatives. | gpt-5-mini |
-| 🧩 | Crossword Solver | Solve and explain crossword clues with classification. | gpt-5.1 |
+Promptlets can be built-in or fully custom.
 
-## Project Structure
-```
-prompt-tools-ext/
-├── manifest.json             # Extension manifest (MV3)
-├── assets/                   # Icons, screenshots, functional specs
-├── src/
-│   ├── background.js         # Service worker: context menus, OpenAI calls, storage
-│   ├── defaultPromptlets.js  # Built-in promptlet definitions
-│   ├── promptletUtils.js     # Shared helpers (combining promptlets, parsing output)
-│   ├── popup.html/js         # Toolbar popup entry point
-│   ├── manage.html/js        # Promptlet manager + API key UI
-│   ├── sidepanel.html/js     # Results side panel with copy + chaining
-│   ├── help.html             # In-extension help page
-│   ├── scratchpad.html/js    # Dev scratchpad for rapid testing
-│   └── style/                # CSS for popup, manager, help, scratchpad, global theme
-└── README.md
-```
+---
 
-## Permissions
-- `contextMenus` – Add right-click menu entries.
-- `sidePanel` – Display results in the browser side panel.
-- `storage` – Persist promptlets, settings, and API key locally.
-- `activeTab`, `scripting`, `tabs` – Read selected text and route messages between pages.
+## Key Features
 
-## Notes
-- Prompt It! v0.4 uses the OpenAI Responses API; ensure your API key has access to the chosen models.
-- Light/Dark mode follows your OS/browser preference automatically.
+- 🧠 Run AI promptlets on any selected text
+- 🧩 Create, edit, clone, and manage your own promptlets
+- 🪟 Side panel output (no tab switching)
+- 🔗 Prompt chaining for multi-step workflows
+- 📝 Scratchpad for free-form experimentation
+- ⚙️ Per-promptlet control of model, temperature, and token limits
+
+---
+
+## API Key Model (Important)
+
+Prompt It **requires you to provide your own OpenAI API key**.
+
+- Your API key is stored **locally in your browser**
+- It is used **only** to send requests directly to OpenAI’s API
+- Prompt It does **not** proxy requests or operate any backend service
+- All usage is billed by OpenAI to **your own account**
+
+Prompt It does not collect, transmit, or store your prompts or responses.
+
+---
+
+## Security & Privacy
+
+Prompt It is designed to be transparent and verifiable:
+
+- No analytics
+- No tracking
+- No remote servers
+- No hidden network requests
+- No data collection
+
+The full security and privacy model is documented here:  
+👉 **https://promptitapp.com/security**
+
+---
+
+## Documentation
+
+You can read the full Help and Onboarding guides **before installing**:
+
+- Onboarding: https://promptitapp.com/onboarding  
+- Help / User Guide: https://promptitapp.com/help  
+- Changelog: https://promptitapp.com/changelog
+
+The same documentation is accessible from inside the extension.
+
+---
+
+## Installation
+
+Prompt It is available via the Chrome Web Store:
+
+👉 *(link once published)*
+
+---
+
+## Source Code & Openness
+
+The full source code for Prompt It is publicly available for transparency and review.
+
+Issues and pull requests are welcome, but Prompt It is developed primarily as a user-facing tool. Contributions may not always be accepted.
+
+---
 
 ## License
-MIT License © 2025 Prompt It! Team
+
+MIT License. See `LICENSE` for details.
+
+---
+
+## Credits
+
+Prompt It is created and maintained by an independent developer.
