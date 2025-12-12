@@ -128,57 +128,98 @@ function initializeDefaults() {
 async function callOpenAI(
     prompt,
     apiKey,
-    model = `gpt-5-mini`,
+    model = "gpt-5-mini",
     temperature = 1,
     maxTokens = 3000,
     topP = 1,
-    frequencyPenalty = 0,
-    presencePenalty = 0,
 ) {
-    logInfo(`[BG] Calling OpenAI API`, { model, maxTokens });
+    logInfo("[BG] Calling OpenAI API", { model, maxTokens });
 
-    const startTime = Date.now();
+    const t0 = performance.now();
+    let fetchMs, parseMs, durationMs;
 
-    const response = await fetch("https://api.openai.com/v1/responses", {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            model: model,
-            input: [
-                ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
-                { role: "user", content: prompt }
-            ],
-            temperature: temperature,
-            top_p: topP,
-            max_output_tokens: maxTokens
-        })
-    });
+    try {
+        const tFetchStart = performance.now();
 
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMessage =
-            errorData.error?.message ||
-            `API error: ${response.status} ${response.statusText}`;
-        throw new Error(errorMessage);
+        const response = await fetch("https://api.openai.com/v1/responses", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                model,
+                input: [
+                    ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
+                    { role: "user", content: prompt },
+                ],
+                temperature,
+                top_p: topP,
+                max_output_tokens: maxTokens,
+            }),
+        });
+
+        fetchMs = performance.now() - tFetchStart;
+
+        if (!response.ok) {
+            // Try to extract a helpful API error body, but don't let that fail the error path.
+            const tParseErrStart = performance.now();
+            const errorData = await response.json().catch(() => ({}));
+            parseMs = (parseMs ?? 0) + (performance.now() - tParseErrStart);
+
+            const errorMessage =
+                errorData?.error?.message || `API error: ${response.status} ${response.statusText}`;
+
+            const err = new Error(errorMessage);
+            err.status = response.status;
+            err.statusText = response.statusText;
+            err.errorData = errorData;
+            throw err;
+        }
+
+        const tParseStart = performance.now();
+        const data = await response.json();
+        parseMs = performance.now() - tParseStart;
+
+        logDebug("[BG] OpenAI response received");
+
+        const output = extractOutput(data);
+
+        durationMs = performance.now() - t0;
+
+        return {
+            text: output.text,
+            usage: {
+                ...(output.usage ?? {}),
+                durationMs,
+                fetchMs,
+                parseMs,
+            },
+        };
+    } catch (err) {
+        // Ensure timing is recorded even on network errors / aborts / throws.
+        durationMs = performance.now() - t0;
+
+        logWarn("[BG] OpenAI call failed", {
+            durationMs,
+            fetchMs: Number.isFinite(fetchMs) ? fetchMs : undefined,
+            parseMs: Number.isFinite(parseMs) ? parseMs : undefined,
+            name: err?.name,
+            message: err?.message,
+            status: err?.status,
+        });
+
+        throw err;
+    } finally {
+        // Optional: if you want a single always-on completion log, keep this too.
+        // (You may remove it if it’s too noisy.)
+        if (!Number.isFinite(durationMs)) durationMs = performance.now() - t0;
+        logDebug("[BG] OpenAI call finished", {
+            durationMs,
+            fetchMs: Number.isFinite(fetchMs) ? fetchMs : undefined,
+            parseMs: Number.isFinite(parseMs) ? parseMs : undefined,
+        });
     }
-
-    const data = await response.json();
-
-    logDebug("[BG] OpenAI response received");
-
-    // Extract output safely
-    const output = extractOutput(data);
-    const durationMs = Date.now() - startTime;
-
-    return {
-        text: output.text,
-        usage: (output.usage || Number.isFinite(durationMs))
-            ? { ...(output.usage || {}), durationMs }
-            : output.usage
-    };
 }
 
 /**
