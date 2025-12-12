@@ -336,7 +336,7 @@ figcaption {
     display: grid;
     grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
     align-items: flex-start;
-    gap: 16px;
+    gap: 44px;
     padding: 14px;
 }
 
