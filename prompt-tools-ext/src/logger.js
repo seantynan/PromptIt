@@ -1,4 +1,4 @@
-const LOG_LEVEL = 'debug'; // debug | info | warn | error | none
+const LOG_LEVEL = 'warn'; // debug | info | warn | error | none
 
 const LEVEL_PRIORITY = {
   debug: 0,
