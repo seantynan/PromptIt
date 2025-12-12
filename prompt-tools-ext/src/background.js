@@ -27,10 +27,10 @@ let isRebuildingMenus = false;
 // -------------------------
 const MODEL_SNAPSHOTS = {
     "gpt-5.2": "gpt-5.2-2025-12-11",
-    "gpt-5.1": "gpt-5.1",          // TODO: replace with a pinned snapshot when you choose one
+    "gpt-5.1": "gpt-5.1-2025-10-01",
     "gpt-5-mini": "gpt-5-mini-2025-08-07",
-    "gpt-5-nano": "gpt-5-nano",     // TODO: replace with a pinned snapshot when you choose one
-    "gpt-4o": "gpt-4o"             // TODO: replace with a pinned snapshot if you want
+    "gpt-5-nano": "gpt-5-nano-2025-08-01",
+    "gpt-4o": "gpt-4o-2024-08-06"
 };
 
 function resolveModelId(model) {
@@ -117,7 +117,7 @@ function initializeDefaults() {
 async function callOpenAI(
     prompt,
     apiKey,
-    model = "gpt-5-mini,
+    model = `gpt-5-mini`,
     temperature = 1,
     maxTokens = 3000,
     topP = 1,
