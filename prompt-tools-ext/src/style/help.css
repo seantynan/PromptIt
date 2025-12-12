@@ -334,7 +334,7 @@ figcaption {
 
 .callout.labeled {
     display: grid;
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 240px 1fr;
     align-items: flex-start;
     gap: 12px;
     padding: 14px;
