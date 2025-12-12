@@ -529,7 +529,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                     const requestedModel = msg.promptlet.model || "gpt-5-mini";
                     const resolvedModel = resolveModelId(requestedModel);
 
-                    console.log("[BG] Model requested:", requestedModel, "=> resolved:", resolvedModel);
+                    logDebug("[BG] Model requested:", requestedModel, "=> resolved:", resolvedModel);
 
                     const result = await callOpenAI(
                         msg.prompt,
