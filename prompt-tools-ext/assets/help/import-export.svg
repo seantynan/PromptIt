@@ -1,0 +1,29 @@
+<svg width="720" height="360" viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Import and export modal preview">
+  <rect width="720" height="360" fill="#0d1320" rx="18" />
+  <rect x="30" y="26" width="660" height="308" rx="14" fill="#0f1626" stroke="#24314a" stroke-width="2" />
+  <text x="54" y="60" fill="#cde6ff" font-family="Inter, Arial" font-size="17" font-weight="700">Export / Import</text>
+
+  <rect x="54" y="74" width="288" height="98" rx="12" fill="#0b192d" stroke="#20314a" />
+  <text x="72" y="100" fill="#93c5fd" font-family="Inter, Arial" font-size="13" font-weight="700">Export</text>
+  <text x="72" y="122" fill="#e7f0ff" font-family="Inter, Arial" font-size="12">All Promptlets</text>
+  <text x="72" y="142" fill="#e7f0ff" font-family="Inter, Arial" font-size="12">Selected Promptlets</text>
+  <rect x="200" y="118" width="120" height="22" rx="7" fill="#1e3a8a" stroke="#60a5fa" />
+  <text x="214" y="134" fill="#e9f1ff" font-family="Inter, Arial" font-size="12" font-weight="700">Export selected</text>
+
+  <rect x="360" y="74" width="288" height="98" rx="12" fill="#0b192d" stroke="#20314a" />
+  <text x="378" y="100" fill="#93c5fd" font-family="Inter, Arial" font-size="13" font-weight="700">Import</text>
+  <rect x="378" y="116" width="200" height="26" rx="7" fill="#141d2f" stroke="#20314a" />
+  <text x="390" y="134" fill="#d6e1ff" font-family="Inter, Arial" font-size="12">Choose .pi file…</text>
+  <rect x="586" y="116" width="46" height="26" rx="7" fill="#22c55e" stroke="#86efac" />
+  <text x="597" y="133" fill="#062816" font-family="Inter, Arial" font-size="12" font-weight="800">Go</text>
+
+  <rect x="54" y="190" width="594" height="124" rx="12" fill="#0b172a" stroke="#22324c" />
+  <text x="72" y="214" fill="#9fbafc" font-family="Inter, Arial" font-size="13" font-weight="700">Preview</text>
+  <rect x="72" y="228" width="560" height="72" rx="10" fill="#0f1d31" stroke="#274067" />
+  <text x="90" y="252" fill="#e7f0ff" font-family="Inter, Arial" font-size="12">✅ Summarise (custom)</text>
+  <text x="90" y="272" fill="#e7f0ff" font-family="Inter, Arial" font-size="12">✅ Research Chain</text>
+  <text x="320" y="272" fill="#a5b9e8" font-family="Inter, Arial" font-size="12">Duplicates skipped automatically</text>
+
+  <rect x="468" y="308" width="180" height="20" rx="6" fill="#1e293b" />
+  <text x="476" y="323" fill="#cbd5f5" font-family="Inter, Arial" font-size="11">Select / Deselect all inside preview</text>
+</svg>
