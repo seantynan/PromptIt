@@ -353,6 +353,11 @@ figcaption {
     white-space: nowrap;
 }
 
+.callout-body {
+    margin: 0;
+    line-height: 1.5;
+}
+
 .callout.warning.labeled {
     background: #2a160f;
 }
